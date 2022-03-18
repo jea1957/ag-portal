@@ -1,0 +1,9 @@
+.htaccess
+.htpasswd
+
+# Ignore project specific file
+/src/pdo.php
+
+# Ignore everything in /sql except create_tables.sql:
+/sql
+!/sql/create_tables.sql
