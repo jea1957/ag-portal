@@ -82,15 +82,19 @@ require_once __DIR__ . '/check_timeout.php';
     <li class="nav-item">
         <a href="#persons_pane" class="nav-link" data-toggle="tab" id="persons_tab"><?php L('persons') ?></a>
     </li>
+  <?php if ($_SESSION['role_mail']) { ?>
     <li class="nav-item">
         <a href="#msg_pane" class="nav-link" data-toggle="tab" id="msg_tab"><?php L('messages') ?></a>
     </li>
+  <?php } ?>
+  <?php if ($_SESSION['role_admin']) { ?>
     <li class="nav-item">
         <a href="#accounts_pane" class="nav-link" data-toggle="tab" id="accounts_tab"><?php L('accounts') ?></a>
     </li>
     <li class="nav-item">
         <a href="#test_pane" class="nav-link" data-toggle="tab" id="test_tab"><?php L('test') ?></a>
     </li>
+  <?php } ?>
 </ul>
 
 <!-- Tab content -->
@@ -163,6 +167,7 @@ require_once __DIR__ . '/check_timeout.php';
             </div>
         </div>
     </div>
+  <?php if ($_SESSION['role_mail']) { ?>
     <div class="tab-pane fade" id="msg_pane">
         <div class="container-fluid">
         <!--
@@ -205,6 +210,8 @@ require_once __DIR__ . '/check_timeout.php';
             </div>
         </div>
     </div>
+  <?php } ?>
+  <?php if ($_SESSION['role_admin']) { ?>
     <div class="tab-pane fade" id="accounts_pane">
         <div class="container-fluid">
             <div class="row">
@@ -231,6 +238,7 @@ require_once __DIR__ . '/check_timeout.php';
         ?>
         -->
     </div>
+  <?php } ?>
 </div>
 
 <!-- Modal -->
@@ -491,7 +499,7 @@ function apartmentsGrid() {
             $('#apartments_persons_modal').modal('show');
         },
         fields: [
-            { width:  20, name: "apartmentid", title: "<?php L('apartment') ?>", type: "text", validate: "required", editing: false},
+            { width:  20, name: "apartmentid", title: "<?php L('apartment') ?>",    type: "text", validate: "required", editing: false},
             { width:  20, name: "number",      title: "<?php L('ap_number') ?>",    type: "text", validate: "required"},
             { width:  20, name: "floor",       title: "<?php L('ap_floor') ?>",     type: "text", validate: "required"},
             { width:  20, name: "side",        title: "<?php L('ap_side') ?>",      type: "text", validate: "required"},
@@ -595,7 +603,7 @@ function parkingsGrid() {
             $('#parkings_persons_modal').modal('show');
         },
         fields: [
-            { width:  10, name: "parkingid", title: "<?php L('parking') ?>",   type: "text", validate: "required", editing: false},
+            { width:  10, name: "parkingid", title: "<?php L('parking') ?>",    type: "text", validate: "required", editing: false},
             { width:  10, name: "depot",     title: "<?php L('pa_depot') ?>",   type: "checkbox", editing: false },
             { width:  10, name: "charger",   title: "<?php L('pa_charger') ?>", type: "checkbox" },
             { width:  10, type: "control", editButton: true, deleteButton: false, modeSwitchButton: false, clearFilterButton: true} 
@@ -818,7 +826,7 @@ function personsGrid() {
             $('#persons_modal').modal('show');
         },
         fields: [
-            { width:  30, name: "personid", title: "Id",                     type: "text", filtering: false, editing: false, inserting: false, align: "right", visible: false },
+            { width:  10, name: "personid", title: "Id",                        type: "text", filtering: false, editing: false, inserting: false },
             { width: 100, name: "name",     title: "<?php L('pe_name') ?>",     type: "text", validate: "required" },
             { width: 100, name: "address",  title: "<?php L('pe_address') ?>",  type: "text", validate: "required" },
             { width: 100, name: "email",    title: "<?php L('pe_email') ?>",    type: "text", validate: "email" },
