@@ -118,7 +118,7 @@ class Apartments {
     }
 
     public function update($data) {
-        $sql = "UPDATE Apartments SET Number = :number, Floor = :floor, Side = :side, Type = :type, Size = :size, Reduction = :reduction, TapShares = :tapshares, Shafts = :shafts".
+        $sql = "UPDATE Apartments SET Number = :number, Floor = :floor, Side = :side, Type = :type, Size = :size, Reduction = :reduction, TapShares = :tapshares, Shafts = :shafts ".
                "WHERE ApartmentId = :apartmentid";
         $q = $this->db->prepare($sql);
         $q->bindValue(":apartmentid", $data["apartmentid"], PDO::PARAM_INT);

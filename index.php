@@ -63,28 +63,28 @@ if (isset($_POST['submit'])) { // Handle submit from this page
                     unset($_SESSION['form_msg']);
                     switch($result->role) {
                         case 1: // Superman
-                            $_SESSION['role_admin'] = true;
-                            $_SESSION['role_rw']    = true;
-                            $_SESSION['role_mail']  = true;
+                            $_SESSION['role_admin']  = true;
+                            $_SESSION['role_update'] = true;
+                            $_SESSION['role_mail']   = true;
                             break;
                         case 2: // Board
-                            $_SESSION['role_admin'] = false;
-                            $_SESSION['role_rw']    = true;
-                            $_SESSION['role_mail']  = true;
+                            $_SESSION['role_admin']  = false;
+                            $_SESSION['role_update'] = true;
+                            $_SESSION['role_mail']   = true;
                             break;
                         case 3: // Caretaker
-                            $_SESSION['role_admin'] = false;
-                            $_SESSION['role_rw']    = false;
-                            $_SESSION['role_mail']  = false;
+                            $_SESSION['role_admin']  = false;
+                            $_SESSION['role_update'] = false;
+                            $_SESSION['role_mail']   = false;
                             break;
                         case 4: // Administration
-                            $_SESSION['role_admin'] = false;
-                            $_SESSION['role_rw']    = false;
-                            $_SESSION['role_mail']  = false;
+                            $_SESSION['role_admin']  = false;
+                            $_SESSION['role_update'] = false;
+                            $_SESSION['role_mail']   = false;
                             break;
                     }
                     error_log("Login: $email");
-                    error_log('Session: ' . print_r($_SESSION, 1));
+                    //error_log('Session: ' . print_r($_SESSION, 1));
                 } else { // Invalid POST
                     http_response_code(404);
                     require_once __DIR__ . '/src/404.php';

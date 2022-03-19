@@ -62,6 +62,7 @@ require_once __DIR__ . '/check_timeout.php';
         <?php echo $db_owner ?>
     </a>
     <div class="navbar-brand" id="mailstatus"></div>
+    <div class="navbar-brand" id="username"><?php echo $_SESSION['account_name']; ?></div>
     <div class="navbar-brand" onclick="event.preventDefault(); logout(<?php echo $_SESSION['account_id']; ?>)">
         <i class="bi-box-arrow-right"></i>
         &nbsp;<?php L('logout') ?>
@@ -230,13 +231,9 @@ require_once __DIR__ . '/check_timeout.php';
         <p><?php echo print_r(locale_accept_from_http($_SERVER['HTTP_ACCEPT_LANGUAGE']), 1) ?></p>
         <i class="bi-alarm" style="font-size: 2rem; color: cornflowerblue;"></i>
         <button type="button" onclick="event.preventDefault(); console.log(apartmentFilter());">ApartmentFilter</button>
-        <!--
         <?php
-            //$av = apache_get_version();
-            //echo "Apache version: $av\n";
-            phpinfo();
+            //phpinfo();
         ?>
-        -->
     </div>
   <?php } ?>
 </div>
@@ -305,8 +302,9 @@ require_once __DIR__ . '/check_timeout.php';
 
 'use strict';
 
-const defaultPageSize = 10;
-const defaultPageButtonCount = 10;
+const role_admin  = <?php echo json_encode($_SESSION['role_admin']); ?>;
+const role_update = <?php echo json_encode($_SESSION['role_update']); ?>;
+const role_mail   = <?php echo json_encode($_SESSION['role_mail']); ?>;
 
 const relations = [ { id: 0, relation: "<?php L('select') ?>" },
                     { id: 1, relation: "<?php L('rel_owner') ?>" },
@@ -451,14 +449,11 @@ function apartmentsGrid() {
     $("#apartments_grid").jsGrid({
         width: "100%",
         height: "100%",
+        inserting: role_admin,
+        editing: role_admin,
         filtering: true,
-//        inserting: true,
-//        editing: true,
         sorting: true,
-//        paging: true,
         autoload: true,
-        pageSize: defaultPageSize,
-        pageButtonCount: defaultPageButtonCount,
         deleteConfirm: "<?php L('del_apartment') ?>",
         controller: {
             loadData: function(filter) {
@@ -508,7 +503,7 @@ function apartmentsGrid() {
             { width:  20, name: "reduction",   title: "<?php L('ap_reduction') ?>", type: "text", validate: "required"},
             { width:  20, name: "tapshares",   title: "<?php L('ap_tapshares') ?>", type: "text", validate: "required"},
             { width:  20, name: "shafts",      title: "<?php L('ap_shafts') ?>",    type: "text", validate: "required"},
-            { width:  10, type: "control", editButton: false, deleteButton: false, modeSwitchButton: false, clearFilterButton: true} 
+            { width:  10, type: "control",     editButton: role_admin, deleteButton: role_admin, modeSwitchButton: role_admin}
         ]
     });
 }
@@ -555,14 +550,11 @@ function parkingsGrid() {
     $("#parkings_grid").jsGrid({
         width: "100%",
         height: "100%",
+        inserting: role_admin,
+        editing: role_update,
         filtering: true,
-//        inserting: true,
-        editing: true,
         sorting: true,
-//        paging: true,
         autoload: true,
-        pageSize: defaultPageSize,
-        pageButtonCount: defaultPageButtonCount,
         deleteConfirm: "<?php L('del_parking') ?>",
         controller: {
             loadData: function(filter) {
@@ -604,9 +596,9 @@ function parkingsGrid() {
         },
         fields: [
             { width:  10, name: "parkingid", title: "<?php L('parking') ?>",    type: "text", validate: "required", editing: false},
-            { width:  10, name: "depot",     title: "<?php L('pa_depot') ?>",   type: "checkbox", editing: false },
+            { width:  10, name: "depot",     title: "<?php L('pa_depot') ?>",   type: "checkbox", editing: role_admin },
             { width:  10, name: "charger",   title: "<?php L('pa_charger') ?>", type: "checkbox" },
-            { width:  10, type: "control", editButton: true, deleteButton: false, modeSwitchButton: false, clearFilterButton: true} 
+            { width:  10, type: "control",   editButton: role_update, deleteButton: role_admin, modeSwitchButton: role_admin} 
         ]
     });
 }
@@ -650,14 +642,11 @@ function depotsGrid() {
     $("#depots_grid").jsGrid({
         width: "100%",
         height: "100%",
+        inserting: role_update,
+        editing: role_update,
         filtering: true,
-        inserting: true,
-        editing: true,
         sorting: true,
-//      paging: true,
         autoload: true,
-        pageSize: defaultPageSize,
-        pageButtonCount: defaultPageButtonCount,
         deleteConfirm: "<?php L('del_depot') ?>",
         controller: {
             loadData: function(filter) {
@@ -715,7 +704,7 @@ function depotsGrid() {
                       return '<span class="ui-icon ui-icon-check"></span>';
                   }
               }},
-            { width:  10, type: "control", editButton: true, deleteButton: true, modeSwitchButton: true, clearFilterButton: true } 
+            { width:  10, type: "control", editButton: role_update, deleteButton: role_update, modeSwitchButton: role_update} 
         ]
     });
 }
@@ -765,19 +754,15 @@ function personsGrid() {
     $("#persons_grid").jsGrid({
         width: "100%",
         height: "100%",
+        inserting: role_update,
+        editing: role_update,
         filtering: true,
-        inserting: true,
-        editing: true,
         sorting: true,
-//      paging: true,
         autoload: true,
-        pageSize: defaultPageSize,
-        pageButtonCount: defaultPageButtonCount,
         deleteConfirm: "<?php L('del_person') ?>",
         controller: {
             loadData: function(filter) {
                 const data = personFilter(filter);
-                console.log("persons_grid loadData", data);
                 return $.ajax({
                     type: "GET",
                     url: "persons.php",
@@ -830,11 +815,13 @@ function personsGrid() {
             { width: 100, name: "name",     title: "<?php L('pe_name') ?>",     type: "text", validate: "required" },
             { width: 100, name: "address",  title: "<?php L('pe_address') ?>",  type: "text", validate: "required" },
             { width: 100, name: "email",    title: "<?php L('pe_email') ?>",    type: "text", validate: "email" },
-//            { width:  10, name: "nomails",  title: '<span class="ui-icon ui-icon-mail-closed" title="Send mail to this person"></span>', type: "checkbox" },
+          //{ width:  10, name: "nomails",  title: '<span class="ui-icon ui-icon-mail-closed" title="Send mail to this person"></span>',
+          //  type: "checkbox" },
             { width:  10, name: "nomails",  title: '<span title="<?php L('pe_noemail_tip') ?>"><?php L('pe_noemail') ?></span>', type: "checkbox" },
             { width:  50, name: "phone",    title: "<?php L('pe_phone') ?>",    type: "text" },
-//            { width:  80, name: "modified", title: "<?php L('modified') ?>", type: "text", filtering: false, editing: false, inserting: false, itemTemplate: localTime },
-            { type: "control" }
+            { width:  80, name: "modified", title: "<?php L('modified') ?>", type: "text",
+              filtering: false, editing: false, inserting: false, itemTemplate: localTime, visible: role_admin },
+            { width:  10, type: "control", editButton: role_update, deleteButton: role_update, modeSwitchButton: role_update} 
         ]
     });
 }
@@ -859,13 +846,9 @@ function apartmentsPersons(gridId, historicalId, personId, id) {
     function grid(fields) {
         $(gridId).jsGrid({
             width: "100%",
-            inserting: true,
-            editing: true,
-            sorting: true,
-            paging: true,
+            inserting: role_update,
+            editing: role_update,
             autoload: true,
-            pageSize: defaultPageSize,
-            pageButtonCount: defaultPageButtonCount,
             deleteConfirm: "<?php L('del_relation') ?>",
             controller: {
                 loadData: function(filter) {
@@ -922,24 +905,26 @@ function apartmentsPersons(gridId, historicalId, personId, id) {
             { width:  40, name: "personid", title: "<?php L('person') ?>",    type: "text",   visible: false },
             { width:  10, name: "id",       title: "<?php L('apartment') ?>", type: "select", validate: { validator: "min", param: 1 },
               items: apartmentSelect, valueField: "id", textField: "name", editing: false },
-            { width:  30, name: "relation", title: "<?php L('relation') ?>",        type: "select", validate: { validator: "range", param: [1, 3] },
+            { width:  30, name: "relation", title: "<?php L('relation') ?>",  type: "select", validate: { validator: "range", param: [1, 3] },
               items: relations, valueField: "id", textField: "relation" },
-            { width:  20, name: "started",  title: "<?php L('started') ?>",     type: "date" },
-            { width:  20, name: "stopped",  title: "<?php L('stopped') ?>",     type: "date" },
-          //{ width: 100, name: "modified", title: "<?php L('modified') ?>",    type: "text",   filtering: false, editing: false, inserting: false, itemTemplate: localTime },
-            { width:  10, type: "control", editButton: true, deleteButton: true, modeSwitchButton: false, clearFilterButton: true }
+            { width:  20, name: "started",  title: "<?php L('started') ?>",   type: "date" },
+            { width:  20, name: "stopped",  title: "<?php L('stopped') ?>",   type: "date" },
+          //{ width: 100, name: "modified", title: "<?php L('modified') ?>",  type: "text",
+          //  filtering: false, editing: false, inserting: false, itemTemplate: localTime },
+            { width:  10, type: "control", editButton: role_update, deleteButton: role_update, modeSwitchButton: false }
         ]);
     } else {
         grid([
             { width:  10, name: "id",       title: "<?php L('apartment') ?>", type: "text",   visible: false },
-            { width:  40, name: "personid", title: "<?php L('person') ?>",     type: "select", validate: { validator: "min", param: 1 },
+            { width:  40, name: "personid", title: "<?php L('person') ?>",    type: "select", validate: { validator: "min", param: 1 },
               items: personSelect, valueField: "personid", textField: "name", editing: false },
-            { width:  30, name: "relation", title: "<?php L('relation') ?>",       type: "select", validate: { validator: "range", param: [1, 3] },
+            { width:  30, name: "relation", title: "<?php L('relation') ?>",  type: "select", validate: { validator: "range", param: [1, 3] },
               items: relations, valueField: "id", textField: "relation" },
-            { width:  20, name: "started",  title: "<?php L('started') ?>",    type: "date" },
-            { width:  20, name: "stopped",  title: "<?php L('stopped') ?>",    type: "date" },
-          //{ width: 100, name: "modified", title: "<?php L('modified') ?>",   type: "text",   filtering: false, editing: false, inserting: false, itemTemplate: localTime },
-            { width:  10, type: "control", editButton: true, deleteButton: true, modeSwitchButton: false, clearFilterButton: true }
+            { width:  20, name: "started",  title: "<?php L('started') ?>",   type: "date" },
+            { width:  20, name: "stopped",  title: "<?php L('stopped') ?>",   type: "date" },
+          //{ width: 100, name: "modified", title: "<?php L('modified') ?>",  type: "text",
+          //  filtering: false, editing: false, inserting: false, itemTemplate: localTime },
+            { width:  10, type: "control", editButton: role_update, deleteButton: role_update, modeSwitchButton: false }
         ]);
     }
 }
@@ -964,13 +949,9 @@ function parkingsPersons(gridId, historicalId, personId, id) {
     function grid(fields) {
         $(gridId).jsGrid({
             width: "100%",
-            inserting: true,
-            editing: true,
-            sorting: true,
-            paging: true,
+            inserting: role_update,
+            editing: role_update,
             autoload: true,
-            pageSize: defaultPageSize,
-            pageButtonCount: defaultPageButtonCount,
             deleteConfirm: "<?php L('del_relation') ?>",
             controller: {
                 loadData: function(filter) {
@@ -1027,24 +1008,26 @@ function parkingsPersons(gridId, historicalId, personId, id) {
             { width:  40, name: "personid", title: "<?php L('person') ?>",   type: "text",   visible: false },
             { width:  10, name: "id",       title: "<?php L('parking') ?>",  type: "select", validate: { validator: "min", param: 1 },
               items: parkingSelect, valueField: "parkingid", textField: "parkingid", editing: false },
-            { width:  30, name: "relation", title: "<?php L('relation') ?>",     type: "select", validate: { validator: "range", param: [1, 3] },
+            { width:  30, name: "relation", title: "<?php L('relation') ?>", type: "select", validate: { validator: "range", param: [1, 3] },
               items: relations, valueField: "id", textField: "relation" },
             { width:  20, name: "started",  title: "<?php L('started') ?>",  type: "date" },
             { width:  20, name: "stopped",  title: "<?php L('stopped') ?>",  type: "date" },
-          //{ width: 100, name: "modified", title: "<?php L('modified') ?>", type: "text",   filtering: false, editing: false, inserting: false, itemTemplate: localTime },
-            { width:  10, type: "control", editButton: true, deleteButton: true, modeSwitchButton: false, clearFilterButton: true }
+          //{ width: 100, name: "modified", title: "<?php L('modified') ?>", type: "text",
+          //  filtering: false, editing: false, inserting: false, itemTemplate: localTime },
+            { width:  10, type: "control", editButton: role_update, deleteButton: role_update, modeSwitchButton: false }
         ]);
     } else {
         grid([
             { width:  10, name: "id",       title: "<?php L('parking') ?>",  type: "text",   visible: false },
             { width:  40, name: "personid", title: "<?php L('person') ?>",   type: "select", validate: { validator: "min", param: 1 },
               items: personSelect, valueField: "personid", textField: "name", editing: false },
-            { width:  30, name: "relation", title: "<?php L('relation') ?>",     type: "select", validate: { validator: "range", param: [1, 3] },
+            { width:  30, name: "relation", title: "<?php L('relation') ?>", type: "select", validate: { validator: "range", param: [1, 3] },
               items: relations, valueField: "id", textField: "relation" },
             { width:  20, name: "started",  title: "<?php L('started') ?>",  type: "date" },
             { width:  20, name: "stopped",  title: "<?php L('stopped') ?>",  type: "date" },
-          //{ width: 100, name: "modified", title: "<?php L('modified') ?>", type: "text",   filtering: false, editing: false, inserting: false, itemTemplate: localTime },
-            { width:  10, type: "control", editButton: true, deleteButton: true, modeSwitchButton: false, clearFilterButton: true }
+          //{ width: 100, name: "modified", title: "<?php L('modified') ?>", type: "text",
+          //  filtering: false, editing: false, inserting: false, itemTemplate: localTime },
+            { width:  10, type: "control", editButton: role_update, deleteButton: role_update, modeSwitchButton: false }
         ]);
     }
 }
@@ -1069,13 +1052,9 @@ function depotsPersons(gridId, historicalId, personId, id) {
     function grid(fields) {
         $(gridId).jsGrid({
             width: "100%",
-            inserting: true,
-            editing: true,
-            sorting: true,
-            paging: true,
+            inserting: role_update,
+            editing: role_update,
             autoload: true,
-            pageSize: defaultPageSize,
-            pageButtonCount: defaultPageButtonCount,
             deleteConfirm: "<?php L('del_relation') ?>",
             controller: {
                 loadData: function(filter) {
@@ -1134,8 +1113,9 @@ function depotsPersons(gridId, historicalId, personId, id) {
               items: depotSelect, valueField: "depotid", textField: "depotid", editing: false },
             { width:  20, name: "started",   title: "<?php L('started') ?>",  type: "date" },
             { width:  20, name: "stopped",   title: "<?php L('stopped') ?>",  type: "date" },
-          //{ width: 100, name: "modified",  title: "<?php L('modified') ?>", type: "text",   filtering: false, editing: false, inserting: false, itemTemplate: localTime },
-            { width:  10, type: "control", editButton: true, deleteButton: true, modeSwitchButton: false, clearFilterButton: true }
+          //{ width: 100, name: "modified",  title: "<?php L('modified') ?>", type: "text",
+          //  filtering: false, editing: false, inserting: false, itemTemplate: localTime },
+            { width:  10, type: "control", editButton: role_update, deleteButton: role_update, modeSwitchButton: false }
         ]);
     } else {
         grid([
@@ -1144,8 +1124,9 @@ function depotsPersons(gridId, historicalId, personId, id) {
               items: personSelect, valueField: "personid", textField: "name", editing: false },
             { width:  20, name: "started",   title: "<?php L('started') ?>",  type: "date" },
             { width:  20, name: "stopped",   title: "<?php L('stopped') ?>",  type: "date" },
-          //{ width: 100, name: "modified",  title: "<?php L('modified') ?>", type: "text",   filtering: false, editing: false, inserting: false, itemTemplate: localTime },
-            { width:  10, type: "control", editButton: true, deleteButton: true, modeSwitchButton: false, clearFilterButton: true }
+          //{ width: 100, name: "modified",  title: "<?php L('modified') ?>", type: "text",
+          //  filtering: false, editing: false, inserting: false, itemTemplate: localTime },
+            { width:  10, type: "control", editButton: role_update, deleteButton: role_update, modeSwitchButton: false }
         ]);
     }
 }
@@ -1157,14 +1138,9 @@ function accountsGrid() {
     $("#accounts_grid").jsGrid({
         width: "100%",
         height: "100%",
-        filtering: false,
-        inserting: true,
-        editing: true,
-        sorting: true,
-//        paging: true,
+        inserting: role_admin,
+        editing: role_admin,
         autoload: true,
-        pageSize: defaultPageSize,
-        pageButtonCount: defaultPageButtonCount,
         deleteConfirm: "<?php L('del_account') ?>",
         controller: {
             loadData: function(filter) {
@@ -1214,17 +1190,21 @@ function accountsGrid() {
             alert(args.args[0].responseJSON);
         },
         fields: [
-            { width:  10, name: "accountid",  title: "Id",                         type: "text", editing: false, inserting: false, align: "right", visible: true },
+            { width:  10, name: "accountid",  title: "Id",                         type: "text", editing: false, inserting: false },
             { width:  60, name: "name",       title: "<?php L('acc_name') ?>",     type: "text", validate: "required" },
             { width:  80, name: "email",      title: "<?php L('acc_email') ?>",    type: "text", validate: "email", editing: false },
             { width:  30, name: "otp",        title: "<?php L('acc_otp') ?>",      type: "text", editing: false, inserting: false },
-            { width:  30, name: "state",      title: "<?php L('acc_state') ?>",    type: "select", validate: { validator: "range", param: [1, 3] }, filtering: false,
+            { width:  30, name: "state",      title: "<?php L('acc_state') ?>",    type: "select",
+              validate: { validator: "range", param: [1, 3] }, filtering: false,
               items: accountStates, valueField: "id", textField: "state", inserting: false  },
-            { width:  30, name: "role",       title: "<?php L('acc_role') ?>",     type: "select", validate: { validator: "range", param: [1, 4] }, filtering: false,
+            { width:  30, name: "role",       title: "<?php L('acc_role') ?>",     type: "select",
+              validate: { validator: "range", param: [1, 4] }, filtering: false,
               items: accountRoles, valueField: "id", textField: "role" },
-            { width:  20, name: "lang",       title: "<?php L('acc_lang') ?>",     type: "select", validate: { validator: "range", param: [1, 2] }, filtering: false,
+            { width:  20, name: "lang",       title: "<?php L('acc_lang') ?>",     type: "select",
+              validate: { validator: "range", param: [1, 2] }, filtering: false,
               items: accountLang, valueField: "id", textField: "value" },
-            { width:  40, name: "activity",   title: "<?php L('acc_activity') ?>", type: "text", itemTemplate: localTime, editing: false, inserting: false },
+            { width:  40, name: "activity",   title: "<?php L('acc_activity') ?>", type: "text",
+              itemTemplate: localTime, editing: false, inserting: false },
             { type: "control", modeSwitchButton: false,  }
         ]
     });
@@ -1400,7 +1380,9 @@ $(function() {
         personsGrid();
     });
 
-    accountsGrid();
+    if (role_admin) {
+        accountsGrid();
+    }
 
     // These can wait
     apartmentSelectUpdate();
