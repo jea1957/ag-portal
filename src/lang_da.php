@@ -87,8 +87,19 @@ $lang_array = [
     "pe_noemail_tip" => "Send aldrig email til denne person",
     "pe_phone"       => "Telefon",
 
-    "messages" => "Beskeder",
-    "mq_check" => "Mail check",
+    "msg_mails"       => "Se beskeder",
+    "msg_draft"       => "Ny besked",
+    "msg_subject"     => "Emne",
+    "msg_body"        => "Besked",
+    "msg_attachments" => "Vedhæftninger",
+    "msg_from"        => "Fra",
+    "msg_to"          => "Til",
+    "msg_by"          => "Af",
+    "msg_clear"       => "Slet",
+    "msg_save"        => "Gem",
+    "msg_send"        => "Send",
+    "msg_sent"        => "Sendt",
+    "mq_check"        => "Mail check",
 
     "rel_apartment" => "Tilknytninger til lejlighed ",
     "rel_parking"   => "Tilknytninger til p-plads ",
@@ -123,7 +134,6 @@ $lang_array = [
     "acc_role_superman"      => "Superman",
     "acc_role_caretaker"     => "Vicevært",
 
-    "admin" => "Administrator",
     "test"  => "Test",
 
     "l" => "l"

@@ -10,6 +10,7 @@ class MailCheck {
 class Mail {
     public $mailid;
     public $accountid;
+    public $accountname;
     public $subject;
     public $body;
     public $state;
@@ -45,7 +46,7 @@ class Mails {
     }
 
     public function getDrafts($accountid) {
-        $sql = "SELECT * FROM Mails WHERE AccontId  = :accountid AND State = 1";
+        $sql = "SELECT * FROM Mails WHERE AccountId  = :accountid AND State = 1";
         $q = $this->db->prepare($sql);
         $q->bindValue(":accountid", $accountid, PDO::PARAM_INT);
         $q->execute();
@@ -81,6 +82,35 @@ class Mails {
         $q = $this->db->prepare($sql);
         $q->bindValue(":mailid",    $mailid,    PDO::PARAM_INT);
         $q->bindValue(":accountid", $accountid, PDO::PARAM_INT);
+        $q->execute();
+    }
+
+    public function getMails($state) {
+        error_log("src/mails.php: state = " . print_r($state, 1));
+        $sql = "SELECT * FROM Mails WHERE :state1 IS NULL or State = :state2 ORDER BY Modified DESC";
+        $q = $this->db->prepare($sql);
+        $q->bindValue(":state1", $state, PDO::PARAM_INT);
+        $q->bindValue(":state2", $state, PDO::PARAM_INT);
+        $q->execute();
+        $rows = $q->fetchAll();
+        $result = array();
+        foreach($rows as $row) {
+//            error_log('src/getMails each: ' . print_r($row, 1));
+            // Sneak in account name
+            $sql = "SELECT Name FROM Accounts WHERE AccountId = ?";
+            $q = $this->db->prepare($sql);
+            $q->execute([$row["AccountId"]]);
+            $res = $this->readMail($row);
+            $res->accountname = $q->fetch()["Name"];
+            array_push($result, $res);
+        }
+        return $result;
+    }
+
+    public function delMail($mailid) {
+        $sql = "DELETE FROM Mails WHERE MailId = :mailid";
+        $q = $this->db->prepare($sql);
+        $q->bindValue(":mailid",    $mailid,    PDO::PARAM_INT);
         $q->execute();
     }
 

@@ -63,7 +63,7 @@ require_once __DIR__ . '/check_timeout.php';
     </a>
     <div class="navbar-brand" id="mailstatus"></div>
     <div class="navbar-brand" id="username"><?php echo $_SESSION['account_name']; ?></div>
-    <div class="navbar-brand" onclick="event.preventDefault(); logout(<?php echo $_SESSION['account_id']; ?>)">
+    <div class="navbar-brand" onclick="event.preventDefault(); logout()">
         <i class="bi-box-arrow-right"></i>
         &nbsp;<?php L('logout') ?>
     </div>
@@ -85,7 +85,10 @@ require_once __DIR__ . '/check_timeout.php';
     </li>
   <?php if ($_SESSION['role_mail']) { ?>
     <li class="nav-item">
-        <a href="#msg_pane" class="nav-link" data-toggle="tab" id="msg_tab"><?php L('messages') ?></a>
+        <a href="#draft_pane" class="nav-link" data-toggle="tab" id="draft_tab"><?php L('msg_draft') ?></a>
+    </li>
+    <li class="nav-item">
+        <a href="#mails_pane" class="nav-link" data-toggle="tab" id="mails_tab"><?php L('msg_mails') ?></a>
     </li>
   <?php } ?>
   <?php if ($_SESSION['role_admin']) { ?>
@@ -169,44 +172,82 @@ require_once __DIR__ . '/check_timeout.php';
         </div>
     </div>
   <?php if ($_SESSION['role_mail']) { ?>
-    <div class="tab-pane fade" id="msg_pane">
+    <div class="tab-pane fade" id="draft_pane">
         <div class="container-fluid">
-        <!--
             <div class="row">
-                <div class="col-lg-12">
-                    <label for="m0">M0</label>
-                    <input type="checkbox" id="m0">
+                <div class="col-lg-4">
+                    <h4>Modtagere:</h4>
+                    <div>
+                        <input type="checkbox" id="mail_apartments">
+                        <label for="mail_apartments"><?php L('apartments') ?></label>
+                        <input type="checkbox" id="mail_parkings">
+                        <label for="mail_parkings"><?php L('parkings') ?></label>
+                        <input type="checkbox" id="mail_depots">
+                        <label for="mail_depots"><?php L('depots') ?></label>
+                        <input type="checkbox" id="mail_persons">
+                        <label for="mail_persons"><?php L('persons') ?></label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="mail_board">
+                        <label for="mail_caretaker"><?php L('acc_role_board') ?></label>
+                        <input type="checkbox" id="mail_caretaker">
+                        <label for="mail_caretaker"><?php L('acc_role_caretaker') ?></label>
+                        <input type="checkbox" id="mail_administrator">
+                        <label for="mail_administrator"><?php L('acc_role_administrator') ?></label>
+                    </div>
+                    <div class="flex-grid" id="draft_grid"></div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="btn-toolbar justify-content-between my-1">
+                        <div class="btn-group">
+                            <button type="button" class="mr-2"><?php L('msg_clear') ?></button>
+                            <button type="button"><?php L('msg_save') ?></button>
+                        </div>
+                        <div class="btn-group">
+                           <button type="button"><?php L('msg_send') ?></button>
+                        </div>
+                    </div>
+                    <input type="text" id="draft_from" name="draft_from" placeholder="<?php L('msg_from') ?>">
+                    <textarea id="draft_to" name="draft_to" placeholder="<?php L('msg_to') ?>"></textarea>
+                    <input type="text" class="mb-1" id="draft_subject" name="draft_subject" placeholder="<?php L('msg_subject') ?>">
+                    <textarea id="draft_body" name="draft_body" placeholder="<?php L('msg_body') ?>"></textarea>
+                    <textarea id="draft_attachments" name="draft_attachments" placeholder="<?php L('msg_attachments') ?>"></textarea>
                 </div>
             </div>
-            -->
+        </div>
+    </div>
+    <div class="tab-pane fade" id="mails_pane">
+        <div class="container-fluid">
             <div class="row">
-                <div class="col-lg-3">
-                    <div>
-                        <label for="m1">M1</label>
-                        <input type="checkbox" id="m1">
-                    </div>
+                <div class="col-lg-4">
+                    <div class="flex-grid" id="mails_grid"></div>
                 </div>
-                <div class="col-lg-6">
+                <div class="col-lg-8">
                     <div>
-                        <label for="save_draft">Gem kladde</label>
-                        <input type="checkbox" id="save_draft">
-                        <label for="delete_draft">Slet kladde</label>
-                        <input type="checkbox" id="delete_draft">
+                        <strong><?php L('msg_sent') ?>:&nbsp;</strong>
+                        <span id="mail_date"></span>
+                        <strong>&nbsp;<?php L('msg_by') ?>:&nbsp;</strong>
+                        <span id="mail_from"></span>
                     </div>
+                    <hr class="w-100 ruler">
                     <div>
-                        <label for="msg_subject">Emne:</label>
-                        <input type="text" id="msg_subject", name="msg_subject", placeholder="Emne">
+                        <strong><?php L('msg_to') ?>:&nbsp;</strong>
+                        <span id="mail_to"></span>
                     </div>
+                    <hr class="w-100 ruler">
                     <div>
-                        <label for="msg_body">Mail:</label>
-                        <textarea id="msg_body", name="msg_body", placeholder="Mail"></textarea>
+                        <strong><?php L('msg_subject') ?>:&nbsp;</strong>
+                        <span id="mail_subject"></span>
                     </div>
-                </div>
-                <div class="col-lg-32">
-                    <div>
-                        <label for="m3">M3</label>
-                        <input type="checkbox" id="m3">
-                    </div>
+                    <!--
+                    <hr class="ruler">
+                    <div><stpan id="mail_from"></span><?php L('msg_from') ?>:&nbsp;<span id="mail_from"></span></div>
+                    <input type="text" id="mail__from" name="mail_from" placeholder="<?php L('msg_from') ?>" readonly>
+                    <textarea id="mail_to" name="mail_to" placeholder="<?php L('msg_to') ?>"></textarea>
+                    <input type="text" id="mail_subject" name="mail_subject" placeholder="<?php L('msg_subject') ?>" readonly>
+                    -->
+                    <textarea id="mail_body" name="mail_body" placeholder="<?php L('msg_body') ?>"></textarea>
+                    <textarea id="mail_attachments" name="mail_attachments" placeholder="<?php L('msg_attachments') ?>"></textarea>
                 </div>
             </div>
         </div>
@@ -302,6 +343,7 @@ require_once __DIR__ . '/check_timeout.php';
 
 'use strict';
 
+const account_id  = <?php echo json_encode($_SESSION['account_id']); ?>;
 const role_admin  = <?php echo json_encode($_SESSION['role_admin']); ?>;
 const role_update = <?php echo json_encode($_SESSION['role_update']); ?>;
 const role_mail   = <?php echo json_encode($_SESSION['role_mail']); ?>;
@@ -324,7 +366,7 @@ const accountRoles = [ { id: 2, role: "<?php L('acc_role_board') ?>" },
 const accountLang = [ { id: 1, value: "da" },
                       { id: 2, value: "en" } ];
 
-function logout(account_id) {
+function logout() {
     return $.ajax({
         type: "POST",
         url: "logout_action.php",
@@ -336,6 +378,11 @@ function logout(account_id) {
 function localTime(utc) {
     const t = new Date(utc + "Z");
     return t.toLocaleString('sv-SE'); // yyyy-mm-dd hh:mm:ss
+}
+
+function localDate(utc) {
+    const t = new Date(utc + "Z");
+    return t.toLocaleString('sv-SE').substring(0, 10); // yyyy-mm-dd
 }
 
 /* Not used for now
@@ -373,7 +420,7 @@ function mailStatus() {
 }
 
 // Report account activity to database
-function accountActivity(account_id) {
+function accountActivity() {
     $.ajax({
         type: "PUT",
         url: "account_activity.php",
@@ -386,16 +433,14 @@ var idleTime = 0;
 const timeoutTime = 60; // minutes inactivity before auto logout
 
 function tick() {
-    const account_id = <?php echo $_SESSION['account_id']; ?>;
-
     if (activity > 0) {
         activity = 0;
-        accountActivity(account_id);
+        accountActivity();
     }
 
     idleTime += 1;
     if (idleTime > timeoutTime) {
-        logout(account_id);
+        logout();
     }
     mailStatus();
 }
@@ -762,6 +807,7 @@ function personsGrid() {
         deleteConfirm: "<?php L('del_person') ?>",
         controller: {
             loadData: function(filter) {
+                console.log("Persons filter:", filter);
                 const data = personFilter(filter);
                 return $.ajax({
                     type: "GET",
@@ -818,10 +864,10 @@ function personsGrid() {
           //{ width:  10, name: "nomails",  title: '<span class="ui-icon ui-icon-mail-closed" title="Send mail to this person"></span>',
           //  type: "checkbox" },
             { width:  10, name: "nomails",  title: '<span title="<?php L('pe_noemail_tip') ?>"><?php L('pe_noemail') ?></span>', type: "checkbox" },
-            { width:  50, name: "phone",    title: "<?php L('pe_phone') ?>",    type: "text" },
-            { width:  80, name: "modified", title: "<?php L('modified') ?>", type: "text",
+            { width:  30, name: "phone",    title: "<?php L('pe_phone') ?>",    type: "text" },
+            { width:  60, name: "modified", title: "<?php L('modified') ?>", type: "text",
               filtering: false, editing: false, inserting: false, itemTemplate: localTime, visible: role_admin },
-            { width:  10, type: "control", editButton: role_update, deleteButton: role_update, modeSwitchButton: role_update} 
+            { width:  20, type: "control", editButton: role_update, deleteButton: role_update, modeSwitchButton: role_update} 
         ]
     });
 }
@@ -1132,6 +1178,128 @@ function depotsPersons(gridId, historicalId, personId, id) {
 }
 
 //------------------------------------------------------------------------------
+// Draft
+//------------------------------------------------------------------------------
+function draftGrid() {
+    $('#draft_grid').jsGrid("destroy");
+
+    $("#draft_grid").jsGrid({
+        width: "100%",
+        height: "100%",
+        inserting: role_admin,
+        editing: role_admin,
+        filtering: true,
+        sorting: true,
+        autoload: true,
+        deleteConfirm: "<?php L('del_account') ?>",
+        controller: {
+            loadData: function(filter) {
+                console.log("Drafts filter:", filter);
+                return $.ajax({
+                    type: "GET",
+                    url: "persons.php",
+                    data: filter
+                });
+            },
+            updateItem: function(item) {
+                return $.ajax({
+                    type: "PUT",
+                    url: "accounts.php",
+                    data: item
+                });
+            },
+            deleteItem: function(item) {
+                return $.ajax({
+                    type: "DELETE",
+                    url: "accounts.php",
+                    data: item
+                });
+            }
+        },
+        onError: function(args) {
+            alert(args.args[0].responseJSON);
+        },
+        fields: [
+            { width:  10, name: "personid", title: "Id",                        type: "text", filtering: false, editing: false, inserting: false, visible: false },
+            { width: 100, name: "name",     title: "<?php L('pe_name') ?>",     type: "text", validate: "required" },
+            { width: 100, name: "address",  title: "<?php L('pe_address') ?>",  type: "text", validate: "required" },
+            { width: 100, name: "email",    title: "<?php L('pe_email') ?>",    type: "text", validate: "email" },
+          //{ width:  10, name: "nomails",  title: '<span class="ui-icon ui-icon-mail-closed" title="Send mail to this person"></span>',
+          //  type: "checkbox" },
+            { width:  10, name: "nomails",  title: '<span title="<?php L('pe_noemail_tip') ?>"><?php L('pe_noemail') ?></span>', type: "checkbox", vivible: false },
+            { width:  50, name: "phone",    title: "<?php L('pe_phone') ?>",    type: "text", },
+            { width:  80, name: "modified", title: "<?php L('modified') ?>", type: "text",
+              filtering: false, editing: false, inserting: false, itemTemplate: localTime, visible: false },
+            { width:  10, type: "control", editButton: role_update, deleteButton: role_update, modeSwitchButton: role_update}
+        ]
+    });
+}
+
+//------------------------------------------------------------------------------
+// Mails
+//------------------------------------------------------------------------------
+function updateMailItems(item) {
+    $('#mail_date').html(item.modified);
+    $('#mail_from').html(item.accountname);
+    $('#mail_to').html(item.body);
+    $('#mail_subject').html(item.subject);
+    $('#mail_body').val(item.body);
+//    alert(item.subject + '\n' + item.body + '\n' + item.accountid + '\n' + item.accountname);
+}
+
+function mailsGrid() {
+    $('#mails_grid').jsGrid("destroy");
+
+    $("#mails_grid").jsGrid({
+        width: "100%",
+        height: "100%",
+        heading: false,
+        autoload: true,
+        deleteConfirm: "<?php L('del_account') ?>",
+        controller: {
+            loadData: function(filter) {
+                const data = { state: 3 }; // Only sent mails
+                console.log("mails.php:", data);
+                return $.ajax({
+                    type: "GET",
+                    url: "mails.php",
+                    data: data
+                });
+            },
+            updateItem: function(item) {
+                return $.ajax({
+                    type: "PUT",
+                    url: "accounts.php",
+                    data: item
+                });
+            },
+            deleteItem: function(item) {
+                return $.ajax({
+                    type: "DELETE",
+                    url: "accounts.php",
+                    data: item
+                });
+            }
+        },
+        onError: function(args) {
+            alert(args.args[0].responseJSON);
+        },
+        rowClick: function(args) {
+            updateMailItems(args.item)
+        },
+        fields: [
+            { width:  40, name: "modified",    type: "text", itemTemplate: localDate },
+            { width: 100, name: "subject",     type: "text" },
+            { width:  20, name: "body",        type: "text",   visible: false },
+            { width:  20, name: "mailid",      type: "number", visible: false },
+            { width:  20, name: "accountid",   type: "number", visible: false },
+            { width:  20, name: "accountname", type: "text",   visible: false },
+            { width:  20, name: "state",       type: "number", visible: false },
+        ]
+    });
+}
+
+//------------------------------------------------------------------------------
 // Accounts
 //------------------------------------------------------------------------------
 function accountsGrid() {
@@ -1211,7 +1379,7 @@ function accountsGrid() {
 }
 
 //------------------------------------------------------------------------------
-// Wait for document ready and until deferred javascript has been loaded
+// Wait for document ready
 //------------------------------------------------------------------------------
 $(function() {
 
@@ -1382,6 +1550,11 @@ $(function() {
 
     if (role_admin) {
         accountsGrid();
+    }
+
+    if (role_mail) {
+        draftGrid();
+        mailsGrid();
     }
 
     // These can wait

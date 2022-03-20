@@ -31,6 +31,7 @@ body {
 .flex-grid {
     display: flex;
     flex-direction: column;
+    margin-bottom: 0.5rem;
 }
 
 .jsgrid-grid-header {
@@ -39,4 +40,61 @@ body {
 
 .jsgrid-grid-body {
     flex: 1 1 auto;
+}
+
+.jsgrid-header-cell, .jsgrid-cell {
+    padding: 4px;
+}
+
+#mails_grid .jsgrid-cell {
+    overflow: hidden;
+}
+
+#draft_from, #mail_from {
+    flex: 0 0 auto;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    resize: none;
+}
+
+#draft_to {
+    flex: 0 0 auto;
+    margin-bottom: 0.5rem;
+    resize: none;
+}
+
+#mail_to {
+    flex: 0 0 auto;
+    margin-bottom: 0.5rem;
+    resize: none;
+}
+
+#draft_subject {
+    flex: 0 0 auto;
+    margin-bottom: 0.5rem;
+}
+
+#mail_subject {
+    overflow-wrap: break-word;
+    /*
+    flex: 0 0 auto;
+    margin-bottom: 0.5rem;
+*/
+}
+
+#draft_attachments, #mail_attachments {
+    flex: 0 0 auto;
+    margin-bottom: 0.5rem;
+    resize: none;
+}
+
+#draft_body, #mail_body {
+    flex: 1 1 auto;
+    margin-bottom: 0.5rem;
+    resize: none;
+}
+
+.ruler {
+    margin: 0;
+    width: 100% !important;
 }

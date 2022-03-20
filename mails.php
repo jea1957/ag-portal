@@ -8,29 +8,18 @@ $mails = new Mails($pdo);
 try {
     switch($_SERVER["REQUEST_METHOD"]) {
         case "GET":
-            $result = $mails->getDrafts(intval(clean_input($_GET["accountid"])));
-            break;
-
-        case "POST":
-            $accountid = intval(clean_input($_POST["accountid"])),
-            $result = $mails->newDraft($accountid);
-            break;
-
-        case "PUT":
-            parse_str(file_get_contents("php://input"), $_PUT);
-            $result = $mails->updDraft(array(
-                "mailid"    => intval(clean_input($_PUT["mailid"])),
-                "accountid" => intval(clean_input($_PUT["accountid"])),
-                "subject"   => clean_input($_PUT["subject"]),
-                "body"      => clean_input($_PUT["body"])
-            ));
+            if (isset($_GET["state"])) {
+                $state = intval(clean_input($_GET["state"]));
+            } else {
+                $state = null; // wildcard
+            }
+            $result = $mails->getMails($state);
             break;
 
         case "DELETE":
             parse_str(file_get_contents("php://input"), $_DELETE);
             $mailid    = intval($_DELETE["mailid"]);
-            $accountid = intval($_DELETE["accountid"]);
-            $result    = $mails->delDraft($mailid, $accountid);
+            $result    = $mails->delMail($mailid);
             break;
     }
 
