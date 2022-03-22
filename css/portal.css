@@ -50,6 +50,11 @@ body {
     overflow: hidden;
 }
 
+.mail-line {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
 #draft_from, #mail_from {
     flex: 0 0 auto;
     margin-top: 0.5rem;
@@ -65,7 +70,7 @@ body {
 
 #mail_to {
     flex: 0 0 auto;
-    margin-bottom: 0.5rem;
+/*    margin-bottom: 0.5rem;*/
     resize: none;
 }
 
@@ -76,7 +81,7 @@ body {
 
 #mail_subject {
     overflow-wrap: break-word;
-    /*
+/*
     flex: 0 0 auto;
     margin-bottom: 0.5rem;
 */
@@ -96,5 +101,4 @@ body {
 
 .ruler {
     margin: 0;
-    width: 100% !important;
 }

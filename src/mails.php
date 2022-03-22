@@ -17,6 +17,12 @@ class Mail {
     public $modified;
 }
 
+class MailRecipients {
+    public $mailid;
+    public $name;
+    public $email;
+}
+
 class Mails {
 
     protected $db;
@@ -33,6 +39,14 @@ class Mails {
         $result->body      = $row["Body"];
         $result->state     = $row["State"];
         $result->modified  = $row["Modified"];
+        return $result;
+    }
+
+    private function readMailRecipients($row) {
+        $result = new MailRecipients();
+        $result->mailid = $row["MailId"];
+        $result->name   = $row["Name"];
+        $result->email  = $row["Email"];
         return $result;
     }
 
@@ -86,7 +100,6 @@ class Mails {
     }
 
     public function getMails($state) {
-        error_log("src/mails.php: state = " . print_r($state, 1));
         $sql = "SELECT * FROM Mails WHERE :state1 IS NULL or State = :state2 ORDER BY Modified DESC";
         $q = $this->db->prepare($sql);
         $q->bindValue(":state1", $state, PDO::PARAM_INT);
@@ -95,7 +108,6 @@ class Mails {
         $rows = $q->fetchAll();
         $result = array();
         foreach($rows as $row) {
-//            error_log('src/getMails each: ' . print_r($row, 1));
             // Sneak in account name
             $sql = "SELECT Name FROM Accounts WHERE AccountId = ?";
             $q = $this->db->prepare($sql);
@@ -112,6 +124,20 @@ class Mails {
         $q = $this->db->prepare($sql);
         $q->bindValue(":mailid",    $mailid,    PDO::PARAM_INT);
         $q->execute();
+    }
+
+    public function getMailRecipients($mailid) {
+        $sql = "SELECT * FROM MailRecipients WHERE MailId = :mailid";
+        $q = $this->db->prepare($sql);
+        $q->bindValue(":mailid", $mailid, PDO::PARAM_INT);
+        $q->execute();
+        $rows = $q->fetchAll();
+        $result = array();
+        foreach($rows as $row) {
+            $res = $this->readMailRecipients($row);
+            array_push($result, $res);
+        }
+        return $result;
     }
 
     private function mailCheck($row) {

@@ -223,31 +223,30 @@ require_once __DIR__ . '/check_timeout.php';
                     <div class="flex-grid" id="mails_grid"></div>
                 </div>
                 <div class="col-lg-8">
-                    <div>
+                    <div class="mail-line">
                         <strong><?php L('msg_sent') ?>:&nbsp;</strong>
                         <span id="mail_date"></span>
                         <strong>&nbsp;<?php L('msg_by') ?>:&nbsp;</strong>
                         <span id="mail_from"></span>
+                        <strong>&nbsp;<?php L('msg_to') ?>:&nbsp;</strong>
                     </div>
+                    <!--
                     <hr class="w-100 ruler">
-                    <div>
-                        <strong><?php L('msg_to') ?>:&nbsp;</strong>
-                        <span id="mail_to"></span>
-                    </div>
                     <hr class="w-100 ruler">
-                    <div>
+                    -->
+                    <textarea id="mail_to" name="mail_to" placeholder="<?php L('msg_to') ?>" readonly></textarea>
+                    <div class="mail-line">
                         <strong><?php L('msg_subject') ?>:&nbsp;</strong>
                         <span id="mail_subject"></span>
                     </div>
+                    <textarea id="mail_body" name="mail_body" placeholder="<?php L('msg_body') ?>" readonly></textarea>
+                    <div class="mail-line">
+                        <strong><?php L('msg_attachments') ?>:&nbsp;</strong>
+                        <span id="mail_attachments"></span>
+                    </div>
                     <!--
-                    <hr class="ruler">
-                    <div><stpan id="mail_from"></span><?php L('msg_from') ?>:&nbsp;<span id="mail_from"></span></div>
-                    <input type="text" id="mail__from" name="mail_from" placeholder="<?php L('msg_from') ?>" readonly>
-                    <textarea id="mail_to" name="mail_to" placeholder="<?php L('msg_to') ?>"></textarea>
-                    <input type="text" id="mail_subject" name="mail_subject" placeholder="<?php L('msg_subject') ?>" readonly>
-                    -->
-                    <textarea id="mail_body" name="mail_body" placeholder="<?php L('msg_body') ?>"></textarea>
                     <textarea id="mail_attachments" name="mail_attachments" placeholder="<?php L('msg_attachments') ?>"></textarea>
+                    -->
                 </div>
             </div>
         </div>
@@ -1238,13 +1237,34 @@ function draftGrid() {
 //------------------------------------------------------------------------------
 // Mails
 //------------------------------------------------------------------------------
+function mailRecipientsToTxt(recipients) {
+   let txt = "";
+   for (const r of recipients) {
+       txt += `${r.name} <${r.email}>; `;
+   }
+   return txt;
+}
+
+function mailRecipientsToHtml(recipients) {
+   let txt = "";
+   for (const r of recipients) {
+       txt += `${r.name} &lt;${r.email}&gt;; `;
+   }
+   return txt;
+}
+
 function updateMailItems(item) {
     $('#mail_date').html(item.modified);
     $('#mail_from').html(item.accountname);
-    $('#mail_to').html(item.body);
     $('#mail_subject').html(item.subject);
     $('#mail_body').val(item.body);
-//    alert(item.subject + '\n' + item.body + '\n' + item.accountid + '\n' + item.accountname);
+    $.ajax({
+        type: "GET",
+        url: "mail_recipients.php",
+        data: { mailid: item.mailid }
+    }).then(function(a) {
+        $('#mail_to').val(mailRecipientsToTxt(a));
+    });
 }
 
 function mailsGrid() {
@@ -1259,7 +1279,6 @@ function mailsGrid() {
         controller: {
             loadData: function(filter) {
                 const data = { state: 3 }; // Only sent mails
-                console.log("mails.php:", data);
                 return $.ajax({
                     type: "GET",
                     url: "mails.php",
@@ -1281,14 +1300,18 @@ function mailsGrid() {
                 });
             }
         },
+        onDataLoaded: function(args) {
+            updateMailItems(args.data[0]); // Show newest mail
+        },
         onError: function(args) {
             alert(args.args[0].responseJSON);
         },
         rowClick: function(args) {
-            updateMailItems(args.item)
+            updateMailItems(args.item);
         },
         fields: [
-            { width:  40, name: "modified",    type: "text", itemTemplate: localDate },
+          //{ width:  40, name: "modified",    type: "text", itemTemplate: localDate },
+            { width:  20, name: "modified",    type: "text",   visible: false },
             { width: 100, name: "subject",     type: "text" },
             { width:  20, name: "body",        type: "text",   visible: false },
             { width:  20, name: "mailid",      type: "number", visible: false },
