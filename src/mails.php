@@ -50,34 +50,35 @@ class Mails {
         return $result;
     }
 
-    public function getMailById($mailid) {
+    private function getMailById($mailid) {
         $sql = "SELECT * FROM Mails WHERE MailId = :mailid";
         $q = $this->db->prepare($sql);
         $q->bindValue(":mailid", $mailid, PDO::PARAM_INT);
         $q->execute();
-        $rows = $q->fetchAll();
-        return $this->readMail($rows[0]);
+        $row = $q->fetch();
+        return $this->readMail($row);
     }
 
-    public function getDrafts($accountid) {
-        $sql = "SELECT * FROM Mails WHERE AccountId  = :accountid AND State = 1";
-        $q = $this->db->prepare($sql);
-        $q->bindValue(":accountid", $accountid, PDO::PARAM_INT);
-        $q->execute();
-        $rows = $q->fetchAll();
-        $result = array();
-        foreach($rows as $row) {
-            array_push($result, $this->readMail($row));
-        }
-        return $result;
-    }
-
-    public function newDraft($accountid) {
+// DRAFTS:
+    private function newDraft($accountid) {
         $sql = "INSERT INTO Mails (AccountId) VALUES (:accountid)";
         $q = $this->db->prepare($sql);
         $q->bindValue(":accountid", $accountid, PDO::PARAM_INT);
         $q->execute();
         return $this->getMailById($this->db->lastInsertId());
+    }
+
+    public function getDraft($accountid) {
+        $sql = "SELECT * FROM Mails WHERE AccountId  = :accountid AND State = 1";
+        $q = $this->db->prepare($sql);
+        $q->bindValue(":accountid", $accountid, PDO::PARAM_INT);
+        $q->execute();
+        $row = $q->fetch();
+        if ($row) {
+            return $this->readMail($row);
+        } else {
+            return $this->newDraft($accountid);
+        }
     }
 
     public function updDraft($data) {
@@ -91,14 +92,18 @@ class Mails {
         return $this->getMailById($data["mailid"]);
     }
 
-    public function delDraft($mailid, $accountid) {
-        $sql = "DELETE FROM Mails WHERE MailId = :mailid AND AccountId = :accountid AND State = 1";
+    public function prepareDraft($data) { // Change state to Sending(2) and let other do the actual send
+        $sql = "UPDATE Mails SET Subject = :subject, Body = :body, State = 2 WHERE MailId = :mailid AND AccountId = :accountid AND State = 1";
         $q = $this->db->prepare($sql);
-        $q->bindValue(":mailid",    $mailid,    PDO::PARAM_INT);
-        $q->bindValue(":accountid", $accountid, PDO::PARAM_INT);
+        $q->bindValue(":mailid",    $data["mailid"],    PDO::PARAM_INT);
+        $q->bindValue(":accountid", $data["accountid"], PDO::PARAM_INT);
+        $q->bindValue(":subject",   $data["subject"]);
+        $q->bindValue(":body",      $data["body"]);
         $q->execute();
+        return $this->newDraft($data["accountid"]); // Return a fresh draft
     }
 
+// MAILS:
     public function getMails($state) {
         $sql = "SELECT * FROM Mails WHERE :state1 IS NULL or State = :state2 ORDER BY Modified DESC";
         $q = $this->db->prepare($sql);
@@ -140,6 +145,7 @@ class Mails {
         return $result;
     }
 
+// MAIL CHECK:
     private function mailCheck($row) {
         $result = new MailCheck();
         $result->checkid   = $row["CheckId"];
@@ -156,7 +162,9 @@ class Mails {
         $rows = $q->fetchAll();
         return $this->mailCheck($rows[0]);
     }
-        public function getParkingsPersonsFiltered($filter) {
+
+// RECIPIENTS FROM TABS:
+    public function getParkingsPersonsFiltered($filter) {
         $parkingid  = "%" . $filter["parkingid"] . "%";
         $depot      = $filter["depot"];
         $charger    = $filter["charger"];

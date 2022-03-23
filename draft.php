@@ -8,12 +8,16 @@ $mails = new Mails($pdo);
 try {
     switch($_SERVER["REQUEST_METHOD"]) {
         case "GET":
-            $result = $mails->getDrafts(intval(clean_input($_GET["accountid"])));
+            $result = $mails->getDraft(intval(clean_input($_GET["accountid"])));
             break;
 
         case "POST":
-            $accountid = intval(clean_input($_POST["accountid"])),
-            $result = $mails->newDraft($accountid);
+            $result = $mails->prepareDraft(array(
+                "mailid"    => intval(clean_input($_POST["mailid"])),
+                "accountid" => intval(clean_input($_POST["accountid"])),
+                "subject"   => clean_input($_POST["subject"]),
+                "body"      => clean_input($_POST["body"])
+            ));
             break;
 
         case "PUT":
@@ -24,13 +28,6 @@ try {
                 "subject"   => clean_input($_PUT["subject"]),
                 "body"      => clean_input($_PUT["body"])
             ));
-            break;
-
-        case "DELETE":
-            parse_str(file_get_contents("php://input"), $_DELETE);
-            $mailid    = intval($_DELETE["mailid"]);
-            $accountid = intval($_DELETE["accountid"]);
-            $result    = $mails->delDraft($mailid, $accountid);
             break;
     }
 

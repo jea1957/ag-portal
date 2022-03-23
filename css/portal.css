@@ -51,8 +51,8 @@ body {
 }
 
 .mail-line {
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
 }
 
 #draft_from, #mail_from {
@@ -64,7 +64,7 @@ body {
 
 #draft_to {
     flex: 0 0 auto;
-    margin-bottom: 0.5rem;
+/*    margin-bottom: 0.5rem;*/
     resize: none;
 }
 
@@ -76,7 +76,7 @@ body {
 
 #draft_subject {
     flex: 0 0 auto;
-    margin-bottom: 0.5rem;
+/*    margin-bottom: 0.5rem;*/
 }
 
 #mail_subject {
@@ -86,19 +86,15 @@ body {
     margin-bottom: 0.5rem;
 */
 }
-
+/*
 #draft_attachments, #mail_attachments {
     flex: 0 0 auto;
     margin-bottom: 0.5rem;
     resize: none;
 }
-
+*/
 #draft_body, #mail_body {
     flex: 1 1 auto;
-    margin-bottom: 0.5rem;
+/*    margin-bottom: 0.5rem;*/
     resize: none;
-}
-
-.ruler {
-    margin: 0;
 }

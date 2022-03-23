@@ -175,43 +175,71 @@ require_once __DIR__ . '/check_timeout.php';
     <div class="tab-pane fade" id="draft_pane">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-lg-4">
-                    <h4>Modtagere:</h4>
+                <div class="col-lg-2">
                     <div>
-                        <input type="checkbox" id="mail_apartments">
-                        <label for="mail_apartments"><?php L('apartments') ?></label>
-                        <input type="checkbox" id="mail_parkings">
-                        <label for="mail_parkings"><?php L('parkings') ?></label>
-                        <input type="checkbox" id="mail_depots">
-                        <label for="mail_depots"><?php L('depots') ?></label>
-                        <input type="checkbox" id="mail_persons">
-                        <label for="mail_persons"><?php L('persons') ?></label>
+                        <h5><?php echo ucfirst(_L('msg_receivers')) ?>:</h5>
                     </div>
                     <div>
-                        <input type="checkbox" id="mail_board">
-                        <label for="mail_caretaker"><?php L('acc_role_board') ?></label>
-                        <input type="checkbox" id="mail_caretaker">
-                        <label for="mail_caretaker"><?php L('acc_role_caretaker') ?></label>
-                        <input type="checkbox" id="mail_administrator">
-                        <label for="mail_administrator"><?php L('acc_role_administrator') ?></label>
+                        <input type="checkbox" id="draft_apartments" checked>
+                        <label for="draft_apartments"><?php L('apartments') ?></label>
                     </div>
-                    <div class="flex-grid" id="draft_grid"></div>
+                    <div>
+                        <input type="checkbox" id="draft_parkings">
+                        <label for="draft_parkings"><?php L('parkings') ?></label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="draft_depots">
+                        <label for="draft_depots"><?php L('depots') ?></label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="draft_persons">
+                        <label for="draft_persons"><?php L('persons') ?></label>
+                    </div>
+                    <hr class="w-100">
+                    <div>
+                        <input type="checkbox" id="draft_board" checked>
+                        <label for="draft_board"><?php L('acc_role_board') ?></label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="draft_caretaker">
+                        <label for="draft_caretaker"><?php L('acc_role_caretaker') ?></label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="draft_administrator">
+                        <label for="draft_administrator"><?php L('acc_role_administrator') ?></label>
+                    </div>
+                    <hr class="w-100">
+                    <button type="button" class="my-2" id="draft_save" onclick="event.preventDefault(); draftSave()" disabled>
+                        <?php L('msg_save') ?>
+                    </button>
+                    <button type="button" class="my-2" id="draft_clear" onclick="event.preventDefault(); draftClear()">
+                        <?php L('msg_clear') ?>
+                    </button>
+                    <button type="button" class="my-2" id="draft_attach" onclick="event.preventDefault(); draftAttach()">
+                        <?php L('msg_attach') ?>
+                    </button>
+                    <button type="button" class="my-2" id="draft_send" onclick="event.preventDefault(); draftSend()" disabled>
+                        <?php L('msg_send') ?>
+                    </button>
                 </div>
-                <div class="col-lg-8">
-                    <div class="btn-toolbar justify-content-between my-1">
-                        <div class="btn-group">
-                            <button type="button" class="mr-2"><?php L('msg_clear') ?></button>
-                            <button type="button"><?php L('msg_save') ?></button>
-                        </div>
-                        <div class="btn-group">
-                           <button type="button"><?php L('msg_send') ?></button>
-                        </div>
+                <div class="col-lg-10">
+                    <div class="mail-line">
+                        <strong>&nbsp;<?php L('msg_to') ?>:&nbsp;</strong>
+                        <span id="draft_num_rx"></span>
                     </div>
-                    <input type="text" id="draft_from" name="draft_from" placeholder="<?php L('msg_from') ?>">
-                    <textarea id="draft_to" name="draft_to" placeholder="<?php L('msg_to') ?>"></textarea>
-                    <input type="text" class="mb-1" id="draft_subject" name="draft_subject" placeholder="<?php L('msg_subject') ?>">
-                    <textarea id="draft_body" name="draft_body" placeholder="<?php L('msg_body') ?>"></textarea>
-                    <textarea id="draft_attachments" name="draft_attachments" placeholder="<?php L('msg_attachments') ?>"></textarea>
+                    <textarea id="draft_to" name="draft_to" readonly></textarea>
+                    <div class="mail-line">
+                        <strong><?php L('msg_subject') ?>:&nbsp;</strong>
+                    </div>
+                    <input type="text" id="draft_subject" name="draft_subject" oninput="draftChanged()">
+                    <div class="mail-line">
+                        <strong><?php L('msg_body') ?>:&nbsp;</strong>
+                    </div>
+                    <textarea id="draft_body" name="draft_body" oninput="draftChanged()"></textarea>
+                    <div class="mail-line">
+                        <strong><?php L('msg_attachments') ?>:&nbsp;</strong>
+                        <span id="draft_attachments"></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -219,34 +247,31 @@ require_once __DIR__ . '/check_timeout.php';
     <div class="tab-pane fade" id="mails_pane">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-lg-4">
+                <div class="col-lg-2">
                     <div class="flex-grid" id="mails_grid"></div>
                 </div>
-                <div class="col-lg-8">
+                <div class="col-lg-10">
                     <div class="mail-line">
                         <strong><?php L('msg_sent') ?>:&nbsp;</strong>
                         <span id="mail_date"></span>
                         <strong>&nbsp;<?php L('msg_by') ?>:&nbsp;</strong>
                         <span id="mail_from"></span>
                         <strong>&nbsp;<?php L('msg_to') ?>:&nbsp;</strong>
+                        <span id="mail_num_rx"></span>
                     </div>
-                    <!--
-                    <hr class="w-100 ruler">
-                    <hr class="w-100 ruler">
-                    -->
                     <textarea id="mail_to" name="mail_to" placeholder="<?php L('msg_to') ?>" readonly></textarea>
                     <div class="mail-line">
                         <strong><?php L('msg_subject') ?>:&nbsp;</strong>
-                        <span id="mail_subject"></span>
                     </div>
-                    <textarea id="mail_body" name="mail_body" placeholder="<?php L('msg_body') ?>" readonly></textarea>
+                    <input type="text" id="mail_subject" name="mail_subject" readonly>
+                    <div class="mail-line">
+                        <strong><?php L('msg_body') ?>:&nbsp;</strong>
+                    </div>
+                    <textarea id="mail_body" name="mail_body" readonly></textarea>
                     <div class="mail-line">
                         <strong><?php L('msg_attachments') ?>:&nbsp;</strong>
                         <span id="mail_attachments"></span>
                     </div>
-                    <!--
-                    <textarea id="mail_attachments" name="mail_attachments" placeholder="<?php L('msg_attachments') ?>"></textarea>
-                    -->
                 </div>
             </div>
         </div>
@@ -346,6 +371,8 @@ const account_id  = <?php echo json_encode($_SESSION['account_id']); ?>;
 const role_admin  = <?php echo json_encode($_SESSION['role_admin']); ?>;
 const role_update = <?php echo json_encode($_SESSION['role_update']); ?>;
 const role_mail   = <?php echo json_encode($_SESSION['role_mail']); ?>;
+
+var currentDraft;
 
 const relations = [ { id: 0, relation: "<?php L('select') ?>" },
                     { id: 1, relation: "<?php L('rel_owner') ?>" },
@@ -856,7 +883,7 @@ function personsGrid() {
             $('#persons_modal').modal('show');
         },
         fields: [
-            { width:  10, name: "personid", title: "Id",                        type: "text", filtering: false, editing: false, inserting: false },
+            { width:  10, name: "personid", title: "Id",                        type: "number", filtering: false, editing: false, inserting: false },
             { width: 100, name: "name",     title: "<?php L('pe_name') ?>",     type: "text", validate: "required" },
             { width: 100, name: "address",  title: "<?php L('pe_address') ?>",  type: "text", validate: "required" },
             { width: 100, name: "email",    title: "<?php L('pe_email') ?>",    type: "text", validate: "email" },
@@ -1179,59 +1206,102 @@ function depotsPersons(gridId, historicalId, personId, id) {
 //------------------------------------------------------------------------------
 // Draft
 //------------------------------------------------------------------------------
-function draftGrid() {
-    $('#draft_grid').jsGrid("destroy");
+function draftGetFilters() {
+    let filter = {};
+    if ($('#draft_apartments').prop('checked')) {
+        filter['apartments'] = apartmentFilter();
+    }
+    if ($('#draft_parkings').prop('checked')) {
+        filter['parkings'] = parkingFilter();
+    }
+    if ($('#draft_depots').prop('checked')) {
+       filter['depots'] = depotFilter();
+    }
+    if ($('#draft_persons').prop('checked')) {
+        filter['persons'] = personFilter();
+    }
+    if ($('#draft_board').prop('checked')) {
+        filter['board'] = true;
+    }
+    if ($('#draft_caretaker').prop('checked')) {
+        filter['caretaker'] = true;
+    }
+    if ($('#draft_administrator').prop('checked')) {
+        filter['administrator'] = true;
+    }
+    console.log("draftGetFilters()", filter);
+}
 
-    $("#draft_grid").jsGrid({
-        width: "100%",
-        height: "100%",
-        inserting: role_admin,
-        editing: role_admin,
-        filtering: true,
-        sorting: true,
-        autoload: true,
-        deleteConfirm: "<?php L('del_account') ?>",
-        controller: {
-            loadData: function(filter) {
-                console.log("Drafts filter:", filter);
-                return $.ajax({
-                    type: "GET",
-                    url: "persons.php",
-                    data: filter
-                });
-            },
-            updateItem: function(item) {
-                return $.ajax({
-                    type: "PUT",
-                    url: "accounts.php",
-                    data: item
-                });
-            },
-            deleteItem: function(item) {
-                return $.ajax({
-                    type: "DELETE",
-                    url: "accounts.php",
-                    data: item
-                });
-            }
-        },
-        onError: function(args) {
-            alert(args.args[0].responseJSON);
-        },
-        fields: [
-            { width:  10, name: "personid", title: "Id",                        type: "text", filtering: false, editing: false, inserting: false, visible: false },
-            { width: 100, name: "name",     title: "<?php L('pe_name') ?>",     type: "text", validate: "required" },
-            { width: 100, name: "address",  title: "<?php L('pe_address') ?>",  type: "text", validate: "required" },
-            { width: 100, name: "email",    title: "<?php L('pe_email') ?>",    type: "text", validate: "email" },
-          //{ width:  10, name: "nomails",  title: '<span class="ui-icon ui-icon-mail-closed" title="Send mail to this person"></span>',
-          //  type: "checkbox" },
-            { width:  10, name: "nomails",  title: '<span title="<?php L('pe_noemail_tip') ?>"><?php L('pe_noemail') ?></span>', type: "checkbox", vivible: false },
-            { width:  50, name: "phone",    title: "<?php L('pe_phone') ?>",    type: "text", },
-            { width:  80, name: "modified", title: "<?php L('modified') ?>", type: "text",
-              filtering: false, editing: false, inserting: false, itemTemplate: localTime, visible: false },
-            { width:  10, type: "control", editButton: role_update, deleteButton: role_update, modeSwitchButton: role_update}
-        ]
+function draftGet() {
+    console.log("draftGet()");
+    $.ajax({
+        type: "GET",
+        url: "draft.php",
+        data: { accountid: account_id }
+    }).then(function(a) {
+        currentDraft = a.mailid;
+        console.log("currentDraft: " + currentDraft);
+        $('#draft_subject').val(a.subject);
+        $('#draft_body').val(a.body);
+        const content = a.body.trim();
+        $('#draft_send').prop('disabled', content === '');
     });
+
+}
+
+function draftSave() {
+    console.log("draftSave()");
+    $.ajax({
+        type: "PUT",
+        url: "draft.php",
+        data: { mailid: currentDraft, accountid: account_id, subject: $('#draft_subject').val(), body: $('#draft_body').val() }
+    });
+    $('#draft_save').prop('disabled', true);
+}
+
+function draftClear() {
+    console.log("draftClear()");
+    if (confirm("<?php L('msg_del_confirm') ?>")) {
+        $.ajax({
+            type: "PUT",
+            url: "draft.php",
+            data: { mailid: currentDraft, accountid: account_id, subject: '', body: '' }
+        }).then(function(a) {
+            $('#draft_subject').val(a.subject);
+            $('#draft_body').val(a.body);
+        });
+    }
+}
+
+function draftAttach() {
+    console.log("draftAttach()");
+    draftGetFilters();
+    //alert("Attach not implemented!");
+}
+
+function draftSend() {
+    console.log("draftSend()");
+    $.ajax({
+        type: "POST",
+        url: "draft.php",
+        data: { mailid: currentDraft, accountid: account_id, subject: $('#draft_subject').val(), body: $('#draft_body').val() }
+    }).then(function(a) { // Returns a new draft
+        currentDraft = a.mailid;
+        console.log("currentDraft: " + currentDraft);
+        $('#draft_subject').val(a.subject);
+        $('#draft_body').val(a.body);
+    });
+}
+
+function draftChanged() {
+    console.log("draftChanged()");
+    $('#draft_save').prop('disabled', false);
+    const content = $('#draft_body').val().trim();
+    $('#draft_send').prop('disabled', content === '');
+}
+
+function draftTab() {
+    draftGet();
 }
 
 //------------------------------------------------------------------------------
@@ -1256,13 +1326,19 @@ function mailRecipientsToHtml(recipients) {
 function updateMailItems(item) {
     $('#mail_date').html(item.modified);
     $('#mail_from').html(item.accountname);
-    $('#mail_subject').html(item.subject);
+    //$('#mail_subject').html(item.subject);
+    $('#mail_subject').val(item.subject);
     $('#mail_body').val(item.body);
     $.ajax({
         type: "GET",
         url: "mail_recipients.php",
         data: { mailid: item.mailid }
     }).then(function(a) {
+        if (a.length == 1) {
+            $('#mail_num_rx').html(`(${a.length} <?php L('msg_receiver') ?>)`);
+        } else {
+            $('#mail_num_rx').html(`(${a.length} <?php L('msg_receivers') ?>)`);
+        }
         $('#mail_to').val(mailRecipientsToTxt(a));
     });
 }
@@ -1320,6 +1396,10 @@ function mailsGrid() {
             { width:  20, name: "state",       type: "number", visible: false },
         ]
     });
+}
+
+function mailTab() {
+    mailsGrid();
 }
 
 //------------------------------------------------------------------------------
@@ -1576,8 +1656,8 @@ $(function() {
     }
 
     if (role_mail) {
-        draftGrid();
-        mailsGrid();
+        draftTab();
+        mailTab();
     }
 
     // These can wait
