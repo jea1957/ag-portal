@@ -52,6 +52,7 @@ require_once __DIR__ . '/check_timeout.php';
 
   <link rel="stylesheet" href="css/portal.css"/>
   <script src="js/jsgrid-da.js"></script>
+  <script src="js/tinymce/tinymce.min.js"></script>
 </head>
 <body>
 
@@ -235,7 +236,10 @@ require_once __DIR__ . '/check_timeout.php';
                     <div class="mail-line">
                         <strong><?php L('msg_body') ?>:&nbsp;</strong>
                     </div>
+                    <!--
                     <textarea id="draft_body" name="draft_body" oninput="draftChanged()"></textarea>
+                    -->
+                    <textarea id="draft_body" name="draft_body"></textarea>
                     <div class="mail-line">
                         <strong><?php L('msg_attachments') ?>:&nbsp;</strong>
                         <span id="draft_attachments"></span>
@@ -267,7 +271,10 @@ require_once __DIR__ . '/check_timeout.php';
                     <div class="mail-line">
                         <strong><?php L('msg_body') ?>:&nbsp;</strong>
                     </div>
+                    <!--
                     <textarea id="mail_body" name="mail_body" readonly></textarea>
+                    -->
+                    <textarea id="mail_body" name="mail_body"></textarea>
                     <div class="mail-line">
                         <strong><?php L('msg_attachments') ?>:&nbsp;</strong>
                         <span id="mail_attachments"></span>
@@ -1242,7 +1249,8 @@ function draftGet() {
         currentDraft = a.mailid;
         console.log("currentDraft: " + currentDraft);
         $('#draft_subject').val(a.subject);
-        $('#draft_body').val(a.body);
+        //$('#draft_body').val(a.body);
+        tinymce.get('draft_body').setContent(a.body);
         const content = a.body.trim();
         $('#draft_send').prop('disabled', content === '');
     });
@@ -1254,7 +1262,9 @@ function draftSave() {
     $.ajax({
         type: "PUT",
         url: "draft.php",
-        data: { mailid: currentDraft, accountid: account_id, subject: $('#draft_subject').val(), body: $('#draft_body').val() }
+        data: { mailid: currentDraft, accountid: account_id,
+                subject: $('#draft_subject').val(),
+                body: tinymce.get('draft_body').getContent() }
     });
     $('#draft_save').prop('disabled', true);
 }
@@ -1268,7 +1278,8 @@ function draftClear() {
             data: { mailid: currentDraft, accountid: account_id, subject: '', body: '' }
         }).then(function(a) {
             $('#draft_subject').val(a.subject);
-            $('#draft_body').val(a.body);
+            //$('#draft_body').val(a.body);
+            tinymce.get('draft_body').setContent(a.body);
         });
     }
 }
@@ -1289,19 +1300,32 @@ function draftSend() {
         currentDraft = a.mailid;
         console.log("currentDraft: " + currentDraft);
         $('#draft_subject').val(a.subject);
-        $('#draft_body').val(a.body);
+        //$('#draft_body').val(a.body);
+        tinymce.get('draft_body').setContent(a.body);
     });
 }
 
 function draftChanged() {
     console.log("draftChanged()");
     $('#draft_save').prop('disabled', false);
-    const content = $('#draft_body').val().trim();
+    //const content = $('#draft_body').val().trim();
+    const content = tinymce.get('draft_body').getContent().trim();
     $('#draft_send').prop('disabled', content === '');
 }
 
 function draftTab() {
     draftGet();
+    tinymce.init({
+      selector: '#draft_body',
+      language: 'da',
+      //readonly: true,
+      menubar: false,
+      //toolbar: false,
+      //statusbar: false,
+      branding: false, // To disable Tiny logo
+      resize: false, // To remove resize icon in lower left corner
+      onchange_callback: "draftChanged",
+    });
 }
 
 //------------------------------------------------------------------------------
@@ -1326,9 +1350,8 @@ function mailRecipientsToHtml(recipients) {
 function updateMailItems(item) {
     $('#mail_date').html(item.modified);
     $('#mail_from').html(item.accountname);
-    //$('#mail_subject').html(item.subject);
     $('#mail_subject').val(item.subject);
-    $('#mail_body').val(item.body);
+    tinymce.get('mail_body').setContent(item.body);
     $.ajax({
         type: "GET",
         url: "mail_recipients.php",
@@ -1400,6 +1423,16 @@ function mailsGrid() {
 
 function mailTab() {
     mailsGrid();
+    tinymce.init({
+      selector: '#mail_body',
+      language: 'da',
+      readonly: true,
+      menubar: false,
+      toolbar: false,
+      //statusbar: false,
+      //branding: false, // To disable Tiny logo
+      //resize: false, // To remove resize icon in lower left corner
+    });
 }
 
 //------------------------------------------------------------------------------
