@@ -103,6 +103,8 @@ $lang_array = [
     "msg_send"        => "Send",
     "msg_sent"        => "Sendt",
     "msg_del_confirm" => "Vil du slette denne besked?",
+    "msg_no_subject"  => "Emnefelt må ikke være tomt!",
+    "msg_no_body"     => "Beskedfelt må ikke være tomt!",
     "mq_check"        => "Mail check",
 
     "rel_apartment" => "Tilknytninger til lejlighed ",

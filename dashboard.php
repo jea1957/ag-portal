@@ -209,19 +209,6 @@ require_once __DIR__ . '/check_timeout.php';
                         <input type="checkbox" id="draft_administrator">
                         <label for="draft_administrator"><?php L('acc_role_administrator') ?></label>
                     </div>
-                    <hr class="w-100">
-                    <button type="button" class="my-2" id="draft_save" onclick="event.preventDefault(); draftSave()" disabled>
-                        <?php L('msg_save') ?>
-                    </button>
-                    <button type="button" class="my-2" id="draft_clear" onclick="event.preventDefault(); draftClear()">
-                        <?php L('msg_clear') ?>
-                    </button>
-                    <button type="button" class="my-2" id="draft_attach" onclick="event.preventDefault(); draftAttach()">
-                        <?php L('msg_attach') ?>
-                    </button>
-                    <button type="button" class="my-2" id="draft_send" onclick="event.preventDefault(); draftSend()" disabled>
-                        <?php L('msg_send') ?>
-                    </button>
                 </div>
                 <div class="col-lg-10">
                     <div class="mail-line">
@@ -232,13 +219,10 @@ require_once __DIR__ . '/check_timeout.php';
                     <div class="mail-line">
                         <strong><?php L('msg_subject') ?>:&nbsp;</strong>
                     </div>
-                    <input type="text" id="draft_subject" name="draft_subject" oninput="draftChanged()">
+                    <input type="text" id="draft_subject" name="draft_subject">
                     <div class="mail-line">
                         <strong><?php L('msg_body') ?>:&nbsp;</strong>
                     </div>
-                    <!--
-                    <textarea id="draft_body" name="draft_body" oninput="draftChanged()"></textarea>
-                    -->
                     <textarea id="draft_body" name="draft_body"></textarea>
                     <div class="mail-line">
                         <strong><?php L('msg_attachments') ?>:&nbsp;</strong>
@@ -271,9 +255,6 @@ require_once __DIR__ . '/check_timeout.php';
                     <div class="mail-line">
                         <strong><?php L('msg_body') ?>:&nbsp;</strong>
                     </div>
-                    <!--
-                    <textarea id="mail_body" name="mail_body" readonly></textarea>
-                    -->
                     <textarea id="mail_body" name="mail_body"></textarea>
                     <div class="mail-line">
                         <strong><?php L('msg_attachments') ?>:&nbsp;</strong>
@@ -302,6 +283,8 @@ require_once __DIR__ . '/check_timeout.php';
         <p><?php echo print_r($_SERVER['HTTP_ACCEPT_LANGUAGE'], 1) ?></p>
         <p><?php echo print_r(locale_accept_from_http($_SERVER['HTTP_ACCEPT_LANGUAGE']), 1) ?></p>
         <i class="bi-alarm" style="font-size: 2rem; color: cornflowerblue;"></i>
+        <br>
+        <span id="custom_send" class="bi-send"></span>
         <button type="button" onclick="event.preventDefault(); console.log(apartmentFilter());">ApartmentFilter</button>
         <?php
             //phpinfo();
@@ -1249,10 +1232,7 @@ function draftGet() {
         currentDraft = a.mailid;
         console.log("currentDraft: " + currentDraft);
         $('#draft_subject').val(a.subject);
-        //$('#draft_body').val(a.body);
-        tinymce.get('draft_body').setContent(a.body);
-        const content = a.body.trim();
-        $('#draft_send').prop('disabled', content === '');
+        tinymce.get('draft_body').resetContent(a.body);
     });
 
 }
@@ -1265,8 +1245,10 @@ function draftSave() {
         data: { mailid: currentDraft, accountid: account_id,
                 subject: $('#draft_subject').val(),
                 body: tinymce.get('draft_body').getContent() }
+    }).then(function(a) {
+        $('#draft_subject').val(a.subject);
+        tinymce.get('draft_body').resetContent(a.body);
     });
-    $('#draft_save').prop('disabled', true);
 }
 
 function draftClear() {
@@ -1278,8 +1260,7 @@ function draftClear() {
             data: { mailid: currentDraft, accountid: account_id, subject: '', body: '' }
         }).then(function(a) {
             $('#draft_subject').val(a.subject);
-            //$('#draft_body').val(a.body);
-            tinymce.get('draft_body').setContent(a.body);
+            tinymce.get('draft_body').resetContent(a.body);
         });
     }
 }
@@ -1292,40 +1273,66 @@ function draftAttach() {
 
 function draftSend() {
     console.log("draftSend()");
+    const subject = $('#draft_subject').val();
+    if (subject.trim().length === 0) {
+        alert('<?php L('msg_no_subject') ?>');
+        return;
+    }
+    const bodytext = tinymce.get('draft_body').getContent({format: 'text'});
+    if (bodytext.trim().length === 0) {
+        alert('<?php L('msg_no_body') ?>');
+        return;
+    }
+    const body = tinymce.get('draft_body').getContent();
     $.ajax({
         type: "POST",
         url: "draft.php",
-        data: { mailid: currentDraft, accountid: account_id, subject: $('#draft_subject').val(), body: $('#draft_body').val() }
+        data: { mailid: currentDraft, accountid: account_id, subject: subject, body: body }
     }).then(function(a) { // Returns a new draft
         currentDraft = a.mailid;
         console.log("currentDraft: " + currentDraft);
         $('#draft_subject').val(a.subject);
-        //$('#draft_body').val(a.body);
-        tinymce.get('draft_body').setContent(a.body);
+        tinymce.get('draft_body').resetContent(a.body);
     });
-}
-
-function draftChanged() {
-    console.log("draftChanged()");
-    $('#draft_save').prop('disabled', false);
-    //const content = $('#draft_body').val().trim();
-    const content = tinymce.get('draft_body').getContent().trim();
-    $('#draft_send').prop('disabled', content === '');
 }
 
 function draftTab() {
-    draftGet();
     tinymce.init({
       selector: '#draft_body',
+      setup: function(editor) {
+          editor.ui.registry.addButton('customSaveButton', {
+              text: '<?php L('msg_save') ?>',
+              onAction: function(_) {
+                  draftSave();
+              }
+          });
+          editor.ui.registry.addButton('customClearButton', {
+              text: '<?php L('msg_clear') ?>',
+              onAction: function(_) {
+                  draftClear();
+              }
+          });
+          editor.ui.registry.addButton('customAttachButton', {
+              text: '<?php L('msg_attach') ?>',
+              onAction: function(_) {
+                  draftAttach();
+              }
+          });
+          editor.ui.registry.addButton('customSendButton', {
+              text: '<?php L('msg_send') ?>',
+              onAction: function(_) {
+                  draftSend();
+              }
+          });
+      },
       language: 'da',
-      //readonly: true,
       menubar: false,
-      //toolbar: false,
-      //statusbar: false,
-      branding: false, // To disable Tiny logo
-      resize: false, // To remove resize icon in lower left corner
-      onchange_callback: "draftChanged",
+      plugins: 'autosave autolink',
+      toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | ' +
+               'customSaveButton  customClearButton  customAttachButton | customSendButton',
+      statusbar: false,
     });
+    draftGet();
 }
 
 //------------------------------------------------------------------------------
@@ -1429,9 +1436,7 @@ function mailTab() {
       readonly: true,
       menubar: false,
       toolbar: false,
-      //statusbar: false,
-      //branding: false, // To disable Tiny logo
-      //resize: false, // To remove resize icon in lower left corner
+      statusbar: false,
     });
 }
 

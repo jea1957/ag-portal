@@ -16,7 +16,7 @@ try {
                 "mailid"    => intval(clean_input($_POST["mailid"])),
                 "accountid" => intval(clean_input($_POST["accountid"])),
                 "subject"   => clean_input($_POST["subject"]),
-                "body"      => clean_input($_POST["body"])
+                "body"      => trim($_POST["body"]) // Keep html content
             ));
             break;
 
@@ -26,7 +26,7 @@ try {
                 "mailid"    => intval(clean_input($_PUT["mailid"])),
                 "accountid" => intval(clean_input($_PUT["accountid"])),
                 "subject"   => clean_input($_PUT["subject"]),
-                "body"      => clean_input($_PUT["body"])
+                "body"      => trim($_PUT["body"]) // Keep html content
             ));
             break;
     }
