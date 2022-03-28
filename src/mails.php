@@ -203,6 +203,9 @@ class Mails {
         return $result;
     }
 
+    public function setMailRecipients($filter) {
+        return $filter;
+    }
 
 }
 

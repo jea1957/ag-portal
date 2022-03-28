@@ -11,7 +11,7 @@ try {
         case "GET":
             $result = $depots->getFiltered(array(
                 "depotid"    => clean_input($_GET["depotid"]),
-                "number"     => clean_input($_GET["number"]),
+                "number"     => clean_input($_GET["number"])
             ));
             break;
 

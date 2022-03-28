@@ -1219,7 +1219,20 @@ function draftGetFilters() {
     if ($('#draft_administrator').prop('checked')) {
         filter['administrator'] = true;
     }
-    console.log("draftGetFilters()", filter);
+    return filter;
+}
+
+function draftSetRecipients() {
+    const filter = draftGetFilters();
+    const data = { mailid: currentDraft, accountid: account_id, ...filter };
+    $.ajax({
+        type: "POST",
+        url: "mail_recipients.php",
+        data: data
+    }).then(function(a) {
+        console.log("recipients: ");
+        console.dir(a);
+    });
 }
 
 function draftGet() {
@@ -1267,7 +1280,7 @@ function draftClear() {
 
 function draftAttach() {
     console.log("draftAttach()");
-    draftGetFilters();
+    draftSetRecipients();
     //alert("Attach not implemented!");
 }
 
@@ -1358,7 +1371,7 @@ function updateMailItems(item) {
     $('#mail_date').html(item.modified);
     $('#mail_from').html(item.accountname);
     $('#mail_subject').val(item.subject);
-    tinymce.get('mail_body').setContent(item.body);
+    tinymce.get('mail_body').resetContent(item.body);
     $.ajax({
         type: "GET",
         url: "mail_recipients.php",
