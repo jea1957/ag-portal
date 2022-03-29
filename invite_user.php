@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/src/require_all.php';
+session_write_close(); // No write access needed anymore
 
 if (empty($_POST["name"]) || empty($_POST["email"]) || empty($_POST["otp"])) {
     header("Content-Type: application/json");

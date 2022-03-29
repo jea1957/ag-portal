@@ -2,6 +2,7 @@
 
 $session_redirect = '.';
 require_once __DIR__ . '/src/require_all.php';
+session_write_close(); // No write access needed anymore
 require_once __DIR__ . '/check_timeout.php';
 
 ?>
@@ -34,6 +35,10 @@ require_once __DIR__ . '/check_timeout.php';
         integrity="sha512-3Epqkjaaaxqq/lt5RLJsTzP6cCIFyipVRcY4BcPfjOiGM1ZyFCv4HHeWS7eCPVaAigY3Ha3rhRgOsWaWIClqQQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 
+  <link rel="stylesheet" href="css/portal.css"/>
+
+  <script src="js/tinymce/tinymce.min.js"></script>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
           integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
           crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -50,9 +55,7 @@ require_once __DIR__ . '/check_timeout.php';
           integrity="sha512-blBYtuTn9yEyWYuKLh8Faml5tT/5YPG0ir9XEABu5YCj7VGr2nb21WPFT9pnP4fcC3y0sSxJR1JqFTfTALGuPQ=="
           crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-  <link rel="stylesheet" href="css/portal.css"/>
   <script src="js/jsgrid-da.js"></script>
-  <script src="js/tinymce/tinymce.min.js"></script>
 </head>
 <body>
 
@@ -1337,6 +1340,9 @@ function draftTab() {
                   draftSend();
               }
           });
+          editor.on('init', function(e) {
+              draftGet();
+          });
       },
       language: 'da',
       menubar: false,
@@ -1345,7 +1351,6 @@ function draftTab() {
                'customSaveButton  customClearButton  customAttachButton | customSendButton',
       statusbar: false,
     });
-    draftGet();
 }
 
 //------------------------------------------------------------------------------
@@ -1387,8 +1392,6 @@ function updateMailItems(item) {
 }
 
 function mailsGrid() {
-    $('#mails_grid').jsGrid("destroy");
-
     $("#mails_grid").jsGrid({
         width: "100%",
         height: "100%",
@@ -1442,9 +1445,13 @@ function mailsGrid() {
 }
 
 function mailTab() {
-    mailsGrid();
     tinymce.init({
       selector: '#mail_body',
+      setup: function(editor) {
+          editor.on('init', function(e) {
+              mailsGrid();
+          });
+      },
       language: 'da',
       readonly: true,
       menubar: false,

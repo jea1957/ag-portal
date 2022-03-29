@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/src/require_all.php';
+session_write_close(); // No write access needed anymore
 require_once __DIR__ . '/src/parkings.php';
 
 $parkings = new Parkings($pdo);
