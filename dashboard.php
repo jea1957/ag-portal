@@ -365,7 +365,12 @@ const role_admin  = <?php echo json_encode($_SESSION['role_admin']); ?>;
 const role_update = <?php echo json_encode($_SESSION['role_update']); ?>;
 const role_mail   = <?php echo json_encode($_SESSION['role_mail']); ?>;
 
+// currentDraft contains mailid of current draft
 var currentDraft;
+
+// filterChanged is set to true when something has changed in
+// either apartments, parkings, depots or persons.
+var filterChanged = false;
 
 const relations = [ { id: 0, relation: "<?php L('select') ?>" },
                     { id: 1, relation: "<?php L('rel_owner') ?>" },
@@ -549,6 +554,9 @@ function apartmentsGrid() {
                 });
             }
         },
+        onRefreshed: function(args) {
+            filterChanged = true;
+        },
         onError: function(args) {
             alert(args.args[0].responseJSON);
         },
@@ -650,6 +658,9 @@ function parkingsGrid() {
                 });
             }
         },
+        onRefreshed: function(args) {
+            filterChanged = true;
+        },
         onError: function(args) {
             alert(args.args[0].responseJSON);
         },
@@ -750,6 +761,9 @@ function depotsGrid() {
         },
         onItemDeleted: function(args) {
             depotSelectUpdate();
+        },
+        onRefreshed: function(args) {
+            filterChanged = true;
         },
         onError: function(args) {
             alert(args.args[0].responseJSON);
@@ -864,6 +878,9 @@ function personsGrid() {
         },
         onItemDeleted: function(args) {
             personSelectUpdate();
+        },
+        onRefreshed: function(args) {
+            filterChanged = true;
         },
         onError: function(args) {
             alert(args.args[0].responseJSON);
@@ -1312,6 +1329,13 @@ function draftSend() {
     });
 }
 
+function draftTabEnter() {
+    if (filterChanged) {
+        console.log("filterChanged");
+        filterChanged = false;
+    }
+}
+
 function draftTab() {
     tinymce.init({
       selector: '#draft_body',
@@ -1347,8 +1371,8 @@ function draftTab() {
       language: 'da',
       menubar: false,
       plugins: 'autosave autolink',
-      toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | ' +
-               'customSaveButton  customClearButton  customAttachButton | customSendButton',
+      toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | ' +
+               'outdent indent | customSaveButton customClearButton customAttachButton | customSendButton',
       statusbar: false,
     });
 }
@@ -1392,6 +1416,8 @@ function updateMailItems(item) {
 }
 
 function mailsGrid() {
+    $('#mails_grid').jsGrid("destroy");
+
     $("#mails_grid").jsGrid({
         width: "100%",
         height: "100%",
@@ -1444,7 +1470,12 @@ function mailsGrid() {
     });
 }
 
-function mailTab() {
+function mailsTabEnter() {
+   console.log("mailsTabEnter()");
+   mailsGrid();
+}
+
+function mailsTab() {
     tinymce.init({
       selector: '#mail_body',
       setup: function(editor) {
@@ -1557,15 +1588,30 @@ $(function() {
     tick();
     setInterval(tick, 1000 * 60); // Call tick every minute
 
-    // Save active tab
+    // Track tab change
     $('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
         // Find previous and current tab
         // https://www.tutorialrepublic.com/twitter-bootstrap-4-tutorial/bootstrap-tabs.php
-        // console.log(`${$(e.relatedTarget).attr('id')} -> ${$(e.target).attr('id')}`);
+        const preTabId = $(e.relatedTarget).attr('id');
+        const curTabId = $(e.target).attr('id');
+        const curTabRef = $(e.target).attr('href');
+        //console.log(`${preTabId} -> ${curTabId} (${curTabRef})`);
+
+        // Tab actions
+        switch (curTabId) {
+            case 'draft_tab':
+                draftTabEnter();
+                break;
+            case 'mails_tab':
+                mailsTabEnter();
+                break;
+            default:
+                break;
+        }
 
         // Save active tab
         // https://www.tutorialrepublic.com/faq/how-to-keep-the-current-tab-active-on-page-reload-in-bootstrap.php
-        localStorage.setItem('activeTab', $(e.target).attr('href'));
+        localStorage.setItem('activeTab', curTabRef);
     });
 
     // Restore active tab
@@ -1715,7 +1761,7 @@ $(function() {
 
     if (role_mail) {
         draftTab();
-        mailTab();
+        mailsTab();
     }
 
     // These can wait
