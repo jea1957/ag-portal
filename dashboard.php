@@ -12,7 +12,7 @@ require_once __DIR__ . '/check_timeout.php';
   <meta charset="utf-8"/>
   <meta name="description" content="<?php echo $db_owner ?>">
   <meta name="author" content="<?php echo $db_author ?>">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?php echo $db_owner ?></title>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css"
@@ -112,15 +112,27 @@ require_once __DIR__ . '/check_timeout.php';
             <div class="row">
                 <div class="col-lg-12">
                     <div>
-                        <span><?php L('rel_show') ?>:</span>
-                        <label for="apartments_owner">&nbsp;&nbsp;<?php L('rel_owner') ?></label>
-                        <input type="checkbox" class="apartments_chk" id="apartments_owner" checked>
-                        <label for="apartments_extern">&nbsp;&nbsp;<?php L('rel_ext_owner') ?></label>
-                        <input type="checkbox" class="apartments_chk" id="apartments_extern" checked>
-                        <label for="apartments_tenant">&nbsp;&nbsp;<?php L('rel_tenant') ?></label>
-                        <input type="checkbox" class="apartments_chk" id="apartments_tenant" checked>
-                        <label for="apartments_historical">&nbsp;&nbsp;<?php L('rel_hist') ?></label>
-                        <input type="checkbox" class="apartments_chk" id="apartments_historical">
+                        <div class="form-check-inline"><?php L('rel_show') ?>:</div>
+                        <div class="form-check-inline">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input apartments_chk" id="apartments_owner" checked><?php L('rel_owner') ?>
+                          </label>
+                        </div>
+                        <div class="form-check-inline">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input apartments_chk" id="apartments_extern" checked><?php L('rel_ext_owner') ?>
+                          </label>
+                        </div>
+                        <div class="form-check-inline">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input apartments_chk" id="apartments_tenant" checked><?php L('rel_tenant') ?>
+                          </label>
+                        </div>
+                        <div class="form-check-inline">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input apartments_chk" id="apartments_historical"><?php L('rel_hist') ?>
+                          </label>
+                        </div>
                     </div>
                     <div class="flex-grid" id="apartments_grid"></div>
                 </div>
@@ -132,15 +144,27 @@ require_once __DIR__ . '/check_timeout.php';
             <div class="row">
                 <div class="col-lg-12">
                     <div>
-                        <span><?php L('rel_show') ?>:</span>
-                        <label for="parkings_owner">&nbsp;&nbsp;<?php L('rel_owner') ?></label>
-                        <input type="checkbox" class="parkings_chk" id="parkings_owner" checked>
-                        <label for="parkings_extern">&nbsp;&nbsp;<?php L('rel_ext_owner') ?></label>
-                        <input type="checkbox" class="parkings_chk" id="parkings_extern" checked>
-                        <label for="parkings_tenant">&nbsp;&nbsp;<?php L('rel_tenant') ?></label>
-                        <input type="checkbox" class="parkings_chk" id="parkings_tenant" checked>
-                        <label for="parkings_historical">&nbsp;&nbsp;<?php L('rel_hist') ?></label>
-                        <input type="checkbox" class="parkings_chk" id="parkings_historical">
+                        <div class="form-check-inline"><?php L('rel_show') ?>:</div>
+                        <div class="form-check-inline">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input parkings_chk" id="parkings_owner" checked><?php L('rel_owner') ?>
+                          </label>
+                        </div>
+                        <div class="form-check-inline">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input parkings_chk" id="parkings_extern" checked><?php L('rel_ext_owner') ?>
+                          </label>
+                        </div>
+                        <div class="form-check-inline">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input parkings_chk" id="parkings_tenant" checked><?php L('rel_tenant') ?>
+                          </label>
+                        </div>
+                        <div class="form-check-inline">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input parkings_chk" id="parkings_historical"><?php L('rel_hist') ?>
+                          </label>
+                        </div>
                     </div>
                     <div class="flex-grid" id="parkings_grid"></div>
                 </div>
@@ -152,9 +176,12 @@ require_once __DIR__ . '/check_timeout.php';
             <div class="row">
                 <div class="col-lg-6">
                     <div>
-                        <span><?php L('rel_show') ?>:</span>
-                        <label for="depots_historical">&nbsp;&nbsp;<?php L('rel_hist') ?></label>
-                        <input type="checkbox" class="depots_chk" id="depots_historical">
+                        <div class="form-check-inline"><?php L('rel_show') ?>:</div>
+                        <div class="form-check-inline">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input depots_chk" id="depots_historical"><?php L('rel_hist') ?>
+                          </label>
+                        </div>
                     </div>
                     <div class="flex-grid" id="depots_grid"></div>
                 </div>
@@ -166,9 +193,12 @@ require_once __DIR__ . '/check_timeout.php';
             <div class="row">
                 <div class="col-lg-12">
                     <div>
-                        <span><?php L('rel_show') ?>:</span>
-                        <label for="persons_historical">&nbsp;&nbsp;<?php L('rel_hist') ?></label>
-                        <input type="checkbox" class="persons_chk" id="persons_historical">
+                        <div class="form-check-inline"><?php L('rel_show') ?>:</div>
+                        <div class="form-check-inline">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input persons_chk" id="persons_historical"><?php L('rel_hist') ?>
+                          </label>
+                        </div>
                     </div>
                     <div class="flex-grid" id="persons_grid"></div>
                 </div>
@@ -179,43 +209,44 @@ require_once __DIR__ . '/check_timeout.php';
     <div class="tab-pane fade" id="draft_pane">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-lg-2">
-                    <div>
-                        <h5><?php echo ucfirst(_L('msg_receivers')) ?>:</h5>
-                    </div>
-                    <div>
-                        <input type="checkbox" id="draft_apartments" checked>
-                        <label for="draft_apartments"><?php L('apartments') ?></label>
-                    </div>
-                    <div>
-                        <input type="checkbox" id="draft_parkings">
-                        <label for="draft_parkings"><?php L('parkings') ?></label>
-                    </div>
-                    <div>
-                        <input type="checkbox" id="draft_depots">
-                        <label for="draft_depots"><?php L('depots') ?></label>
-                    </div>
-                    <div>
-                        <input type="checkbox" id="draft_persons">
-                        <label for="draft_persons"><?php L('persons') ?></label>
-                    </div>
-                    <hr class="w-100">
-                    <div>
-                        <input type="checkbox" id="draft_board" checked>
-                        <label for="draft_board"><?php L('acc_role_board') ?></label>
-                    </div>
-                    <div>
-                        <input type="checkbox" id="draft_caretaker">
-                        <label for="draft_caretaker"><?php L('acc_role_caretaker') ?></label>
-                    </div>
-                    <div>
-                        <input type="checkbox" id="draft_administrator">
-                        <label for="draft_administrator"><?php L('acc_role_administrator') ?></label>
-                    </div>
-                </div>
-                <div class="col-lg-10">
+                <div class="col-lg-12">
                     <div class="mail-line">
                         <strong>&nbsp;<?php L('msg_to') ?>:&nbsp;</strong>
+                        <div class="form-check-inline">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input" id="draft_apartments" checked><?php L('apartments') ?>
+                          </label>
+                        </div>
+                        <div class="form-check-inline">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input" id="draft_parkings"><?php L('parkings') ?>
+                          </label>
+                        </div>
+                        <div class="form-check-inline">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input" id="draft_depots"><?php L('depots') ?>
+                          </label>
+                        </div>
+                        <div class="form-check-inline">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input" id="draft_persons"><?php L('persons') ?>
+                          </label>
+                        </div>
+                        <div class="form-check-inline">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input" id="draft_board" checked><?php L('acc_role_board') ?>
+                          </label>
+                        </div>
+                        <div class="form-check-inline">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input" id="draft_caretaker"><?php L('acc_role_caretaker') ?>
+                          </label>
+                        </div>
+                        <div class="form-check-inline">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input" id="draft_administrator"><?php L('acc_role_administrator') ?>
+                          </label>
+                        </div>
                         <span id="draft_num_rx"></span>
                     </div>
                     <textarea id="draft_to" name="draft_to" readonly></textarea>
