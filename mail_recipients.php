@@ -60,7 +60,8 @@ try {
                 $p = $_POST["depots"];
                 $data["depots"] = [
                     "depotid"    => clean_input($p["depotid"]),
-                    "number"     => clean_input($p["number"])
+                    "number"     => clean_input($p["number"]),
+                    "historical" => (clean_input($p["historical"]) == "true") ? 1 : 0
                 ];
             }
             if (isset($_POST["persons"])) {
@@ -85,7 +86,7 @@ try {
                 $data["caretaker"] = 1;
             }
             if (isset($_POST["administrator"])) {
-                $data["administator"] = 1;
+                $data["administrator"] = 1;
             }
             $result = $mails->setMailRecipients($data);
             break;

@@ -214,42 +214,42 @@ require_once __DIR__ . '/check_timeout.php';
                         <strong>&nbsp;<?php L('msg_to') ?>:&nbsp;</strong>
                         <div class="form-check-inline">
                           <label class="form-check-label">
-                            <input type="checkbox" class="form-check-input" id="draft_apartments" checked><?php L('apartments') ?>
+                            <input type="checkbox" class="form-check-input draft_chk" id="draft_apartments" checked><?php L('apartments') ?>
                           </label>
                         </div>
                         <div class="form-check-inline">
                           <label class="form-check-label">
-                            <input type="checkbox" class="form-check-input" id="draft_parkings"><?php L('parkings') ?>
+                            <input type="checkbox" class="form-check-input draft_chk" id="draft_parkings"><?php L('parkings') ?>
                           </label>
                         </div>
                         <div class="form-check-inline">
                           <label class="form-check-label">
-                            <input type="checkbox" class="form-check-input" id="draft_depots"><?php L('depots') ?>
+                            <input type="checkbox" class="form-check-input draft_chk" id="draft_depots"><?php L('depots') ?>
                           </label>
                         </div>
                         <div class="form-check-inline">
                           <label class="form-check-label">
-                            <input type="checkbox" class="form-check-input" id="draft_persons"><?php L('persons') ?>
+                            <input type="checkbox" class="form-check-input draft_chk" id="draft_persons"><?php L('persons') ?>
                           </label>
                         </div>
                         <div class="form-check-inline">
                           <label class="form-check-label">
-                            <input type="checkbox" class="form-check-input" id="draft_board" checked><?php L('acc_role_board') ?>
+                            <input type="checkbox" class="form-check-input draft_chk" id="draft_board" checked><?php L('acc_role_board') ?>
                           </label>
                         </div>
                         <div class="form-check-inline">
                           <label class="form-check-label">
-                            <input type="checkbox" class="form-check-input" id="draft_caretaker"><?php L('acc_role_caretaker') ?>
+                            <input type="checkbox" class="form-check-input draft_chk" id="draft_caretaker"><?php L('acc_role_caretaker') ?>
                           </label>
                         </div>
                         <div class="form-check-inline">
                           <label class="form-check-label">
-                            <input type="checkbox" class="form-check-input" id="draft_administrator"><?php L('acc_role_administrator') ?>
+                            <input type="checkbox" class="form-check-input draft_chk" id="draft_administrator"><?php L('acc_role_administrator') ?>
                           </label>
                         </div>
                         <span id="draft_num_rx"></span>
                     </div>
-                    <textarea id="draft_to" name="draft_to" readonly></textarea>
+                    <textarea id="draft_to" name="draft_to" rows="5" readonly></textarea>
                     <div class="mail-line">
                         <strong><?php L('msg_subject') ?>:&nbsp;</strong>
                     </div>
@@ -269,10 +269,10 @@ require_once __DIR__ . '/check_timeout.php';
     <div class="tab-pane fade" id="mails_pane">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-lg-2">
+                <div class="col-lg-4">
                     <div class="flex-grid" id="mails_grid"></div>
                 </div>
-                <div class="col-lg-10">
+                <div class="col-lg-8">
                     <div class="mail-line">
                         <strong><?php L('msg_sent') ?>:&nbsp;</strong>
                         <span id="mail_date"></span>
@@ -281,7 +281,7 @@ require_once __DIR__ . '/check_timeout.php';
                         <strong>&nbsp;<?php L('msg_to') ?>:&nbsp;</strong>
                         <span id="mail_num_rx"></span>
                     </div>
-                    <textarea id="mail_to" name="mail_to" placeholder="<?php L('msg_to') ?>" readonly></textarea>
+                    <textarea id="mail_to" name="mail_to" rows="5" readonly></textarea>
                     <div class="mail-line">
                         <strong><?php L('msg_subject') ?>:&nbsp;</strong>
                     </div>
@@ -585,7 +585,16 @@ function apartmentsGrid() {
                 });
             }
         },
-        onRefreshed: function(args) {
+        onDataLoaded: function(args) {
+            filterChanged = true;
+        },
+        onItemInserted: function(args) {
+            filterChanged = true;
+        },
+        onItemUpdated: function(args) {
+            filterChanged = true;
+        },
+        onItemDeleted: function(args) {
             filterChanged = true;
         },
         onError: function(args) {
@@ -689,7 +698,16 @@ function parkingsGrid() {
                 });
             }
         },
-        onRefreshed: function(args) {
+        onDataLoaded: function(args) {
+            filterChanged = true;
+        },
+        onItemInserted: function(args) {
+            filterChanged = true;
+        },
+        onItemUpdated: function(args) {
+            filterChanged = true;
+        },
+        onItemDeleted: function(args) {
             filterChanged = true;
         },
         onError: function(args) {
@@ -784,16 +802,19 @@ function depotsGrid() {
                 });
             }
         },
+        onDataLoaded: function(args) {
+            filterChanged = true;
+        },
         onItemInserted: function(args) {
             depotSelectUpdate();
+            filterChanged = true;
         },
         onItemUpdated: function(args) {
             depotSelectUpdate();
+            filterChanged = true;
         },
         onItemDeleted: function(args) {
             depotSelectUpdate();
-        },
-        onRefreshed: function(args) {
             filterChanged = true;
         },
         onError: function(args) {
@@ -901,16 +922,19 @@ function personsGrid() {
                 });
             }
         },
+        onDataLoaded: function(args) {
+            filterChanged = true;
+        },
         onItemInserted: function(args) {
             personSelectUpdate();
+            filterChanged = true;
         },
         onItemUpdated: function(args) {
             personSelectUpdate();
+            filterChanged = true;
         },
         onItemDeleted: function(args) {
             personSelectUpdate();
-        },
-        onRefreshed: function(args) {
             filterChanged = true;
         },
         onError: function(args) {
@@ -1247,6 +1271,17 @@ function depotsPersons(gridId, historicalId, personId, id) {
 //------------------------------------------------------------------------------
 // Draft
 //------------------------------------------------------------------------------
+// Input is an object with email as key and name as value. E.g.:
+// { "alice@gmail.com": "Alice", "bob@hotmail.com": "Bob" }
+function draftRecipientsToTxt(recipients) {
+   let txt = '';
+   const keys = Object.keys(recipients);
+   keys.forEach((email, name) => {
+       txt += `${recipients[email]} <${email}>, `;
+   });
+   return txt;
+}
+
 function draftGetFilters() {
     let filter = {};
     if ($('#draft_apartments').prop('checked')) {
@@ -1273,6 +1308,7 @@ function draftGetFilters() {
     return filter;
 }
 
+// Fetch all filters and update database and 'to' field with emails found.
 function draftSetRecipients() {
     const filter = draftGetFilters();
     const data = { mailid: currentDraft, accountid: account_id, ...filter };
@@ -1281,8 +1317,19 @@ function draftSetRecipients() {
         url: "mail_recipients.php",
         data: data
     }).then(function(a) {
-        console.log("recipients: ");
-        console.dir(a);
+        if (a) {
+            const num_rcp = Object.keys(a).length;
+            if (num_rcp == 1) {
+                $('#draft_num_rx').html(`(${num_rcp}&nbsp;<?php L('msg_receiver') ?>)`);
+            } else {
+                $('#draft_num_rx').html(`(${num_rcp}&nbsp;<?php L('msg_receivers') ?>)`);
+            }
+            $('#draft_to').val(draftRecipientsToTxt(a));
+            //console.dir(a);
+        } else {
+            $('#draft_num_rx').html(`(0&nbsp;<?php L('msg_receivers') ?>)`);
+            $('#draft_to').val('');
+        }
     });
 }
 
@@ -1297,6 +1344,7 @@ function draftGet() {
         console.log("currentDraft: " + currentDraft);
         $('#draft_subject').val(a.subject);
         tinymce.get('draft_body').resetContent(a.body);
+        draftSetRecipients();
     });
 
 }
@@ -1331,7 +1379,6 @@ function draftClear() {
 
 function draftAttach() {
     console.log("draftAttach()");
-    draftSetRecipients();
     //alert("Attach not implemented!");
 }
 
@@ -1362,7 +1409,7 @@ function draftSend() {
 
 function draftTabEnter() {
     if (filterChanged) {
-        console.log("filterChanged");
+        draftSetRecipients();
         filterChanged = false;
     }
 }
@@ -1412,9 +1459,9 @@ function draftTab() {
 // Mails
 //------------------------------------------------------------------------------
 function mailRecipientsToTxt(recipients) {
-   let txt = "";
+   let txt = '';
    for (const r of recipients) {
-       txt += `${r.name} <${r.email}>; `;
+       txt += `${r.name} <${r.email}>, `;
    }
    return txt;
 }
@@ -1438,9 +1485,9 @@ function updateMailItems(item) {
         data: { mailid: item.mailid }
     }).then(function(a) {
         if (a.length == 1) {
-            $('#mail_num_rx').html(`(${a.length} <?php L('msg_receiver') ?>)`);
+            $('#mail_num_rx').html(`(${a.length}&nbsp;<?php L('msg_receiver') ?>)`);
         } else {
-            $('#mail_num_rx').html(`(${a.length} <?php L('msg_receivers') ?>)`);
+            $('#mail_num_rx').html(`(${a.length}&nbsp;<?php L('msg_receivers') ?>)`);
         }
         $('#mail_to').val(mailRecipientsToTxt(a));
     });
@@ -1792,6 +1839,12 @@ $(function() {
 
     if (role_mail) {
         draftTab();
+
+        // Run if one of the checkboxes on draft tab is changed
+        $('.draft_chk').change(function() {
+            draftSetRecipients();
+        });
+
         mailsTab();
     }
 

@@ -164,7 +164,51 @@ class Mails {
     }
 
 // RECIPIENTS FROM TABS:
-    public function getParkingsPersonsFiltered($filter) {
+    private function addRcpFromApartments(&$rcp, $filter) {
+        $apartmentid = "%" . $filter["apartmentid"] . "%";
+        $number      = "%" . $filter["number"]      . "%";
+        $floor       = "%" . $filter["floor"]       . "%";
+        $side        = "%" . $filter["side"]        . "%";
+        $type        = "%" . $filter["type"]        . "%";
+        $size        = "%" . $filter["size"]        . "%";
+        $reduction   = "%" . $filter["reduction"]   . "%";
+        $tapshares   = "%" . $filter["tapshares"]   . "%";
+        $shafts      = "%" . $filter["shafts"]      . "%";
+        $owner       = $filter["owner"];
+        $extern      = $filter["extern"];
+        $tenant      = $filter["tenant"];
+        $historical  = $filter["historical"];
+
+        $sql = "SELECT Name, Email FROM Persons WHERE NoMails IS FALSE AND PersonId IN ".
+               " (SELECT PersonId FROM PersonsApartments WHERE ".
+               " ((:owner = 1 AND Relation = 1) OR (:extern = 1 AND Relation = 2) OR (:tenant = 1 AND Relation = 3)) AND ".
+               " (:historical = 1 OR Stopped = '0000-00-00' OR Stopped >= CURDATE()) AND Id IN ".
+               "  (SELECT ApartmentId FROM Apartments WHERE ApartmentId LIKE :apartmentid AND Number LIKE :number AND ".
+                   "Floor LIKE :floor AND Side LIKE :side AND Type LIKE :type AND ".
+                   "Size LIKE :size AND Reduction LIKE :reduction AND ".
+                   "TapShares LIKE :tapshares AND Shafts LIKE :shafts))";
+
+        $q = $this->db->prepare($sql);
+        $q->bindValue(":apartmentid", $apartmentid);
+        $q->bindValue(":number",      $number);
+        $q->bindValue(":floor",       $floor);
+        $q->bindValue(":side",        $side);
+        $q->bindValue(":type",        $type);
+        $q->bindValue(":size",        $size);
+        $q->bindValue(":reduction",   $reduction);
+        $q->bindValue(":tapshares",   $tapshares);
+        $q->bindValue(":shafts",      $shafts);
+        $q->bindValue(":owner",       $owner);
+        $q->bindValue(":extern",      $extern);
+        $q->bindValue(":tenant",      $tenant);
+        $q->bindValue(":historical",  $historical);
+        $q->execute();
+        while ($row = $q->fetch()) {
+            $rcp[$row["Email"]] = $row["Name"];
+        }
+    }
+
+    private function addRcpFromParkings(&$rcp, $filter) {
         $parkingid  = "%" . $filter["parkingid"] . "%";
         $depot      = $filter["depot"];
         $charger    = $filter["charger"];
@@ -173,7 +217,7 @@ class Mails {
         $tenant     = $filter["tenant"];
         $historical = $filter["historical"];
 
-        $sql = "SELECT PersonId, Name, Email FROM Persons WHERE PersonId IN ".
+        $sql = "SELECT Name, Email FROM Persons WHERE NoMails IS FALSE AND PersonId IN ".
                " (SELECT PersonId FROM PersonsParkings WHERE ".
                " ((:owner = 1 AND Relation = 1) OR (:extern = 1 AND Relation = 2) OR (:tenant = 1 AND Relation = 3)) AND ".
                " (:historical = 1 OR Stopped = '0000-00-00' OR Stopped >= CURDATE()) AND Id IN ".
@@ -192,19 +236,115 @@ class Mails {
         $q->bindValue(":tenant",     $tenant);
         $q->bindValue(":historical", $historical);
         $q->execute();
-        $rows = $q->fetchAll();
-
-        $result = array();
-        foreach($rows as $row) {
-            $tmp = $this->readPPerson($row);
-//            array_push($result, $this->readPPerson($row));
-            $result[$tmp->personid] = $tmp;
+        while ($row = $q->fetch()) {
+            $rcp[$row["Email"]] = $row["Name"];
         }
-        return $result;
+    }
+
+    private function addRcpFromDepots(&$rcp, $filter) {
+        $depotid    = "%" . $filter["depotid"] . "%";
+        $number     = "%" . $filter["number"]  ."%";
+        $historical = $filter["historical"];
+
+        $sql = "SELECT Name, Email FROM Persons WHERE NoMails IS FALSE AND PersonId IN ".
+               " (SELECT PersonId FROM PersonsDepots WHERE ".
+               " (:historical = 1 OR Stopped = '0000-00-00' OR Stopped >= CURDATE()) AND Id IN ".
+               "  (SELECT DepotId FROM Depots WHERE DepotId LIKE :depotid AND Number LIKE :number))";
+
+        $q = $this->db->prepare($sql);
+        $q->bindValue(":depotid",    $depotid);
+        $q->bindValue(":number",     $number);
+        $q->bindValue(":historical", $historical);
+        $q->execute();
+        while ($row = $q->fetch()) {
+            $rcp[$row["Email"]] = $row["Name"];
+        }
+    }
+
+    private function addRcpFromPersons(&$rcp, $filter) {
+        $name       = "%" . $filter["name"] . "%";
+        $address    = "%" . $filter["address"] . "%";
+        $email      = "%" . $filter["email"] . "%";
+        $phone      = "%" . $filter["phone"] . "%";
+
+        $sql = "SELECT Name, Email FROM Persons WHERE Name LIKE :name AND Address LIKE :address AND ".
+               "Email LIKE :email AND Phone LIKE :phone AND NoMails IS FALSE";
+
+        $q = $this->db->prepare($sql);
+        $q->bindValue(":name",        $name);
+        $q->bindValue(":address",     $address);
+        $q->bindValue(":email",       $email);
+        $q->bindValue(":phone",       $phone);
+        $q->execute();
+        while ($row = $q->fetch()) {
+            $rcp[$row["Email"]] = $row["Name"];
+        }
+    }
+
+    private function addRcpFromAccounts(&$rcp, $role) {
+        $sql = "SELECT Name, Email FROM Accounts WHERE Role = :role";
+        $q = $this->db->prepare($sql);
+        $q->bindValue(":role", $role, PDO::PARAM_INT);
+        $q->execute();
+        while ($row = $q->fetch()) {
+            $rcp[$row["Email"]] = $row["Name"];
+        }
+    }
+
+    private function delRcp($mailid) {
+        $sql = "DELETE FROM MailRecipients WHERE MailId = :mailid";
+        $q = $this->db->prepare($sql);
+        $q->bindValue(":mailid", $mailid, PDO::PARAM_INT);
+        $q->execute();
+        return $q->rowCount();
+    }
+
+    private function addRcp($mailid, $rcp) {
+        $sql = "INSERT INTO MailRecipients (MailId, Name, Email) VALUES (:mailid, :name, :email)";
+        foreach($rcp as $email => $name) {
+            $q = $this->db->prepare($sql);
+            $q->bindValue(":mailid", $mailid, PDO::PARAM_INT);
+            $q->bindValue(":name",   $name);
+            $q->bindValue(":email",  $email);
+            $q->execute();
+        }
     }
 
     public function setMailRecipients($filter) {
-        return $filter;
+        $rcp = []; // Start with an empty array
+
+        // Get recipients from each group
+        if (isset($filter["apartments"])) {
+            $this->addRcpFromApartments($rcp, $filter["apartments"]);
+        }
+        if (isset($filter["parkings"])) {
+            $this->addRcpFromParkings($rcp, $filter["parkings"]);
+        }
+        if (isset($filter["depots"])) {
+            $this->addRcpFromDepots($rcp, $filter["depots"]);
+        }
+        if (isset($filter["persons"])) {
+            $this->addRcpFromPersons($rcp, $filter["persons"]);
+        }
+        if (isset($filter["board"]) and $filter["board"]) {
+            $this->addRcpFromAccounts($rcp, 2);
+        }
+        if (isset($filter["caretaker"]) and $filter["caretaker"]) {
+            $this->addRcpFromAccounts($rcp, 3);
+        }
+        if (isset($filter["administrator"]) and $filter["administrator"]) {
+            $this->addRcpFromAccounts($rcp, 4);
+        }
+
+        // Delete old recipients
+        $num_deleted = $this->delRcp($filter["mailid"]);
+
+        if (count($rcp)) {
+            // Add recipients in db and return them
+            $this->addRcp($filter["mailid"], $rcp);
+            return $rcp;
+        }
+        return false;
     }
 
 }
