@@ -270,6 +270,26 @@ require_once __DIR__ . '/check_timeout.php';
         <div class="container-fluid">
             <div class="row">
                 <div class="col-lg-4">
+                    <div class="mail-line">
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input type="radio" class="form-check-input" id="mail_queue" name="mb_group" value="2"
+                                       onclick="mailsGrid()"><?php L('msg_queue') ?>
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input type="radio" class="form-check-input" id="mail_sent" name="mb_group" value="3"
+                                       onclick="mailsGrid()" checked><?php L('msg_sent') ?>
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input type="radio" class="form-check-input" id="mail_trash" name="mb_group" value="4"
+                                       onclick="mailsGrid()"><?php L('msg_trash') ?>
+                            </label>
+                        </div>
+                    </div>
                     <div class="flex-grid" id="mails_grid"></div>
                 </div>
                 <div class="col-lg-8">
@@ -892,7 +912,6 @@ function personsGrid() {
         deleteConfirm: "<?php L('del_person') ?>",
         controller: {
             loadData: function(filter) {
-                console.log("Persons filter:", filter);
                 const data = personFilter(filter);
                 return $.ajax({
                     type: "GET",
@@ -1334,14 +1353,12 @@ function draftSetRecipients() {
 }
 
 function draftGet() {
-    console.log("draftGet()");
     $.ajax({
         type: "GET",
         url: "draft.php",
         data: { accountid: account_id }
     }).then(function(a) {
         currentDraft = a.mailid;
-        console.log("currentDraft: " + currentDraft);
         $('#draft_subject').val(a.subject);
         tinymce.get('draft_body').resetContent(a.body);
         draftSetRecipients();
@@ -1350,7 +1367,6 @@ function draftGet() {
 }
 
 function draftSave() {
-    console.log("draftSave()");
     $.ajax({
         type: "PUT",
         url: "draft.php",
@@ -1364,7 +1380,6 @@ function draftSave() {
 }
 
 function draftClear() {
-    console.log("draftClear()");
     if (confirm("<?php L('msg_del_confirm') ?>")) {
         $.ajax({
             type: "PUT",
@@ -1383,7 +1398,6 @@ function draftAttach() {
 }
 
 function draftSend() {
-    console.log("draftSend()");
     const subject = $('#draft_subject').val();
     if (subject.trim().length === 0) {
         alert('<?php L('msg_no_subject') ?>');
@@ -1401,9 +1415,9 @@ function draftSend() {
         data: { mailid: currentDraft, accountid: account_id, subject: subject, body: body }
     }).then(function(a) { // Returns a new draft
         currentDraft = a.mailid;
-        console.log("currentDraft: " + currentDraft);
         $('#draft_subject').val(a.subject);
         tinymce.get('draft_body').resetContent(a.body);
+        // Start send operation here!
     });
 }
 
@@ -1475,6 +1489,15 @@ function mailRecipientsToHtml(recipients) {
 }
 
 function updateMailItems(item) {
+    if (!item) {
+        $('#mail_date').html('');
+        $('#mail_from').html('');
+        $('#mail_num_rx').html('');
+        $('#mail_to').val('');
+        $('#mail_subject').val('');
+        tinymce.get('mail_body').resetContent('');
+        return;
+    }
     $('#mail_date').html(item.modified);
     $('#mail_from').html(item.accountname);
     $('#mail_subject').val(item.subject);
@@ -1504,7 +1527,8 @@ function mailsGrid() {
         deleteConfirm: "<?php L('del_account') ?>",
         controller: {
             loadData: function(filter) {
-                const data = { state: 3 }; // Only sent mails
+                const state = $("input:radio[name=mb_group]:checked").val();
+                const data = { state: state };
                 return $.ajax({
                     type: "GET",
                     url: "mails.php",
@@ -1549,7 +1573,6 @@ function mailsGrid() {
 }
 
 function mailsTabEnter() {
-   console.log("mailsTabEnter()");
    mailsGrid();
 }
 
