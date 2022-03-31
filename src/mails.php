@@ -14,6 +14,7 @@ class Mail {
     public $subject;
     public $body;
     public $state;
+    public $sent;
     public $modified;
 }
 
@@ -38,6 +39,7 @@ class Mails {
         $result->subject   = $row["Subject"];
         $result->body      = $row["Body"];
         $result->state     = $row["State"];
+        $result->sent      = $row["Sent"];
         $result->modified  = $row["Modified"];
         return $result;
     }
@@ -92,8 +94,9 @@ class Mails {
         return $this->getMailById($data["mailid"]);
     }
 
-    public function prepareDraft($data) { // Change state to Sending(2) and let other do the actual send
-        $sql = "UPDATE Mails SET Subject = :subject, Body = :body, State = 2 WHERE MailId = :mailid AND AccountId = :accountid AND State = 1";
+    public function queueDraft($data) { // Change state to Sending(2) and let other do the actual send
+        $sql = "UPDATE Mails SET Subject = :subject, Body = :body, State = 2, Sent = CURRENT_TIMESTAMP ".
+               " WHERE MailId = :mailid AND AccountId = :accountid AND State = 1";
         $q = $this->db->prepare($sql);
         $q->bindValue(":mailid",    $data["mailid"],    PDO::PARAM_INT);
         $q->bindValue(":accountid", $data["accountid"], PDO::PARAM_INT);
@@ -105,7 +108,7 @@ class Mails {
 
 // MAILS:
     public function getMails($state) {
-        $sql = "SELECT * FROM Mails WHERE :state1 IS NULL or State = :state2 ORDER BY Modified DESC";
+        $sql = "SELECT * FROM Mails WHERE :state1 IS NULL or State = :state2 ORDER BY Sent DESC";
         $q = $this->db->prepare($sql);
         $q->bindValue(":state1", $state, PDO::PARAM_INT);
         $q->bindValue(":state2", $state, PDO::PARAM_INT);
@@ -124,10 +127,14 @@ class Mails {
         return $result;
     }
 
-    public function delMail($mailid) {
-        $sql = "DELETE FROM Mails WHERE MailId = :mailid";
+    public function delMail($data) {
+        if ($data["state"] == 4) { // Mail already in trash - delete it
+            $sql = "DELETE FROM Mails WHERE MailId = :mailid";
+        } else { // Move mail to trash
+            $sql = "UPDATE Mails SET State = 4 WHERE MailId = :mailid";
+        }
         $q = $this->db->prepare($sql);
-        $q->bindValue(":mailid",    $mailid,    PDO::PARAM_INT);
+        $q->bindValue(":mailid", $data["mailid"], PDO::PARAM_INT);
         $q->execute();
     }
 

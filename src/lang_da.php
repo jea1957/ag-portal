@@ -42,6 +42,7 @@ $lang_array = [
 
     // dashboard.php
     "logout" => "Log ud",
+    "help"   => "Hjælp",
 
     "del_apartment" => "Vil du slette denne lejlighed?",
     "del_depot"     => "Vil du slette dette depot?",
@@ -104,7 +105,9 @@ $lang_array = [
     "msg_sent"        => "Sendt",
     "msg_queue"       => "Kø",
     "msg_trash"       => "Papirkurv",
-    "msg_del_confirm" => "Vil du slette denne besked?",
+    "msg_del_conf"    => "Vil du slette denne besked permanent?",
+    "msg_trash_conf"  => "Vil du flytte denne besked til papirkurv?",
+    "msg_send_conf"   => "Vil du sende denne besked?",
     "msg_no_subject"  => "Emnefelt må ikke være tomt!",
     "msg_no_body"     => "Beskedfelt må ikke være tomt!",
     "mq_check"        => "Mail check",

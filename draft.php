@@ -13,7 +13,7 @@ try {
             break;
 
         case "POST":
-            $result = $mails->prepareDraft(array(
+            $result = $mails->queueDraft(array(
                 "mailid"    => intval(clean_input($_POST["mailid"])),
                 "accountid" => intval(clean_input($_POST["accountid"])),
                 "subject"   => clean_input($_POST["subject"]),

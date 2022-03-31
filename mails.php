@@ -19,8 +19,10 @@ try {
 
         case "DELETE":
             parse_str(file_get_contents("php://input"), $_DELETE);
-            $mailid    = intval($_DELETE["mailid"]);
-            $result    = $mails->delMail($mailid);
+            $result = $mails->delMail(array(
+                "mailid" => intval(clean_input($_DELETE["mailid"])),
+                "state"  => intval(clean_input($_DELETE["state"]))
+            ));
             break;
     }
 

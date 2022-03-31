@@ -117,6 +117,7 @@ CREATE TABLE IF NOT EXISTS Mails (
        Subject VARCHAR(255) NOT NULL DEFAULT '',
        Body VARCHAR(15000) NOT NULL DEFAULT '',
        State TINYINT UNSIGNED NOT NULL DEFAULT 1, /* Draft(1), Sending(2), Sent(3), Deleted(4) */
+       Sent TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
        Modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
        INDEX (AccountId),
        INDEX (State)
@@ -127,7 +128,8 @@ CREATE TABLE IF NOT EXISTS MailAttachments (
        AttachmentId BIGINT UNSIGNED NOT NULL, /* autoincrement? */
        AttachmentName VARCHAR(255) NOT NULL,
        Attachment BIGINT UNSIGNED NOT NULL, /* BLOB? */
-       Modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+       Modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+       FOREIGN KEY (MailId) REFERENCES Mails(MailId) ON DELETE CASCADE
        /* primary key ? */
 );
 
@@ -137,6 +139,7 @@ CREATE TABLE IF NOT EXISTS MailRecipients (
        Email VARCHAR(255) NOT NULL,
        Sent BOOLEAN NOT NULL DEFAULT false, /* true if mail has been sent to this person */
        Modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+       FOREIGN KEY (MailId) REFERENCES Mails(MailId) ON DELETE CASCADE,
        INDEX (Sent)
        /* primary key ? */
 );

@@ -103,6 +103,9 @@ require_once __DIR__ . '/check_timeout.php';
         <a href="#test_pane" class="nav-link" data-toggle="tab" id="test_tab"><?php L('test') ?></a>
     </li>
   <?php } ?>
+    <li class="nav-item">
+        <a href="#help_pane" class="nav-link" data-toggle="tab" id="help_tab"><?php L('help') ?></a>
+    </li>
 </ul>
 
 <!-- Tab content -->
@@ -214,7 +217,7 @@ require_once __DIR__ . '/check_timeout.php';
                         <strong>&nbsp;<?php L('msg_to') ?>:&nbsp;</strong>
                         <div class="form-check-inline">
                           <label class="form-check-label">
-                            <input type="checkbox" class="form-check-input draft_chk" id="draft_apartments" checked><?php L('apartments') ?>
+                            <input type="checkbox" class="form-check-input draft_chk" id="draft_apartments"><?php L('apartments') ?>
                           </label>
                         </div>
                         <div class="form-check-inline">
@@ -273,14 +276,14 @@ require_once __DIR__ . '/check_timeout.php';
                     <div class="mail-line">
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
-                                <input type="radio" class="form-check-input" id="mail_queue" name="mb_group" value="2"
-                                       onclick="mailsGrid()"><?php L('msg_queue') ?>
+                                <input type="radio" class="form-check-input" id="mail_sent" name="mb_group" value="3"
+                                       onclick="mailsGrid()" checked><?php L('msg_sent') ?>
                             </label>
                         </div>
                         <div class="form-check form-check-inline">
                             <label class="form-check-label">
-                                <input type="radio" class="form-check-input" id="mail_sent" name="mb_group" value="3"
-                                       onclick="mailsGrid()" checked><?php L('msg_sent') ?>
+                                <input type="radio" class="form-check-input" id="mail_queue" name="mb_group" value="2"
+                                       onclick="mailsGrid()"><?php L('msg_queue') ?>
                             </label>
                         </div>
                         <div class="form-check form-check-inline">
@@ -345,6 +348,17 @@ require_once __DIR__ . '/check_timeout.php';
         ?>
     </div>
   <?php } ?>
+    <div class="tab-pane fade" id="help_pane">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                <!--
+                    <?php readfile(__DIR__ . '/src/help_da.html'); ?>
+                -->
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Modal -->
@@ -1380,7 +1394,7 @@ function draftSave() {
 }
 
 function draftClear() {
-    if (confirm("<?php L('msg_del_confirm') ?>")) {
+    if (confirm("<?php L('msg_del_conf') ?>")) {
         $.ajax({
             type: "PUT",
             url: "draft.php",
@@ -1408,17 +1422,19 @@ function draftSend() {
         alert('<?php L('msg_no_body') ?>');
         return;
     }
-    const body = tinymce.get('draft_body').getContent();
-    $.ajax({
-        type: "POST",
-        url: "draft.php",
-        data: { mailid: currentDraft, accountid: account_id, subject: subject, body: body }
-    }).then(function(a) { // Returns a new draft
-        currentDraft = a.mailid;
-        $('#draft_subject').val(a.subject);
-        tinymce.get('draft_body').resetContent(a.body);
-        // Start send operation here!
-    });
+    if (confirm("<?php L('msg_send_conf') ?>")) {
+        const body = tinymce.get('draft_body').getContent();
+        $.ajax({
+            type: "POST",
+            url: "draft.php",
+            data: { mailid: currentDraft, accountid: account_id, subject: subject, body: body }
+        }).then(function(a) { // Returns a new draft
+            currentDraft = a.mailid;
+            $('#draft_subject').val(a.subject);
+            tinymce.get('draft_body').resetContent(a.body);
+            // Start send operation here!
+        });
+    }
 }
 
 function draftTabEnter() {
@@ -1517,6 +1533,9 @@ function updateMailItems(item) {
 }
 
 function mailsGrid() {
+    // The radio buttons returns the same value as state in database
+    const state = parseInt($("input:radio[name=mb_group]:checked").val());
+
     $('#mails_grid').jsGrid("destroy");
 
     $("#mails_grid").jsGrid({
@@ -1524,10 +1543,9 @@ function mailsGrid() {
         height: "100%",
         heading: false,
         autoload: true,
-        deleteConfirm: "<?php L('del_account') ?>",
+        deleteConfirm: (state === 4) ? '<?php L('msg_del_conf') ?>' : '<?php L('msg_trash_conf') ?>',
         controller: {
             loadData: function(filter) {
-                const state = $("input:radio[name=mb_group]:checked").val();
                 const data = { state: state };
                 return $.ajax({
                     type: "GET",
@@ -1535,17 +1553,11 @@ function mailsGrid() {
                     data: data
                 });
             },
-            updateItem: function(item) {
-                return $.ajax({
-                    type: "PUT",
-                    url: "accounts.php",
-                    data: item
-                });
-            },
             deleteItem: function(item) {
+                updateMailItems(null);
                 return $.ajax({
                     type: "DELETE",
-                    url: "accounts.php",
+                    url: "mails.php",
                     data: item
                 });
             }
@@ -1560,20 +1572,21 @@ function mailsGrid() {
             updateMailItems(args.item);
         },
         fields: [
-          //{ width:  40, name: "modified",    type: "text", itemTemplate: localDate },
-            { width:  20, name: "modified",    type: "text",   visible: false },
+            { width:  20, name: "modified",    type: "text",    visible: false },
+            { width:  20, name: "sent",        type: "text",    visible: false },
             { width: 100, name: "subject",     type: "text" },
-            { width:  20, name: "body",        type: "text",   visible: false },
-            { width:  20, name: "mailid",      type: "number", visible: false },
-            { width:  20, name: "accountid",   type: "number", visible: false },
-            { width:  20, name: "accountname", type: "text",   visible: false },
-            { width:  20, name: "state",       type: "number", visible: false },
+            { width:  20, name: "body",        type: "text",    visible: false },
+            { width:  20, name: "mailid",      type: "number",  visible: false },
+            { width:  20, name: "accountid",   type: "number",  visible: false },
+            { width:  20, name: "accountname", type: "text",    visible: false },
+            { width:  20, name: "state",       type: "number",  visible: false },
+            { width:   5,                      type: "control", editButton: false }
         ]
     });
 }
 
 function mailsTabEnter() {
-   mailsGrid();
+    mailsGrid();
 }
 
 function mailsTab() {
