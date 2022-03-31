@@ -432,7 +432,7 @@ const role_mail   = <?php echo json_encode($_SESSION['role_mail']); ?>;
 var currentDraft;
 
 // filterChanged is set to true when something has changed in
-// either apartments, parkings, depots or persons.
+// either apartments, parkings, depots, persons or accounts.
 var filterChanged = false;
 
 const relations = [ { id: 0, relation: "<?php L('select') ?>" },
@@ -1665,6 +1665,18 @@ function accountsGrid() {
                     data: item
                 });
             }
+        },
+        onDataLoaded: function(args) {
+            filterChanged = true;
+        },
+        onItemInserted: function(args) {
+            filterChanged = true;
+        },
+        onItemUpdated: function(args) {
+            filterChanged = true;
+        },
+        onItemDeleted: function(args) {
+            filterChanged = true;
         },
         onError: function(args) {
             alert(args.args[0].responseJSON);

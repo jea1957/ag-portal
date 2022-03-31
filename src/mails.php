@@ -336,7 +336,7 @@ class Mails {
     }
 
     private function addRcpFromAccounts(&$rcp, $role) {
-        $sql = "SELECT Name, Email FROM Accounts WHERE Role = :role";
+        $sql = "SELECT Name, Email FROM Accounts WHERE Role = :role AND (State = 1 OR State = 2)";
         $q = $this->db->prepare($sql);
         $q->bindValue(":role", $role, PDO::PARAM_INT);
         $q->execute();
