@@ -153,6 +153,11 @@ class Mails {
         return $result;
     }
 
+    public function sendMails() {
+        $jea = $this->getMailCheck();
+        error_log("Send all mails ". print_r($jea, 1));
+    }
+
 // MAIL CHECK:
     private function mailCheck($row) {
         $result = new MailCheck();
@@ -168,8 +173,8 @@ class Mails {
         $sql = "SELECT * FROM MailCheck WHERE CheckId = 1";
         $q = $this->db->prepare($sql);
         $q->execute();
-        $rows = $q->fetchAll();
-        return $this->mailCheck($rows[0]);
+        $row = $q->fetch();
+        return $this->mailCheck($row);
     }
 
 // RECIPIENTS FROM TABS:

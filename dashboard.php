@@ -1313,6 +1313,16 @@ function draftRecipientsToTxt(recipients) {
    return txt;
 }
 
+function draftResetFilters() {
+    $('#draft_apartments').prop('checked', false);
+    $('#draft_parkings').prop('checked', false);
+    $('#draft_depots').prop('checked', false);
+    $('#draft_persons').prop('checked', false);
+    $('#draft_board').prop('checked', true);
+    $('#draft_caretaker').prop('checked', false);
+    $('#draft_administrator').prop('checked', false);
+}
+
 function draftGetFilters() {
     let filter = {};
     if ($('#draft_apartments').prop('checked')) {
@@ -1356,7 +1366,6 @@ function draftSetRecipients() {
                 $('#draft_num_rx').html(`(${num_rcp}&nbsp;<?php L('msg_receivers') ?>)`);
             }
             $('#draft_to').val(draftRecipientsToTxt(a));
-            //console.dir(a);
         } else {
             $('#draft_num_rx').html(`(0&nbsp;<?php L('msg_receivers') ?>)`);
             $('#draft_to').val('');
@@ -1406,7 +1415,7 @@ function draftClear() {
 
 function draftAttach() {
     console.log("draftAttach()");
-    //alert("Attach not implemented!");
+    alert("Attach not implemented!");
 }
 
 function draftSend() {
@@ -1430,7 +1439,14 @@ function draftSend() {
             currentDraft = a.mailid;
             $('#draft_subject').val(a.subject);
             tinymce.get('draft_body').resetContent(a.body);
+            draftResetFilters();
+            draftSetRecipients();
             // Start send operation here!
+            $.ajax({
+                type: "POST",
+                url: "mails.php",
+                data: {}
+            });
         });
     }
 }
@@ -1494,14 +1510,6 @@ function mailRecipientsToTxt(recipients) {
    return txt;
 }
 
-function mailRecipientsToHtml(recipients) {
-   let txt = "";
-   for (const r of recipients) {
-       txt += `${r.name} &lt;${r.email}&gt;; `;
-   }
-   return txt;
-}
-
 function updateMailItems(item) {
     if (!item) {
         $('#mail_date').html('');
@@ -1512,7 +1520,7 @@ function updateMailItems(item) {
         tinymce.get('mail_body').resetContent('');
         return;
     }
-    $('#mail_date').html(item.modified);
+    $('#mail_date').html(localTime(item.sent));
     $('#mail_from').html(item.accountname);
     $('#mail_subject').val(item.subject);
     tinymce.get('mail_body').resetContent(item.body);

@@ -17,6 +17,10 @@ try {
             $result = $mails->getMails($state);
             break;
 
+        case "POST":
+            $result = $mails->sendMails();
+            break;
+
         case "DELETE":
             parse_str(file_get_contents("php://input"), $_DELETE);
             $result = $mails->delMail(array(
