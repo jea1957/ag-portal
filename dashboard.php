@@ -352,9 +352,7 @@ require_once __DIR__ . '/check_timeout.php';
         <div class="container-fluid">
             <div class="row">
                 <div class="col-lg-12">
-                <!--
                     <?php readfile(__DIR__ . '/src/help_da.html'); ?>
-                -->
                 </div>
             </div>
         </div>
