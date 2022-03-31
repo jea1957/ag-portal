@@ -494,7 +494,7 @@ function toggleHighlight(obj, item) {
 function mailStatus() {
     $.ajax({
         type: "GET",
-        url: "mailstatus.php"
+        url: "mail_status.php"
     }).then(function (a) {
         let diff = new Date() - new Date(a.modified + "Z");
         if (diff > (1000 * 60 * 6)) { // Mail is expected to be checked every 5 minutes.

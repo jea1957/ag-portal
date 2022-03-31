@@ -4,6 +4,7 @@ class MailCheck {
     public $checkid;
     public $mailssent;
     public $info;
+    public $lastsend;
     public $modified;
 }
 
@@ -158,6 +159,7 @@ class Mails {
         $result->checkid   = $row["CheckId"];
         $result->mailssent = $row["MailsSent"];
         $result->info      = $row["Info"];
+        $result->lastsend  = $row["LastSend"];
         $result->modified  = $row["Modified"];
         return $result;
     }
