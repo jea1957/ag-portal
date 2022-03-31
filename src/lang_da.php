@@ -108,6 +108,12 @@ $lang_array = [
     "msg_send_conf"   => "Vil du sende denne besked?",
     "msg_no_subject"  => "Emnefelt må ikke være tomt!",
     "msg_no_body"     => "Beskedfelt må ikke være tomt!",
+    "msg_header"      => '<div style="text-align: center; padding: 0.3em; color: white; background-color: cornflowerblue;">'.
+                         'Besked fra Admiralens Gård'.
+                         '</div>',
+    "msg_footer"      => '<div style="text-align: center; padding: 0.3em; color: white; background-color: cornflowerblue;">'.
+                         'Såfremt du ikke ønsker at modtage beskeder fra Admiralens Gård, så svar på denne e-mail og oplys hvorfor'.
+                         '</div>',
     "mq_check"        => "Mail check",
 
     "rel_apartment" => "Tilknytninger til lejlighed ",

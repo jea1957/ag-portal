@@ -186,7 +186,9 @@ class Mails {
             return 0;
         }
         error_log("mail, num_rcp: $num_rcp");
-        $result = send_email($db_contact, $db_cname, $db_contact, $db_cname, $mail->subject, $mail->body, $rcp);
+        $body = _L('msg_header') . $mail->body . _L('msg_footer');
+
+        $result = send_email($db_contact, $db_cname, $db_contact, $db_cname, $mail->subject, $body, $rcp);
         error_log("Result: ". print_r($result,1));
 
         // Only do this if something is send:
