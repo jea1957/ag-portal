@@ -153,9 +153,49 @@ class Mails {
         return $result;
     }
 
+    private function getFirstSending() {
+        $row = $this->db->query("SELECT * FROM Mails WHERE State = 2")->fetch();
+        return $this->readMail($row);
+    }
+
+    private function markAsSent($mailid) { // Change state from Sending(2) to Sent(3)
+        $sql = "UPDATE Mails SET State = 3, Sent = CURRENT_TIMESTAMP ".
+               " WHERE MailId = :mailid AND State = 2";
+        $q = $this->db->prepare($sql);
+        $q->bindValue(":mailid", $mailid, PDO::PARAM_INT);
+        $q->execute();
+    }
+
     public function sendMails() {
-        $jea = $this->getMailCheck();
-        error_log("Send all mails ". print_r($jea, 1));
+        global $db_contact, $db_cname;
+
+        $mt = $this->getMailCheck();
+        $dtA = new DateTime($mt->lastsend);
+        //$dtA->add(new DateInterval('PT5M')); // Add 5 minutes
+        $dtA->add(new DateInterval('PT5S')); // Add 5 seconds
+        $dtB = new DateTime('NOW');
+        if ($dtA >= $dtB) { // Don't send if lastsend is less then 5 minutes ago
+            error_log("Too early!");
+            return 0;
+        }
+        $mail = $this->getFirstSending();
+        $rcp = $this->getMailRecipients($mail->mailid);
+        $num_rcp = count($rcp);
+        if ($num_rcp > 2) { // Be careful a little while
+            error_log("rcp: $num_rcp is too big!");
+            return 0;
+        }
+        error_log("mail, num_rcp: $num_rcp");
+        $result = send_email($db_contact, $db_cname, $db_contact, $db_cname, $mail->subject, $mail->body, $rcp);
+        error_log("Result: ". print_r($result,1));
+
+        // Only do this if something is send:
+        if ($num_rcp > 0) {
+            $this->markAsSent($mail->mailid);
+            $row = $this->db->query("UPDATE MailCheck SET LastSend = CURRENT_TIMESTAMP WHERE CheckId = 1")->fetch();
+            error_log("Send ok! ". print_r($row,1));
+        }
+        return $num_rcp;
     }
 
 // MAIL CHECK:

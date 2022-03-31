@@ -11,6 +11,10 @@ use PHPMailer\PHPMailer\Exception;
 require_once __DIR__ . "/phpmailer/src/Exception.php";
 require_once __DIR__ . "/phpmailer/src/PHPMailer.php";
 
+use Html2Text\Html2Text;
+
+require_once __DIR__ . "/Html2Text.php";
+
 function clean_input($data) {
     if (!isset($data)) {
         return NULL;
@@ -21,20 +25,24 @@ function clean_input($data) {
     return $data;
 }
 
-function send_email($from_email, $from_name, $to_email, $to_name, $subject, $body_html, $body_text) {
+// $bcc is an optional array of objects containing 'email' and 'name'
+function send_email($from_email, $from_name, $to_email, $to_name, $subject, $body_html, $bcc = null) {
     $mail = new PHPMailer(true); // Passing `true` enables exceptions
     try {
         $mail->CharSet = "UTF-8";
         $mail->setFrom($from_email, $from_name);
         $mail->addAddress($to_email, $to_name);
+        if (isset($bcc)) {
+            foreach($bcc as $b) {
+                $mail->addBCC($b->email, $b->name);
+            }
+        }
         $mail->isHTML(true);
         $mail->Subject = $subject;
-        if (isset($body_html)) {
-            $mail->Body = $body_html;
-        }
-        if (isset($body_text)) {
-            $mail->AltBody = $body_text;
-        }
+        $mail->Body = $body_html;
+        $h2t = new Html2Text($body_html);
+        $mail->AltBody = $h2t->getText();
+
         if ($mail->send()) {
             $result = array("success" => 'Message has been sent.');
         } else {

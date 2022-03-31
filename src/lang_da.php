@@ -33,12 +33,10 @@ $lang_array = [
 
     // passwordmail used in invite_user and forgot_pw:
     "pwm_subject" => "Invitation",
-    "pwm_body"    => "Hej %s<br>Log ind på <b>%s</b> med email: <b>%s</b> og midlertidig adgangskode: <b>%s</b><br>".
-                     "Du vil blive bedt om at lave en ny adgangskode, som skal være forskellig fra den midlertidige.<br>".
-                     "Den nye adgangskode skal være på mellem 8 og 32 tegn.<br>",
-    "pwm_text"    => "Hej %s\nLog ind på %s med email: %s og midlertidig adgangskode: %s\n".
-                     "Du vil blive bedt om at lave en ny adgangskode, som skal være forskellig fra den midlertidige.\n".
-                     "Den nye adgangskode skal være på mellem 8 og 32 tegn.\n",
+    "pwm_body"    => "<p>Hej %s</p>".
+                     "<p>Log ind på <b>%s</b> med email: <b>%s</b> og midlertidig adgangskode: <b>%s</b></p>".
+                     "<p>Du vil blive bedt om at lave en ny adgangskode, som skal være forskellig fra den midlertidige.</p>".
+                     "<p>Den nye adgangskode skal være på mellem 8 og 32 tegn.</p>",
 
     // dashboard.php
     "logout" => "Log ud",

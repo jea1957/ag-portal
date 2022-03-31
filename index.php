@@ -111,9 +111,8 @@ if (isset($_POST['submit'])) { // Handle submit from this page
                     $password = random_password(8);
                     $accounts->set_password($email, $password, 1); // Set state to FirstLogin(1)
                     $body_html = sprintf(_L('pwm_body'), $name, $db_url, $email, $password);
-                    $body_text = sprintf(_L('pwm_text'), $name, $db_url, $email, $password);
 
-                    $result = send_email($db_contact, $db_cname, $email, $name, _L('pwm_subject'), $body_html, $body_text);
+                    $result = send_email($db_contact, $db_cname, $email, $name, _L('pwm_subject'), $body_html);
                     if (isset($result['error'])) {
                         $form_err = _L('forgot_pw_not_sent');
                     } else {
