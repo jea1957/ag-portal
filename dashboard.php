@@ -340,15 +340,29 @@ require_once __DIR__ . '/check_timeout.php';
     </div>
     <div class="tab-pane fade" id="test_pane">
         <p>Test tab content ...</p>
+        <p>jQuery UI Icons:</p>
         <span class="ui-icon ui-icon-arrowthick-1-n"></span>
+        <br>
         <span class="ui-icon ui-icon-check"></span>
+        <br>
+        <p>Bootstrap Icons:</p>
+        <i class="bi-alarm" style="font-size: 2rem; color: cornflowerblue;"></i>
+        <br>
+        <i class="bi-alarm" style="color: cornflowerblue;"></i>
+        <br>
+        <span id="custom_send" class="bi-send"></span>
+        <br>
+        <p>PHP variables:</p>
         <p><?php echo __DIR__ ?></p>
         <p><?php echo print_r($_SERVER['HTTP_ACCEPT_LANGUAGE'], 1) ?></p>
         <p><?php echo print_r(locale_accept_from_http($_SERVER['HTTP_ACCEPT_LANGUAGE']), 1) ?></p>
-        <i class="bi-alarm" style="font-size: 2rem; color: cornflowerblue;"></i>
-        <br>
-        <span id="custom_send" class="bi-send"></span>
+        <!--
         <button type="button" onclick="event.preventDefault(); console.log(apartmentFilter());">ApartmentFilter</button>
+        -->
+        <br><br>
+        <label for="avatar">Choose a profile picture:</label>
+        <input type="file" id="avatar" name="avatar" accept="image/png, image/jpeg">
+
         <?php
             //phpinfo();
         ?>
@@ -1136,7 +1150,7 @@ function apartmentsPersons(gridId, historicalId, personId, id) {
               items: apartmentSelect, valueField: "id", textField: "name", editing: false },
             { width:  30, name: "relation", title: "<?php L('relation') ?>",  type: "select", validate: { validator: "range", param: [1, 3] },
               items: relations, valueField: "id", textField: "relation" },
-            { width:  20, name: "started",  title: "<?php L('started') ?>",   type: "date" },
+            { width:  20, name: "started",  title: "<?php L('started') ?>",   type: "date",   validate: "required" },
             { width:  20, name: "stopped",  title: "<?php L('stopped') ?>",   type: "date" },
           //{ width: 100, name: "modified", title: "<?php L('modified') ?>",  type: "text",
           //  filtering: false, editing: false, inserting: false, itemTemplate: localTime },
@@ -1149,7 +1163,7 @@ function apartmentsPersons(gridId, historicalId, personId, id) {
               items: personSelect, valueField: "personid", textField: "name", editing: false },
             { width:  30, name: "relation", title: "<?php L('relation') ?>",  type: "select", validate: { validator: "range", param: [1, 3] },
               items: relations, valueField: "id", textField: "relation" },
-            { width:  20, name: "started",  title: "<?php L('started') ?>",   type: "date" },
+            { width:  20, name: "started",  title: "<?php L('started') ?>",   type: "date",   validate: "required" },
             { width:  20, name: "stopped",  title: "<?php L('stopped') ?>",   type: "date" },
           //{ width: 100, name: "modified", title: "<?php L('modified') ?>",  type: "text",
           //  filtering: false, editing: false, inserting: false, itemTemplate: localTime },
@@ -1239,7 +1253,7 @@ function parkingsPersons(gridId, historicalId, personId, id) {
               items: parkingSelect, valueField: "parkingid", textField: "parkingid", editing: false },
             { width:  30, name: "relation", title: "<?php L('relation') ?>", type: "select", validate: { validator: "range", param: [1, 3] },
               items: relations, valueField: "id", textField: "relation" },
-            { width:  20, name: "started",  title: "<?php L('started') ?>",  type: "date" },
+            { width:  20, name: "started",  title: "<?php L('started') ?>",  type: "date",   validate: "required" },
             { width:  20, name: "stopped",  title: "<?php L('stopped') ?>",  type: "date" },
           //{ width: 100, name: "modified", title: "<?php L('modified') ?>", type: "text",
           //  filtering: false, editing: false, inserting: false, itemTemplate: localTime },
@@ -1252,7 +1266,7 @@ function parkingsPersons(gridId, historicalId, personId, id) {
               items: personSelect, valueField: "personid", textField: "name", editing: false },
             { width:  30, name: "relation", title: "<?php L('relation') ?>", type: "select", validate: { validator: "range", param: [1, 3] },
               items: relations, valueField: "id", textField: "relation" },
-            { width:  20, name: "started",  title: "<?php L('started') ?>",  type: "date" },
+            { width:  20, name: "started",  title: "<?php L('started') ?>",  type: "date",   validate: "required" },
             { width:  20, name: "stopped",  title: "<?php L('stopped') ?>",  type: "date" },
           //{ width: 100, name: "modified", title: "<?php L('modified') ?>", type: "text",
           //  filtering: false, editing: false, inserting: false, itemTemplate: localTime },
@@ -1340,7 +1354,7 @@ function depotsPersons(gridId, historicalId, personId, id) {
             { width:  40, name: "personid",  title: "<?php L('person') ?>",   type: "text",   visible: false },
             { width:  10, name: "id",        title: "<?php L('depot') ?>",    type: "select", validate: { validator: "min", param: 1 },
               items: depotSelect, valueField: "depotid", textField: "depotid", editing: false },
-            { width:  20, name: "started",   title: "<?php L('started') ?>",  type: "date" },
+            { width:  20, name: "started",   title: "<?php L('started') ?>",  type: "date",   validate: "required" },
             { width:  20, name: "stopped",   title: "<?php L('stopped') ?>",  type: "date" },
           //{ width: 100, name: "modified",  title: "<?php L('modified') ?>", type: "text",
           //  filtering: false, editing: false, inserting: false, itemTemplate: localTime },
@@ -1351,7 +1365,7 @@ function depotsPersons(gridId, historicalId, personId, id) {
             { width:  10, name: "id",        title: "<?php L('depot') ?>",    type: "text",   visible: false },
             { width:  40, name: "personid",  title: "<?php L('person') ?>",   type: "select", validate: { validator: "min", param: 1 },
               items: personSelect, valueField: "personid", textField: "name", editing: false },
-            { width:  20, name: "started",   title: "<?php L('started') ?>",  type: "date" },
+            { width:  20, name: "started",   title: "<?php L('started') ?>",  type: "date",   validate: "required" },
             { width:  20, name: "stopped",   title: "<?php L('stopped') ?>",  type: "date" },
           //{ width: 100, name: "modified",  title: "<?php L('modified') ?>", type: "text",
           //  filtering: false, editing: false, inserting: false, itemTemplate: localTime },
