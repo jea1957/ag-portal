@@ -1697,15 +1697,14 @@ function accountsGrid() {
                     url: "accounts.php",
                     data: item,
                 }).then(function(a) {
-                    console.log("accounts insert:", a);
-                    let c = confirm(`<?php L('ot_password') ?>`);
-                      if (c) {
+                    const c = confirm(`<?php L('ot_password') ?>`);
+                    if (c) {
                         const res = $.ajax({
                             type: "POST",
                             url: "invite_user.php",
                             data: a,
                         }).then(function(b) {
-                // Maybe popup on error
+                           // Maybe popup on error
                            console.log("From b: ", b)
                         });
                     }
@@ -1741,6 +1740,22 @@ function accountsGrid() {
         },
         onError: function(args) {
             alert(args.args[0].responseJSON);
+        },
+        rowClick: function(args) {
+            if (args.item.state === 1) {
+                const a = args.item;
+                const c = confirm(`<?php L('ot_password') ?>`);
+                if (c) {
+                    const res = $.ajax({
+                        type: "POST",
+                        url: "invite_user.php",
+                        data: a,
+                    }).then(function(b) {
+                       // Maybe popup on error
+                       console.log("From b: ", b)
+                    });
+                }
+            }
         },
         fields: [
             { width:  10, name: "accountid",  title: "Id",                         type: "text", editing: false, inserting: false },
