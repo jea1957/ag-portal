@@ -188,6 +188,12 @@ require_once __DIR__ . '/check_timeout.php';
                     </div>
                     <div class="flex-grid" id="depots_grid"></div>
                 </div>
+                <div class="col-lg-6">
+                    <div>
+                        <div class="form-check-inline"><?php L('de_wait') ?>:</div>
+                    </div>
+                    <div class="flex-grid" id="depots_wait_grid"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -872,6 +878,59 @@ function depotsGrid() {
 }
 
 //------------------------------------------------------------------------------
+// Depots waiting list
+//------------------------------------------------------------------------------
+
+// (re)load the depots wait grid
+function depotsWaitGrid() {
+    $('#depots_wait_grid').jsGrid("destroy");
+
+    $("#depots_wait_grid").jsGrid({
+        width: "100%",
+        height: "100%",
+        inserting: role_update,
+        selecting: false,
+        autoload: true,
+        deleteConfirm: "<?php L('del_depotwait') ?>",
+        controller: {
+            loadData: function(filter) {
+                return $.ajax({
+                    type: "GET",
+                    url: "depots_wait.php",
+                    data: {}
+                });
+            },
+            insertItem: function(item) {
+                return $.ajax({
+                    type: "POST",
+                    url: "depots_wait.php",
+                    data: item
+                });
+            },
+            deleteItem: function(item) {
+                return $.ajax({
+                    type: "DELETE",
+                    url: "depots_wait.php",
+                    data: item
+                });
+            }
+        },
+        onError: function(args) {
+            alert(args.args[0].responseJSON);
+        },
+        fields: [
+            { width:  10, name: "waitid",   title: "<?php L('de_waitid') ?>", type: "text",
+              filtering: false, editing: false, inserting: false, visible: role_admin },
+            { width:  40, name: "modified", title: "<?php L('started') ?>",   type: "text",
+              filtering: false, editing: false, inserting: false, itemTemplate: localTime },
+            { width:  60, name: "personid", title: "<?php L('person') ?>",    type: "select", validate: { validator: "min", param: 1 },
+              items: personSelect, valueField: "personid", textField: "name", editing: false },
+            { width:  10, type: "control", editButton: false, deleteButton: role_update, modeSwitchButton: false}
+        ]
+    });
+}
+
+//------------------------------------------------------------------------------
 // Persons
 //------------------------------------------------------------------------------
 
@@ -888,6 +947,8 @@ function personSelectUpdate() {
         persons.sort((a, b) => a.name.localeCompare(b.name));
         persons.unshift({ personid: 0, name: "<?php L('select') ?>" });
         personSelect = [...persons];
+        // Not pretty but neccessary as depots waiting list depends on personSelect
+        depotsWaitGrid();
     });
 }
 

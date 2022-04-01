@@ -44,6 +44,7 @@ $lang_array = [
 
     "del_apartment" => "Vil du slette denne lejlighed?",
     "del_depot"     => "Vil du slette dette depot?",
+    "del_depotwait" => "Vil du slette denne person fra ventelisten?",
     "del_parking"   => "Vil du slette denne P-plads?",
     "del_person"    => "Vil du slette denne person?",
     "del_relation"  => "Vil du slette denne tilknytning?",
@@ -76,6 +77,8 @@ $lang_array = [
     "depots"      => "Depoter",
     "de_location" => "Placering",
     "de_isfree"   => "Fri",
+    "de_waitid"   => "ID",
+    "de_wait"     => "Venteliste til ekstra depotrum",
 
     "person"         => "Person",
     "persons"        => "Personer",

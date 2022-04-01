@@ -7,6 +7,12 @@ class Depot {
     public $isfree;
 }
 
+class DepotWait {
+    public $waitid;
+    public $personid;
+    public $modified;
+}
+
 class Depots {
 
     protected $db;
@@ -92,6 +98,50 @@ class Depots {
         $q->bindValue(":depotid", $depotid, PDO::PARAM_INT);
         $q->execute();
     }
+
+// Depot waiting list
+    private function readWait($row) {
+        $result = new DepotWait();
+        $result->waitid   = $row["WaitId"];
+        $result->personid = $row["PersonId"];
+        $result->modified = $row["Modified"];
+        return $result;
+    }
+
+    private function getWaitById($waitid) {
+        $sql = "SELECT * FROM PersonsDepotsWait WHERE WaitId = :waitid";
+        $q = $this->db->prepare($sql);
+        $q->bindValue(":waitid", $waitid, PDO::PARAM_INT);
+        $q->execute();
+        $row = $q->fetch();
+        return $this->readWait($row);
+    }
+
+    public function getWait() {
+        $rows = $this->db->query("SELECT * FROM PersonsDepotsWait")->fetchAll();
+
+        $result = array();
+        foreach($rows as $row) {
+            array_push($result, $this->readWait($row));
+        }
+        return $result;
+    }
+
+    public function addWait($personid) {
+        $sql = "INSERT INTO PersonsDepotsWait (PersonId) VALUES (:personid)";
+        $q = $this->db->prepare($sql);
+        $q->bindValue(":personid", $personid, PDO::PARAM_INT);
+        $q->execute();
+        return $this->getWaitById($this->db->lastInsertId());
+    }
+
+    public function delWait($waitid) {
+        $sql = "DELETE FROM PersonsDepotsWait WHERE WaitId = :waitid";
+        $q = $this->db->prepare($sql);
+        $q->bindValue(":waitid", $waitid, PDO::PARAM_INT);
+        $q->execute();
+    }
+
 }
 
 ?>
