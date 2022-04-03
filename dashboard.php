@@ -271,6 +271,7 @@ require_once __DIR__ . '/check_timeout.php';
                         <strong><?php L('msg_attachments') ?>:&nbsp;</strong>
                         <span id="draft_attachments"></span>
                     </div>
+                    <input type="file" id="draft_files" name="draft_files" multiple style="display:none">
                 </div>
             </div>
         </div>
@@ -360,9 +361,6 @@ require_once __DIR__ . '/check_timeout.php';
         <button type="button" onclick="event.preventDefault(); console.log(apartmentFilter());">ApartmentFilter</button>
         -->
         <br><br>
-        <label for="avatar">Choose a profile picture:</label>
-        <input type="file" id="avatar" name="avatar" accept="image/png, image/jpeg">
-
         <?php
             //phpinfo();
         ?>
@@ -895,8 +893,14 @@ function depotsGrid() {
 // Depots waiting list
 //------------------------------------------------------------------------------
 
+let depotsWaitGridInitialized = false;
+
 // (re)load the depots wait grid
 function depotsWaitGrid() {
+    if (depotsWaitGridInitialized) {
+        return;
+    }
+    depotsWaitGridInitialized = true;
     $('#depots_wait_grid').jsGrid("destroy");
 
     $("#depots_wait_grid").jsGrid({
@@ -1488,9 +1492,46 @@ function draftClear() {
     }
 }
 
+function draftUploadFiles(files) {
+    var formData = new FormData();
+    formData.append('mailid', currentDraft);
+    for (const f of files) {
+        console.log(`Filename: ${f.name}, size: ${f.size}, type: ${f.type}`);
+        formData.append('file[]', f);
+    }
+    $.ajax({
+        type: "POST",
+        url: "upload_attachments.php",
+        processData: false,
+        contentType: false,
+        data: formData,
+    }).then(function(a) {
+        console.log("draftUploadFiles", a);
+    });
+}
+
 function draftAttach() {
-    console.log("draftAttach()");
-    alert("Attach not implemented!");
+    //console.dir(this);
+    draftUploadFiles(this.files);
+}
+
+function draftDragDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    //console.dir(e.dataTransfer);
+    if (e.dataTransfer && e.dataTransfer.files) {
+        draftUploadFiles(e.dataTransfer.files);
+    } else {
+        alert("Could not access file(s)!");
+    }
+}
+
+// Not ready yet
+function draftPaste(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    console.dir(e);
 }
 
 function draftSend() {
@@ -1552,7 +1593,7 @@ function draftTab() {
           editor.ui.registry.addButton('customAttachButton', {
               text: '<?php L('msg_attach') ?>',
               onAction: function(_) {
-                  draftAttach();
+                  $('#draft_files').click(); // Simulate a click on the hidden file input
               }
           });
           editor.ui.registry.addButton('customSendButton', {
@@ -1561,17 +1602,29 @@ function draftTab() {
                   draftSend();
               }
           });
-          editor.on('init', function(e) {
+          editor.on('init', function(event) {
               draftGet();
+              $(editor.getBody().parentNode).bind('drop', function(e) {
+                  draftDragDrop(e.originalEvent);
+              });
+              $(editor.getBody().parentNode).bind('paste', function(e) {
+                  //draftPaste(e.originalEvent);
+                  draftPaste(e);
+              });
           });
       },
       language: 'da',
       menubar: false,
       plugins: 'autosave autolink',
+      paste_block_drop: true,
       toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | ' +
                'outdent indent | customSaveButton customClearButton customAttachButton | customSendButton',
       statusbar: false,
     });
+
+    // Add event handlers on file input
+    $('#draft_files').on('change', draftAttach);
+
 }
 
 //------------------------------------------------------------------------------
