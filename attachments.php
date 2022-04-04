@@ -9,7 +9,7 @@ $mails = new Mails($pdo);
 try {
     switch($_SERVER["REQUEST_METHOD"]) {
         case "GET":
-            $mailid = intval(clean_input($_POST["mailid"]));
+            $mailid = intval(clean_input($_GET["mailid"]));
             $result = $mails->getAttachments($mailid);
             break;
 
@@ -39,7 +39,7 @@ try {
             parse_str(file_get_contents("php://input"), $_DELETE);
             $mailid = intval(clean_input($_DELETE["mailid"]));
             $id = intval(clean_input($_DELETE["id"]));
-            $mails->delAttachment($id);
+            $mails->delAttachment($mailid, $id);
             $result = $mails->getAttachments($mailid);
             break;
     }

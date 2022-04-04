@@ -144,10 +144,12 @@ class Mails {
         return $this->getAttachmentData($this->db->lastInsertId());
     }
 
-    public function delAttachment($id) {
-        $sql = "DELETE FROM MailAttachments WHERE Id = :id";
+    public function delAttachment($mailid, $id) {
+        $sql = "DELETE FROM MailAttachments WHERE MailId = :mailid AND (Id = :id OR :id2 = 0)";
         $q = $this->db->prepare($sql);
-        $q->bindValue(":id", $id, PDO::PARAM_INT);
+        $q->bindValue(":mailid", $mailid, PDO::PARAM_INT);
+        $q->bindValue(":id",     $id,     PDO::PARAM_INT);
+        $q->bindValue(":id2",    $id,     PDO::PARAM_INT);
         $q->execute();
     }
 

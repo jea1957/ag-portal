@@ -258,20 +258,25 @@ require_once __DIR__ . '/check_timeout.php';
                         </div>
                         <span id="draft_num_rx"></span>
                     </div>
-                    <textarea id="draft_to" name="draft_to" rows="5" readonly></textarea>
+                    <textarea class="fixed-ta" id="draft_to" rows="5" readonly></textarea>
+                    <div class="mail-line">
+                        <strong><?php L('msg_attachments') ?>:&nbsp;</strong>
+                    </div>
+                    <div class="attachments" id="draft_attachments"
+                         onclick="$('#draft_files').click();"
+                         ondragenter="draftDragEnter(event);"
+                         ondragover="draftDragOver(event);"
+                         ondrop="draftDragDrop(event);"
+                         ></div>
+                    <input type="file" id="draft_files" multiple style="display:none">
                     <div class="mail-line">
                         <strong><?php L('msg_subject') ?>:&nbsp;</strong>
                     </div>
-                    <input type="text" id="draft_subject" name="draft_subject">
+                    <input type="text" id="draft_subject">
                     <div class="mail-line">
                         <strong><?php L('msg_body') ?>:&nbsp;</strong>
                     </div>
-                    <textarea id="draft_body" name="draft_body"></textarea>
-                    <div class="mail-line">
-                        <strong><?php L('msg_attachments') ?>:&nbsp;</strong>
-                        <span id="draft_attachments"></span>
-                    </div>
-                    <input type="file" id="draft_files" name="draft_files" multiple style="display:none">
+                    <textarea id="draft_body"></textarea>
                 </div>
             </div>
         </div>
@@ -311,7 +316,7 @@ require_once __DIR__ . '/check_timeout.php';
                         <strong>&nbsp;<?php L('msg_to') ?>:&nbsp;</strong>
                         <span id="mail_num_rx"></span>
                     </div>
-                    <textarea id="mail_to" name="mail_to" rows="5" readonly></textarea>
+                    <textarea class="fixed-ta" id="mail_to" name="mail_to" rows="5" readonly></textarea>
                     <div class="mail-line">
                         <strong><?php L('msg_subject') ?>:&nbsp;</strong>
                     </div>
@@ -1384,12 +1389,12 @@ function depotsPersons(gridId, historicalId, personId, id) {
 // Input is an object with email as key and name as value. E.g.:
 // { "alice@gmail.com": "Alice", "bob@hotmail.com": "Bob" }
 function draftRecipientsToTxt(recipients) {
-   let txt = '';
-   const keys = Object.keys(recipients);
-   keys.forEach((email, name) => {
-       txt += `${recipients[email]} <${email}>, `;
-   });
-   return txt;
+    let txt = '';
+    const keys = Object.keys(recipients);
+    keys.forEach((email, name) => {
+        txt += `${recipients[email]} <${email}>, `;
+    });
+    return txt;
 }
 
 function draftResetFilters() {
@@ -1452,6 +1457,19 @@ function draftSetRecipients() {
     });
 }
 
+// Input is an array of attachments. E.g.:
+// [ { id: 23, mailid: 33, name: "guide.pdf", size: 356, type: "application/pdf" },
+//   { id: 24, mailid: 33, name: "todo.txt",  size: 245, type: "text/plain"      } ]
+function draftAttachmentsToTxt(attachments) {
+    let txt = '';
+    for (const a of attachments) {
+        txt += `<span title="${a.type}, ${a.size} bytes" style="background-color: WhiteSmoke" `;
+        txt += `onclick="event.preventDefault(); event.stopPropagation();">${a.name}`;
+        txt += `<i class="bi-trash" onclick="draftDeleteAttachEv(event, ${a.id});"></i></span>     `;
+    }
+    return txt;
+}
+
 function draftGet() {
     $.ajax({
         type: "GET",
@@ -1462,6 +1480,13 @@ function draftGet() {
         $('#draft_subject').val(a.subject);
         tinymce.get('draft_body').resetContent(a.body);
         draftSetRecipients();
+        $.ajax({
+            type: "GET",
+            url: "attachments.php",
+            data: { mailid: currentDraft }
+        }).then(function(a) {
+            $('#draft_attachments').html(draftAttachmentsToTxt(a));
+        });
     });
 
 }
@@ -1488,6 +1513,7 @@ function draftClear() {
         }).then(function(a) {
             $('#draft_subject').val(a.subject);
             tinymce.get('draft_body').resetContent(a.body);
+            draftDeleteAttach(0); // Zero means delete all
         });
     }
 }
@@ -1496,7 +1522,6 @@ function draftUploadFiles(files) {
     var formData = new FormData();
     formData.append('mailid', currentDraft);
     for (const f of files) {
-        console.log(`Filename: ${f.name}, size: ${f.size}, type: ${f.type}`);
         formData.append('file[]', f);
     }
     $.ajax({
@@ -1506,20 +1531,44 @@ function draftUploadFiles(files) {
         contentType: false,
         data: formData,
     }).then(function(a) {
-        console.log("draftUploadFiles", a);
+        $('#draft_attachments').html(draftAttachmentsToTxt(a));
     });
 }
 
+function draftDeleteAttach(id) {
+    $.ajax({
+        type: "DELETE",
+        url: "attachments.php",
+        data: { mailid: currentDraft, id: id }
+    }).then(function(a) {
+        $('#draft_attachments').html(draftAttachmentsToTxt(a));
+    });
+}
+
+function draftDeleteAttachEv(e, id) {
+    e.preventDefault();
+    e.stopPropagation();
+    draftDeleteAttach(id);
+}
+
 function draftAttach() {
-    //console.dir(this);
     draftUploadFiles(this.files);
+}
+
+function draftDragEnter(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+function draftDragOver(e) {
+    e.preventDefault();
+    e.stopPropagation();
 }
 
 function draftDragDrop(e) {
     e.preventDefault();
     e.stopPropagation();
 
-    //console.dir(e.dataTransfer);
     if (e.dataTransfer && e.dataTransfer.files) {
         draftUploadFiles(e.dataTransfer.files);
     } else {
@@ -1590,12 +1639,6 @@ function draftTab() {
                   draftClear();
               }
           });
-          editor.ui.registry.addButton('customAttachButton', {
-              text: '<?php L('msg_attach') ?>',
-              onAction: function(_) {
-                  $('#draft_files').click(); // Simulate a click on the hidden file input
-              }
-          });
           editor.ui.registry.addButton('customSendButton', {
               text: '<?php L('msg_send') ?>',
               onAction: function(_) {
@@ -1604,13 +1647,6 @@ function draftTab() {
           });
           editor.on('init', function(event) {
               draftGet();
-              $(editor.getBody().parentNode).bind('drop', function(e) {
-                  draftDragDrop(e.originalEvent);
-              });
-              $(editor.getBody().parentNode).bind('paste', function(e) {
-                  //draftPaste(e.originalEvent);
-                  draftPaste(e);
-              });
           });
       },
       language: 'da',
@@ -1618,7 +1654,7 @@ function draftTab() {
       plugins: 'autosave autolink',
       paste_block_drop: true,
       toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | ' +
-               'outdent indent | customSaveButton customClearButton customAttachButton | customSendButton',
+               'outdent indent | customSaveButton customClearButton | customSendButton',
       statusbar: false,
     });
 

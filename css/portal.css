@@ -55,51 +55,19 @@ body {
     margin-bottom: 0.25rem;
 }
 
-#draft_from, #mail_from {
+.fixed-ta {
     flex: 0 0 auto;
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
     resize: none;
 }
 
-#draft_to {
+.attachments {
     flex: 0 0 auto;
-/*    margin-bottom: 0.5rem;*/
-    resize: none;
-}
-
-#mail_to {
-    flex: 0 0 auto;
-/*    margin-bottom: 0.5rem;*/
-    resize: none;
-}
-
-#draft_subject {
-    flex: 0 0 auto;
-/*    margin-bottom: 0.5rem;*/
-}
-
-#mail_subject {
-    overflow-wrap: break-word;
-/*
-    flex: 0 0 auto;
-    margin-bottom: 0.5rem;
-*/
-}
-/*
-#draft_attachments, #mail_attachments {
-    flex: 0 0 auto;
-    margin-bottom: 0.5rem;
-    resize: none;
-}
-*/
-#draft_body, #mail_body {
-    flex: 1 1 auto;
-/*    margin-bottom: 0.5rem;*/
-    resize: none;
+    height: 3em;
+    border: 1px solid;
+    padding: 4px;
+    overflow-y: auto;
 }
 
 .tox-tinymce {
     height: 100% !important;
 }
-
