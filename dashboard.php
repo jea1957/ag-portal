@@ -1501,7 +1501,7 @@ function draftUploadFiles(files) {
     }
     $.ajax({
         type: "POST",
-        url: "upload_attachments.php",
+        url: "attachments.php",
         processData: false,
         contentType: false,
         data: formData,

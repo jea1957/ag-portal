@@ -19,10 +19,24 @@ class Mail {
     public $modified;
 }
 
-class MailRecipients {
+class MailRecipient {
     public $mailid;
     public $name;
     public $email;
+}
+
+class MailAttachmentData {
+    public $mailid;
+    public $id;
+    public $name;
+    public $type;
+    public $size;
+}
+
+class MailAttachmentFile {
+    public $mailid;
+    public $id;
+    public $file;
 }
 
 class Mails {
@@ -45,11 +59,29 @@ class Mails {
         return $result;
     }
 
-    private function readMailRecipients($row) {
-        $result = new MailRecipients();
+    private function readMailRecipient($row) {
+        $result = new MailRecipient();
         $result->mailid = $row["MailId"];
         $result->name   = $row["Name"];
         $result->email  = $row["Email"];
+        return $result;
+    }
+
+    private function readAttachmentData($row) {
+        $result = new MailAttachmentData();
+        $result->mailid = $row["MailId"];
+        $result->id     = $row["Id"];
+        $result->name   = $row["Name"];
+        $result->type   = $row["Type"];
+        $result->size   = $row["Size"];
+        return $result;
+    }
+
+    private function readAttachmentFile($row) {
+        $result = new MailAttachmentFile();
+        $result->mailid = $row["MailId"];
+        $result->id     = $row["Id"];
+        $result->file   = $row["File"];
         return $result;
     }
 
@@ -60,6 +92,63 @@ class Mails {
         $q->execute();
         $row = $q->fetch();
         return $this->readMail($row);
+    }
+
+// ATTACHMENTS:
+    public function getAttachmentData($id) {
+        $sql = "SELECT * FROM MailAttachments WHERE Id = :id";
+        $q = $this->db->prepare($sql);
+        $q->bindValue(":id", $id, PDO::PARAM_INT);
+        $q->execute();
+        $row = $q->fetch();
+        return $this->readAttachmentData($row);
+    }
+
+    public function getAttachmentFile($id) {
+        $sql = "SELECT * FROM MailAttachments WHERE Id = :id";
+        $q = $this->db->prepare($sql);
+        $q->bindValue(":id", $id, PDO::PARAM_INT);
+        $q->execute();
+        $row = $q->fetch();
+        return $this->readAttachmentFile($row);
+    }
+
+    public function getAttachments($mailid) {
+        $sql = "SELECT * FROM MailAttachments WHERE MailId = :mailid";
+        $q = $this->db->prepare($sql);
+        $q->bindValue(":mailid", $mailid, PDO::PARAM_INT);
+        $q->execute();
+        $rows = $q->fetchAll();
+        $result = array();
+        foreach($rows as $row) {
+            array_push($result, $this->readAttachmentData($row));
+        }
+        return $result;
+    }
+
+    public function addAttachment($data) {
+        $sql = "INSERT INTO MailAttachments (MailId, Name, Type, Size, File) ".
+               "VALUES (:mailid, :name, :type, :size, :file)";
+        $q = $this->db->prepare($sql);
+        $fp = fopen($data["file"], 'rb');
+        if (!$fp) {
+            error_log("Could not open " . $data["file"]);
+            return false;
+        }
+        $q->bindValue(":mailid", $data["mailid"], PDO::PARAM_INT);
+        $q->bindValue(":name",   $data["name"]);
+        $q->bindValue(":type",   $data["type"]);
+        $q->bindValue(":size",   $data["size"]);
+        $q->bindParam(":file",   $fp,             PDO::PARAM_LOB);
+        $q->execute();
+        return $this->getAttachmentData($this->db->lastInsertId());
+    }
+
+    public function delAttachment($id) {
+        $sql = "DELETE FROM MailAttachments WHERE Id = :id";
+        $q = $this->db->prepare($sql);
+        $q->bindValue(":id", $id, PDO::PARAM_INT);
+        $q->execute();
     }
 
 // DRAFTS:
@@ -147,7 +236,7 @@ class Mails {
         $rows = $q->fetchAll();
         $result = array();
         foreach($rows as $row) {
-            $res = $this->readMailRecipients($row);
+            $res = $this->readMailRecipient($row);
             array_push($result, $res);
         }
         return $result;

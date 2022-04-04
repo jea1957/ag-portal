@@ -125,12 +125,13 @@ CREATE TABLE IF NOT EXISTS Mails (
 
 CREATE TABLE IF NOT EXISTS MailAttachments (
        MailId BIGINT UNSIGNED NOT NULL,
-       AttachmentId BIGINT UNSIGNED NOT NULL, /* autoincrement? */
-       AttachmentName VARCHAR(255) NOT NULL,
-       Attachment BIGINT UNSIGNED NOT NULL, /* BLOB? */
+       Id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+       Name VARCHAR(255) NOT NULL, /* File name */
+       Type VARCHAR(255) NOT NULL, /* Mime type */
+       Size BIGINT UNSIGNED NOT NULL, /* File size */
+       File LONGBLOB NOT NULL, /* File content */
        Modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
        FOREIGN KEY (MailId) REFERENCES Mails(MailId) ON DELETE CASCADE
-       /* primary key ? */
 );
 
 CREATE TABLE IF NOT EXISTS MailRecipients (
