@@ -143,6 +143,19 @@ class Mails {
         $q->execute();
     }
 
+    public function getAttachmentFile($id) {
+        $sql = "SELECT MailId, Id, Name, Type, File FROM MailAttachments WHERE Id = :id";
+        $q = $this->db->prepare($sql);
+        $q->bindValue(":id", $id, PDO::PARAM_INT);
+        $q->execute();
+        $row = $q->fetch();
+        if ($row) {
+            return $this->readAttachmentFile($row);
+        } else {
+            return false;
+        }
+    }
+
     public function delAttachment($mailid, $id) {
         $sql = "DELETE FROM MailAttachments WHERE MailId = :mailid AND (Id = :id OR :id2 = 0)";
         $q = $this->db->prepare($sql);

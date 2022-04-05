@@ -268,7 +268,8 @@ require_once __DIR__ . '/check_timeout.php';
                          ondragover="draftDragOver(event);"
                          ondragleave="draftDragLeave(event);"
                          ondrop="draftDragDrop(event);"
-                         ></div>
+                         >
+                    </div>
                     <input type="file" id="draft_files" multiple style="display:none">
                     <div class="mail-line">
                         <strong><?php L('msg_subject') ?>:&nbsp;</strong>
@@ -319,6 +320,11 @@ require_once __DIR__ . '/check_timeout.php';
                     </div>
                     <textarea class="fixed-ta" id="mail_to" name="mail_to" rows="5" readonly></textarea>
                     <div class="mail-line">
+                        <strong><?php L('msg_attachments') ?>:&nbsp;</strong>
+                    </div>
+                    <div class="attachments" id="mail_attachments">
+                    </div>
+                    <div class="mail-line">
                         <strong><?php L('msg_subject') ?>:&nbsp;</strong>
                     </div>
                     <input type="text" id="mail_subject" name="mail_subject" readonly>
@@ -326,10 +332,6 @@ require_once __DIR__ . '/check_timeout.php';
                         <strong><?php L('msg_body') ?>:&nbsp;</strong>
                     </div>
                     <textarea id="mail_body" name="mail_body"></textarea>
-                    <div class="mail-line">
-                        <strong><?php L('msg_attachments') ?>:&nbsp;</strong>
-                        <span id="mail_attachments"></span>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1466,7 +1468,7 @@ function draftAttachmentsToTxt(attachments) {
     for (const a of attachments) {
         txt += `<span title="${a.type}, ${a.size} bytes" style="background-color: WhiteSmoke" `;
         txt += `onclick="event.preventDefault(); event.stopPropagation();">${a.name}`;
-        txt += `<i class="bi-trash" onclick="draftDeleteAttachEv(event, ${a.id});"></i></span>     `;
+        txt += `<i class="bi-trash" onclick="draftDeleteAttachEv(event, ${a.id});"></i></span> &nbsp;`;
     }
     return txt;
 }
@@ -1681,6 +1683,18 @@ function mailRecipientsToTxt(recipients) {
    return txt;
 }
 
+// Input is an array of attachments. E.g.:
+// [ { id: 23, mailid: 33, name: "guide.pdf", size: 356, type: "application/pdf" },
+//   { id: 24, mailid: 33, name: "todo.txt",  size: 245, type: "text/plain"      } ]
+function mailAttachmentsToTxt(attachments) {
+    let txt = '';
+    for (const a of attachments) {
+        txt += `<a title="${a.type}, ${a.size} bytes" style="background-color: WhiteSmoke" `;
+        txt += ` href="attachment_show.php?id=${a.id}" target="_blank">${a.name}</a> &nbsp;`;
+    }
+    return txt;
+}
+
 function updateMailItems(item) {
     if (!item) {
         $('#mail_date').html('');
@@ -1706,6 +1720,13 @@ function updateMailItems(item) {
             $('#mail_num_rx').html(`(${a.length}&nbsp;<?php L('msg_receivers') ?>)`);
         }
         $('#mail_to').val(mailRecipientsToTxt(a));
+    });
+    $.ajax({
+        type: "GET",
+        url: "attachments.php",
+        data: { mailid: item.mailid }
+    }).then(function(a) {
+        $('#mail_attachments').html(mailAttachmentsToTxt(a));
     });
 }
 
