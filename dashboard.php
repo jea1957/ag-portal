@@ -76,6 +76,12 @@ require_once __DIR__ . '/check_timeout.php';
 <!-- Tab line -->
 <ul class="nav nav-tabs" id="main_tab">
     <li class="nav-item">
+        <a href="#help_pane" class="nav-link" data-toggle="tab" id="help_tab"><?php L('help') ?></a>
+    </li>
+    <li class="nav-item">
+        <a href="#persons_pane" class="nav-link" data-toggle="tab" id="persons_tab"><?php L('persons') ?></a>
+    </li>
+    <li class="nav-item">
         <a href="#apartments_pane" class="nav-link active" data-toggle="tab" id="apartments_tab"><?php L('apartments') ?></a>
     </li>
     <li class="nav-item">
@@ -83,9 +89,6 @@ require_once __DIR__ . '/check_timeout.php';
     </li>
     <li class="nav-item">
         <a href="#depots_pane" class="nav-link" data-toggle="tab" id="depots_tab"><?php L('depots') ?></a>
-    </li>
-    <li class="nav-item">
-        <a href="#persons_pane" class="nav-link" data-toggle="tab" id="persons_tab"><?php L('persons') ?></a>
     </li>
   <?php if ($_SESSION['role_mail']) { ?>
     <li class="nav-item">
@@ -103,13 +106,38 @@ require_once __DIR__ . '/check_timeout.php';
         <a href="#test_pane" class="nav-link" data-toggle="tab" id="test_tab"><?php L('test') ?></a>
     </li>
   <?php } ?>
-    <li class="nav-item">
-        <a href="#help_pane" class="nav-link" data-toggle="tab" id="help_tab"><?php L('help') ?></a>
-    </li>
 </ul>
 
 <!-- Tab content -->
 <div class="tab-content" id="main_content">
+    <div class="tab-pane fade" id="help_pane">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="help-box">
+                        <?php readfile(__DIR__ . '/src/help_da.html'); ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="persons_pane">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div>
+                        <div class="form-check-inline"><?php L('rel_show') ?>:</div>
+                        <div class="form-check-inline">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input persons_chk" id="persons_historical"><?php L('rel_hist') ?>
+                          </label>
+                        </div>
+                    </div>
+                    <div class="flex-grid" id="persons_grid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="tab-pane fade show active" id="apartments_pane">
         <div class="container-fluid">
             <div class="row">
@@ -197,23 +225,6 @@ require_once __DIR__ . '/check_timeout.php';
             </div>
         </div>
     </div>
-    <div class="tab-pane fade" id="persons_pane">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div>
-                        <div class="form-check-inline"><?php L('rel_show') ?>:</div>
-                        <div class="form-check-inline">
-                          <label class="form-check-label">
-                            <input type="checkbox" class="form-check-input persons_chk" id="persons_historical"><?php L('rel_hist') ?>
-                          </label>
-                        </div>
-                    </div>
-                    <div class="flex-grid" id="persons_grid"></div>
-                </div>
-            </div>
-        </div>
-    </div>
   <?php if ($_SESSION['role_mail']) { ?>
     <div class="tab-pane fade" id="draft_pane">
         <div class="container-fluid">
@@ -221,6 +232,11 @@ require_once __DIR__ . '/check_timeout.php';
                 <div class="col-lg-12">
                     <div class="mail-line">
                         <strong>&nbsp;<?php L('msg_to') ?>:&nbsp;</strong>
+                        <div class="form-check-inline">
+                          <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input draft_chk" id="draft_persons"><?php L('persons') ?>
+                          </label>
+                        </div>
                         <div class="form-check-inline">
                           <label class="form-check-label">
                             <input type="checkbox" class="form-check-input draft_chk" id="draft_apartments"><?php L('apartments') ?>
@@ -234,11 +250,6 @@ require_once __DIR__ . '/check_timeout.php';
                         <div class="form-check-inline">
                           <label class="form-check-label">
                             <input type="checkbox" class="form-check-input draft_chk" id="draft_depots"><?php L('depots') ?>
-                          </label>
-                        </div>
-                        <div class="form-check-inline">
-                          <label class="form-check-label">
-                            <input type="checkbox" class="form-check-input draft_chk" id="draft_persons"><?php L('persons') ?>
                           </label>
                         </div>
                         <div class="form-check-inline">
@@ -374,15 +385,6 @@ require_once __DIR__ . '/check_timeout.php';
         ?>
     </div>
   <?php } ?>
-    <div class="tab-pane fade" id="help_pane">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-12">
-                    <?php readfile(__DIR__ . '/src/help_da.html'); ?>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- Modal -->
@@ -1416,10 +1418,10 @@ function draftRecipientsToTxt(recipients) {
 }
 
 function draftResetFilters() {
+    $('#draft_persons').prop('checked', false);
     $('#draft_apartments').prop('checked', false);
     $('#draft_parkings').prop('checked', false);
     $('#draft_depots').prop('checked', false);
-    $('#draft_persons').prop('checked', false);
     $('#draft_board').prop('checked', true);
     $('#draft_caretaker').prop('checked', false);
     $('#draft_administrator').prop('checked', false);
@@ -1427,6 +1429,9 @@ function draftResetFilters() {
 
 function draftGetFilters() {
     let filter = {};
+    if ($('#draft_persons').prop('checked')) {
+        filter['persons'] = personFilter();
+    }
     if ($('#draft_apartments').prop('checked')) {
         filter['apartments'] = apartmentFilter();
     }
@@ -1435,9 +1440,6 @@ function draftGetFilters() {
     }
     if ($('#draft_depots').prop('checked')) {
        filter['depots'] = depotFilter();
-    }
-    if ($('#draft_persons').prop('checked')) {
-        filter['persons'] = personFilter();
     }
     if ($('#draft_board').prop('checked')) {
         filter['board'] = true;
@@ -1677,8 +1679,8 @@ function draftTab() {
       menubar: false,
       plugins: 'autosave autolink code',
       paste_block_drop: true,
-      toolbar: 'customSaveButton customClearButton | customSendButton | undo redo | styleselect | ' +
-               'bold italic | alignleft aligncenter alignright alignjustify | outdent indent ',
+      toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | ' +
+               'outdent indent | customSaveButton customClearButton | customSendButton ',
       statusbar: false,
     });
 
