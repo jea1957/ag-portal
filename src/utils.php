@@ -26,7 +26,8 @@ function clean_input($data) {
 }
 
 // $bcc is an optional array of objects containing 'email' and 'name'
-function send_email($from_email, $from_name, $to_email, $to_name, $subject, $body_html, $bcc = null) {
+// $att is an optional array of objects containing 'file', 'name' and 'type'
+function send_email($from_email, $from_name, $to_email, $to_name, $subject, $body_html, $bcc = null, $att = null) {
     $mail = new PHPMailer(true); // Passing `true` enables exceptions
     try {
         $mail->CharSet = "UTF-8";
@@ -35,6 +36,11 @@ function send_email($from_email, $from_name, $to_email, $to_name, $subject, $bod
         if (isset($bcc)) {
             foreach($bcc as $b) {
                 $mail->addBCC($b->email, $b->name);
+            }
+        }
+        if (isset($att)) {
+            foreach($att as $a) {
+                $mail->addStringAttachment($a->file, $a->name, 'base64', $a->type);
             }
         }
         $mail->isHTML(true);

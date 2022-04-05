@@ -266,6 +266,7 @@ require_once __DIR__ . '/check_timeout.php';
                          onclick="$('#draft_files').click();"
                          ondragenter="draftDragEnter(event);"
                          ondragover="draftDragOver(event);"
+                         ondragleave="draftDragLeave(event);"
                          ondrop="draftDragDrop(event);"
                          ></div>
                     <input type="file" id="draft_files" multiple style="display:none">
@@ -1470,23 +1471,27 @@ function draftAttachmentsToTxt(attachments) {
     return txt;
 }
 
+function draftUpdate(draft) {
+    currentDraft = draft.mailid;
+    $('#draft_subject').val(draft.subject);
+    tinymce.get('draft_body').resetContent(draft.body);
+    draftSetRecipients();
+    $.ajax({
+        type: "GET",
+        url: "attachments.php",
+        data: { mailid: draft.mailid }
+    }).then(function(a) {
+        $('#draft_attachments').html(draftAttachmentsToTxt(a));
+    });
+}
+
 function draftGet() {
     $.ajax({
         type: "GET",
         url: "draft.php",
         data: { accountid: account_id }
-    }).then(function(a) {
-        currentDraft = a.mailid;
-        $('#draft_subject').val(a.subject);
-        tinymce.get('draft_body').resetContent(a.body);
-        draftSetRecipients();
-        $.ajax({
-            type: "GET",
-            url: "attachments.php",
-            data: { mailid: currentDraft }
-        }).then(function(a) {
-            $('#draft_attachments').html(draftAttachmentsToTxt(a));
-        });
+    }).then(function(draft) {
+        draftUpdate(draft);
     });
 
 }
@@ -1557,17 +1562,22 @@ function draftAttach() {
 
 function draftDragEnter(e) {
     e.preventDefault();
-    e.stopPropagation();
+    e.target.classList.add('drag-over');
 }
 
 function draftDragOver(e) {
     e.preventDefault();
-    e.stopPropagation();
+    e.target.classList.add('drag-over');
+}
+
+function draftDragLeave(e) {
+    e.preventDefault();
+    e.target.classList.remove('drag-over');
 }
 
 function draftDragDrop(e) {
     e.preventDefault();
-    e.stopPropagation();
+    e.target.classList.remove('drag-over');
 
     if (e.dataTransfer && e.dataTransfer.files) {
         draftUploadFiles(e.dataTransfer.files);
@@ -1600,12 +1610,9 @@ function draftSend() {
             type: "POST",
             url: "draft.php",
             data: { mailid: currentDraft, accountid: account_id, subject: subject, body: body }
-        }).then(function(a) { // Returns a new draft
-            currentDraft = a.mailid;
-            $('#draft_subject').val(a.subject);
-            tinymce.get('draft_body').resetContent(a.body);
+        }).then(function(draft) { // Returns a new draft
             draftResetFilters();
-            draftSetRecipients();
+            draftUpdate(draft);
             // Start send operation here!
             $.ajax({
                 type: "POST",

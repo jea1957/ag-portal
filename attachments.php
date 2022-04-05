@@ -23,7 +23,7 @@ try {
                     error_log("Error $error in \"" . $_FILES['file']['name'][$i] . "\"");
                     break;
                 }
-                $result = $mails->addAttachment(array(
+                $mails->addAttachment(array(
                     "mailid" => $mailid,
                     "name"   => $_FILES['file']['name'][$i],
                     "type"   => $_FILES['file']['type'][$i],

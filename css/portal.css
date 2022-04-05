@@ -68,6 +68,10 @@ body {
     overflow-y: auto;
 }
 
+.drag-over {
+    border: 3px dashed red;
+}
+
 .tox-tinymce {
     height: 100% !important;
 }

@@ -31,11 +31,14 @@ class MailAttachmentData {
     public $name;
     public $type;
     public $size;
+    public $modified;
 }
 
 class MailAttachmentFile {
     public $mailid;
     public $id;
+    public $name;
+    public $type;
     public $file;
 }
 
@@ -82,6 +85,8 @@ class Mails {
         $result->mailid = $row["MailId"];
         $result->id     = $row["Id"];
         $result->file   = $row["File"];
+        $result->name   = $row["Name"];
+        $result->type   = $row["Type"];
         return $result;
     }
 
@@ -95,26 +100,21 @@ class Mails {
     }
 
 // ATTACHMENTS:
-    public function getAttachmentData($id) {
-        $sql = "SELECT * FROM MailAttachments WHERE Id = :id";
+    private function getAttachmentFiles($mailid) {
+        $sql = "SELECT MailId, Id, Name, Type, File FROM MailAttachments WHERE MailId = :mailid";
         $q = $this->db->prepare($sql);
-        $q->bindValue(":id", $id, PDO::PARAM_INT);
+        $q->bindValue(":mailid", $mailid, PDO::PARAM_INT);
         $q->execute();
-        $row = $q->fetch();
-        return $this->readAttachmentData($row);
-    }
-
-    public function getAttachmentFile($id) {
-        $sql = "SELECT * FROM MailAttachments WHERE Id = :id";
-        $q = $this->db->prepare($sql);
-        $q->bindValue(":id", $id, PDO::PARAM_INT);
-        $q->execute();
-        $row = $q->fetch();
-        return $this->readAttachmentFile($row);
+        $rows = $q->fetchAll();
+        $result = array();
+        foreach($rows as $row) {
+            array_push($result, $this->readAttachmentFile($row));
+        }
+        return $result;
     }
 
     public function getAttachments($mailid) {
-        $sql = "SELECT * FROM MailAttachments WHERE MailId = :mailid";
+        $sql = "SELECT MailId, Id, Name, Type, Size, Modified FROM MailAttachments WHERE MailId = :mailid";
         $q = $this->db->prepare($sql);
         $q->bindValue(":mailid", $mailid, PDO::PARAM_INT);
         $q->execute();
@@ -141,7 +141,6 @@ class Mails {
         $q->bindValue(":size",   $data["size"]);
         $q->bindParam(":file",   $fp,             PDO::PARAM_LOB);
         $q->execute();
-        return $this->getAttachmentData($this->db->lastInsertId());
     }
 
     public function delAttachment($mailid, $id) {
@@ -278,8 +277,9 @@ class Mails {
         }
         error_log("mail, num_rcp: $num_rcp");
         $body = _L('msg_header') . $mail->body . _L('msg_footer');
+        $att = $this->getAttachmentFiles($mail->mailid);
 
-        $result = send_email($db_contact, $db_cname, $db_contact, $db_cname, $mail->subject, $body, $rcp);
+        $result = send_email($db_contact, $db_cname, $db_contact, $db_cname, $mail->subject, $body, $rcp, $att);
         error_log("Result: ". print_r($result,1));
 
         // Only do this if something is send:
