@@ -72,6 +72,10 @@ body {
     border: 3px dashed red;
 }
 
+tr.highlight td.jsgrid-cell {
+    background-color: rgb(196, 226, 255); /* Same as highlight on hover */
+}
+
 .tox-tinymce {
     height: 100% !important;
 }

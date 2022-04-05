@@ -498,7 +498,6 @@ function localDate(utc) {
     return t.toLocaleString('sv-SE').substring(0, 10); // yyyy-mm-dd
 }
 
-/* Not used for now
 // Toggle highlight on jsGrid row
 function toggleHighlight(obj, item) {
     // https://github.com/tabalinas/jsgrid/issues/194
@@ -514,7 +513,19 @@ function toggleHighlight(obj, item) {
     $row.toggleClass("highlight");
     return selected;
 }
-*/
+
+function setHighlight(obj, item) {
+    // https://github.com/tabalinas/jsgrid/issues/194
+    let selected = item;
+    let $row = obj.rowByItem(item);
+    if ($row.hasClass("highlight") === false) {
+        for (let i = 0; i < obj.data.length; i++) {
+            obj.rowByIndex(i).removeClass("highlight");
+        }
+        $row.addClass("highlight");
+    }
+    return selected;
+}
 
 // Handle mail check status in navbar
 function mailStatus() {
@@ -659,6 +670,7 @@ function apartmentsGrid() {
             alert(args.args[0].responseJSON);
         },
         rowClick: function(args) {
+            setHighlight(this, args.item);
             $('#apartments_persons_relations').html(apartmentGet(args.item.apartmentid));
             apartmentsPersons('#apartments_persons_grid', '#apartments_historical', 0, args.item.apartmentid);
             $('#apartments_persons_modal').modal('show');
@@ -772,6 +784,7 @@ function parkingsGrid() {
             alert(args.args[0].responseJSON);
         },
         rowClick: function(args) {
+            setHighlight(this, args.item);
             $('#parkings_persons_relations').html(parkingGet(args.item.parkingid));
             parkingsPersons('#parkings_persons_grid', '#parkings_historical', 0, args.item.parkingid);
             $('#parkings_persons_modal').modal('show');
@@ -879,6 +892,7 @@ function depotsGrid() {
             alert(args.args[0].responseJSON);
         },
         rowClick: function(args) {
+            setHighlight(this, args.item);
             $('#depots_persons_relations').html(depotGet(args.item.depotid));
             depotsPersons('#depots_persons_grid', '#depots_historical', 0, args.item.depotid);
             $('#depots_persons_modal').modal('show');
@@ -1059,6 +1073,7 @@ function personsGrid() {
             alert(args.args[0].responseJSON);
         },
         rowClick: function(args) {
+            setHighlight(this, args.item);
             $('#persons_relations').html(personGet(args.item.personid));
             apartmentsPersons('#persons_apartments_grid', '#persons_historical', args.item.personid, 0);
             parkingsPersons('#persons_parkings_grid', '#persons_historical', args.item.personid, 0);
@@ -1660,10 +1675,10 @@ function draftTab() {
       },
       language: 'da',
       menubar: false,
-      plugins: 'autosave autolink',
+      plugins: 'autosave autolink code',
       paste_block_drop: true,
-      toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | ' +
-               'outdent indent | customSaveButton customClearButton | customSendButton',
+      toolbar: 'customSaveButton customClearButton | customSendButton | undo redo | styleselect | ' +
+               'bold italic | alignleft aligncenter alignright alignjustify | outdent indent ',
       statusbar: false,
     });
 
@@ -1739,7 +1754,6 @@ function mailsGrid() {
     $("#mails_grid").jsGrid({
         width: "100%",
         height: "100%",
-        heading: false,
         autoload: true,
         deleteConfirm: (state === 4) ? '<?php L('msg_del_conf') ?>' : '<?php L('msg_trash_conf') ?>',
         controller: {
@@ -1762,17 +1776,21 @@ function mailsGrid() {
         },
         onDataLoaded: function(args) {
             updateMailItems(args.data[0]); // Show newest mail
+            if (args.data[0]) {
+                setHighlight(this, args.data[0]);
+            }
         },
         onError: function(args) {
             alert(args.args[0].responseJSON);
         },
         rowClick: function(args) {
             updateMailItems(args.item);
+            setHighlight(this, args.item);
         },
         fields: [
             { width:  20, name: "modified",    type: "text",    visible: false },
             { width:  20, name: "sent",        type: "text",    visible: false },
-            { width: 100, name: "subject",     type: "text" },
+            { width: 100, name: "subject",     type: "text",    title: "<?php L('msg_subject') ?>" },
             { width:  20, name: "body",        type: "text",    visible: false },
             { width:  20, name: "mailid",      type: "number",  visible: false },
             { width:  20, name: "accountid",   type: "number",  visible: false },
@@ -1996,15 +2014,14 @@ $(function() {
         }
     }
 
-/* Not used for now
-    // Helper for toggleHighlight
+    // Helper for toggleHighlight and setHighlight
     // https://github.com/tabalinas/jsgrid/issues/194
     // this._content.find("tr")[arg] returns a DOM element instead of a jQuery object
     // Pass the DOM element to the find method to get a jQuery object representing it
     jsGrid.Grid.prototype.rowByIndex = function(arg) {
         return this._content.find(this._content.find("tr")[arg]);
     }
-*/
+
     // Set defaults for all jQuery datepickers
     $.datepicker.setDefaults({
         dateFormat: 'yy-mm-dd', // Actually 'yyyy-mm-dd'
