@@ -798,12 +798,13 @@ function parkingsGrid() {
             $('#parkings_persons_modal').modal('show');
         },
         fields: [
-            { width:  10, name: "parkingid", title: "<?php L('parking') ?>",    type: "text", sorter: "numberAsString", validate: "required", editing: false},
-            { width:  10, name: "depot",     title: "<?php L('pa_depot') ?>",   type: "checkbox", editing: role_admin },
-            { width:  10, name: "charger",   title: "<?php L('pa_charger') ?>", type: "checkbox" },
-          //{ width:  10, name: "power",     title: "<?php L('pa_charger') ?>", type: "jea" },
-          //{ width:  10, name: "power",     title: "<?php L('apartment') ?>",  type: "select", validate: { validator: "min", param: 1 },
-          //  items: apartmentSelect, valueField: "id", textField: "name", editing: false },
+            { width:  50, name: "parkingid", title: "<?php L('parking') ?>",    type: "text",
+              sorter: "numberAsString", validate: "required", editing: false},
+            { width:  50, name: "depot",     title: "<?php L('pa_depot') ?>",   type: "checkbox", editing: role_admin },
+            { width:  50, name: "charger",   title: "<?php L('pa_charger') ?>", type: "checkbox" },
+            { width:  50, name: "power",     title: "<?php L('pa_power') ?>",   type: "select", validate: { validator: "min", param: 1 },
+              items: apartmentSelect, valueField: "id", textField: "name", filtering: false },
+            { width:  50, name: "ccharger",  title: "<?php L('pa_ccharger') ?>", type: "checkbox" },
             { width:  10, type: "control",   editButton: role_update, deleteButton: role_admin, modeSwitchButton: role_admin} 
         ]
     });

@@ -20,10 +20,16 @@ try {
             } else {
                 $charger = null; // wildcard
             }
+            if (isset($_GET["ccharger"])) {
+                $ccharger = (clean_input($_GET["ccharger"]) == "true") ? true : false;
+            } else {
+                $ccharger = null; // wildcard
+            }
             $result = $parkings->getFiltered(array(
                 "parkingid"  => clean_input($_GET["parkingid"]),
                 "depot"      => $depot,
                 "charger"    => $charger,
+                "ccharger"   => $ccharger,
                 "owner"      => (clean_input($_GET["owner"]) == "true") ? 1 : 0,
                 "extern"     => (clean_input($_GET["extern"]) == "true") ? 1 : 0,
                 "tenant"     => (clean_input($_GET["tenant"]) == "true") ? 1 : 0,
@@ -35,7 +41,9 @@ try {
             $result = $parkings->insert(array(
                 "parkingid" => intval(clean_input($_POST["parkingid"])),
                 "depot"     => (clean_input($_POST["depot"]) == "true") ? true : false,
-                "charger"   => (clean_input($_POST["charger"]) == "true") ? true : false
+                "charger"   => (clean_input($_POST["charger"]) == "true") ? true : false,
+                "power"     => intval(clean_input($_POST["power"])),
+                "ccharger"  => (clean_input($_POST["ccharger"]) == "true") ? true : false
             ));
             break;
 
@@ -45,7 +53,9 @@ try {
             $result = $parkings->update(array(
                 "parkingid" => intval(clean_input($_PUT["parkingid"])),
                 "depot"     => (clean_input($_PUT["depot"]) == "true") ? true : false,
-                "charger"   => (clean_input($_PUT["charger"]) == "true") ? true : false
+                "charger"   => (clean_input($_PUT["charger"]) == "true") ? true : false,
+                "power"     => intval(clean_input($_PUT["power"])),
+                "ccharger"  => (clean_input($_PUT["ccharger"]) == "true") ? true : false
             ));
             break;
 

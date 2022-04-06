@@ -68,10 +68,12 @@ $lang_array = [
     "ap_tapshares" => "Haneandel",
     "ap_shafts"    => "Skakt",
 
-    "parking"    => "P-plads",
-    "parkings"   => "P-pladser",
-    "pa_charger" => "Oplader",
-    "pa_depot"   => "Tremmerum",
+    "parking"     => "P-plads",
+    "parkings"    => "P-pladser",
+    "pa_depot"    => "Tremmerum",
+    "pa_charger"  => "Privat oplader",
+    "pa_power"    => "El forsyning",
+    "pa_ccharger" => "AG oplader",
 
     "depot"       => "Depot",
     "depots"      => "Depoter",

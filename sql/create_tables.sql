@@ -43,6 +43,8 @@ CREATE TABLE IF NOT EXISTS Parkings (
        ParkingId SMALLINT UNSIGNED NOT NULL PRIMARY KEY, /* 301 - 414 */
        Depot BOOLEAN NOT NULL DEFAULT false, /* true if parking has a depot */
        Charger BOOLEAN NOT NULL DEFAULT false, /* true if parking has a charger */
+       Power SMALLINT UNSIGNED NOT NULL DEFAULT 1, /* ApartmentId where power to charger is drawn from. 1 means not assigned */
+       CCharger BOOLEAN NOT NULL DEFAULT false, /* true if parking has a charger that is part of the common system */
        Modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
        INDEX (Depot),
        INDEX (Charger)

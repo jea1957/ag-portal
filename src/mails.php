@@ -372,6 +372,7 @@ class Mails {
         $parkingid  = "%" . $filter["parkingid"] . "%";
         $depot      = $filter["depot"];
         $charger    = $filter["charger"];
+        $ccharger   = $filter["ccharger"];
         $owner      = $filter["owner"];
         $extern     = $filter["extern"];
         $tenant     = $filter["tenant"];
@@ -383,14 +384,17 @@ class Mails {
                " (:historical = 1 OR Stopped = '0000-00-00' OR Stopped >= CURDATE()) AND Id IN ".
                "  (SELECT ParkingId FROM Parkings WHERE ParkingId LIKE :parkingid AND ".
                "   (:depot1 IS NULL or Depot = :depot2) AND ".
-               "   (:charger1 IS NULL or Charger = :charger2)))";
+               "   (:charger1 IS NULL or Charger = :charger2) AND ".
+               "   (:ccharger1 IS NULL or CCharger = :ccharger2)))";
 
         $q = $this->db->prepare($sql);
         $q->bindValue(":parkingid",  $parkingid);
-        $q->bindValue(":depot1",     $depot,   PDO::PARAM_BOOL);
-        $q->bindValue(":depot2",     $depot,   PDO::PARAM_BOOL); // Cannot reuse name in WHERE
-        $q->bindValue(":charger1",   $charger, PDO::PARAM_BOOL);
-        $q->bindValue(":charger2",   $charger, PDO::PARAM_BOOL); // Cannot reuse name in WHERE
+        $q->bindValue(":depot1",     $depot,    PDO::PARAM_BOOL);
+        $q->bindValue(":depot2",     $depot,    PDO::PARAM_BOOL); // Cannot reuse name in WHERE
+        $q->bindValue(":charger1",   $charger,  PDO::PARAM_BOOL);
+        $q->bindValue(":charger2",   $charger,  PDO::PARAM_BOOL); // Cannot reuse name in WHERE
+        $q->bindValue(":ccharger1",  $ccharger, PDO::PARAM_BOOL);
+        $q->bindValue(":ccharger2",  $ccharger, PDO::PARAM_BOOL); // Cannot reuse name in WHERE
         $q->bindValue(":owner",      $owner);
         $q->bindValue(":extern",     $extern);
         $q->bindValue(":tenant",     $tenant);

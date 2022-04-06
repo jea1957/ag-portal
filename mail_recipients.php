@@ -46,10 +46,16 @@ try {
                 } else {
                     $charger = null; // wildcard
                 }
+                if (isset($p["ccharger"])) {
+                    $ccharger = (clean_input($p["ccharger"]) == "true") ? true : false;
+                } else {
+                    $ccharger = null; // wildcard
+                }
                 $data["parkings"] = [
                     "parkingid"  => clean_input($p["parkingid"]),
                     "depot"      => $depot,
                     "charger"    => $charger,
+                    "ccharger"   => $ccharger,
                     "owner"      => (clean_input($p["owner"]) == "true") ? 1 : 0,
                     "extern"     => (clean_input($p["extern"]) == "true") ? 1 : 0,
                     "tenant"     => (clean_input($p["tenant"]) == "true") ? 1 : 0,
