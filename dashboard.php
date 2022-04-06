@@ -486,7 +486,9 @@ function logout() {
         type: "POST",
         url: "logout_action.php",
         data: { account_id: account_id },
-    }).done(function() { location.reload(); });
+    }).then(function() {
+        location.reload();
+    });
 }
 
 // Convert DATETIME from SQL to local time
@@ -584,10 +586,10 @@ function apartmentSelectUpdate() {
     return $.ajax({
         type: "GET",
         url: "apartments_all.php"
-    }).done(function(result) {
-        apartmentSelect = [{ id: 0, name: "<?php L('select') ?>" }];
-        for (const r of result) {
-            apartmentSelect.push( { id: r["apartmentid"], name: `${r["number"]} ${r["floor"]} ${r["side"]} (#${r["apartmentid"]})` } );
+    }).then(function(apartments) {
+        apartmentSelect = [{ id: 0, name: "<?php L('select') ?>" }, { id: 1, name: "" }];
+        for (const a of apartments) {
+            apartmentSelect.push( { id: a["apartmentid"], name: `${a["number"]} ${a["floor"]} ${a["side"]} (#${a["apartmentid"]})` } );
         }
     });
 }
@@ -709,7 +711,7 @@ function parkingSelectUpdate() {
     return $.ajax({
         type: "GET",
         url: "parkings_all.php"
-    }).done(function(parkings) {
+    }).then(function(parkings) {
         parkings.unshift({ parkingid: "<?php L('select') ?>" });
         parkingSelect = [...parkings];
     });
@@ -799,6 +801,9 @@ function parkingsGrid() {
             { width:  10, name: "parkingid", title: "<?php L('parking') ?>",    type: "text", sorter: "numberAsString", validate: "required", editing: false},
             { width:  10, name: "depot",     title: "<?php L('pa_depot') ?>",   type: "checkbox", editing: role_admin },
             { width:  10, name: "charger",   title: "<?php L('pa_charger') ?>", type: "checkbox" },
+          //{ width:  10, name: "power",     title: "<?php L('pa_charger') ?>", type: "jea" },
+          //{ width:  10, name: "power",     title: "<?php L('apartment') ?>",  type: "select", validate: { validator: "min", param: 1 },
+          //  items: apartmentSelect, valueField: "id", textField: "name", editing: false },
             { width:  10, type: "control",   editButton: role_update, deleteButton: role_admin, modeSwitchButton: role_admin} 
         ]
     });
@@ -817,7 +822,7 @@ function depotSelectUpdate() {
     return $.ajax({
         type: "GET",
         url: "depots_all.php"
-    }).done(function(depots) {
+    }).then(function(depots) {
         depots.unshift({ depotid: "<?php L('select') ?>" });
         depotSelect = [...depots];
     });
@@ -921,14 +926,8 @@ function depotsGrid() {
 // Depots waiting list
 //------------------------------------------------------------------------------
 
-let depotsWaitGridInitialized = false;
-
 // (re)load the depots wait grid
 function depotsWaitGrid() {
-    if (depotsWaitGridInitialized) {
-        return;
-    }
-    depotsWaitGridInitialized = true;
     $('#depots_wait_grid').jsGrid("destroy");
 
     $("#depots_wait_grid").jsGrid({
@@ -989,12 +988,10 @@ function personSelectUpdate() {
     return $.ajax({
         type: "GET",
         url: "persons_all.php"
-    }).done(function(persons) {
+    }).then(function(persons) {
         persons.sort((a, b) => a.name.localeCompare(b.name));
         persons.unshift({ personid: 0, name: "<?php L('select') ?>" });
         personSelect = [...persons];
-        // Not pretty but neccessary as depots waiting list depends on personSelect
-        depotsWaitGrid();
     });
 }
 
@@ -1609,13 +1606,6 @@ function draftDragDrop(e) {
     }
 }
 
-// Not ready yet
-function draftPaste(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    console.dir(e);
-}
-
 function draftSend() {
     const subject = $('#draft_subject').val();
     if (subject.trim().length === 0) {
@@ -2089,54 +2079,58 @@ $(function() {
 
     jsGrid.locale("da");
 
-    apartmentsGrid();
-
-    // Run if one of the checkboxes on apartments tab is changed
-    $('.apartments_chk').change(function() {
+    // Wait until all xxxSelectUpdate() has been resolved.
+    // Many of the grids depends on these
+    $.when(apartmentSelectUpdate(),
+           parkingSelectUpdate(),
+           depotSelectUpdate(),
+           personSelectUpdate()
+    ).then(function() {
         apartmentsGrid();
-    });
 
-    parkingsGrid();
-
-    // Run if one of the checkboxes on parkings tab is changed
-    $('.parkings_chk').change(function() {
-        parkingsGrid();
-    });
-
-    depotsGrid();
-
-    // Run if one of the checkboxes on depots tab is changed
-    $('.depots_chk').change(function() {
-        depotsGrid();
-    });
-
-    personsGrid();
-
-    // Run if one of the checkboxes on persons tab is changed
-    $('.persons_chk').change(function() {
-        personsGrid();
-    });
-
-    if (role_admin) {
-        accountsGrid();
-    }
-
-    if (role_mail) {
-        draftTab();
-
-        // Run if one of the checkboxes on draft tab is changed
-        $('.draft_chk').change(function() {
-            draftSetRecipients();
+        // Run if one of the checkboxes on apartments tab is changed
+        $('.apartments_chk').change(function() {
+            apartmentsGrid();
         });
 
-        mailsTab();
-    }
+        parkingsGrid();
 
-    // These can wait
-    apartmentSelectUpdate();
-    parkingSelectUpdate();
-    depotSelectUpdate();
-    personSelectUpdate();
+        // Run if one of the checkboxes on parkings tab is changed
+        $('.parkings_chk').change(function() {
+            parkingsGrid();
+        });
+
+        depotsGrid();
+
+        // Run if one of the checkboxes on depots tab is changed
+        $('.depots_chk').change(function() {
+            depotsGrid();
+        });
+
+        depotsWaitGrid();
+
+        personsGrid();
+
+        // Run if one of the checkboxes on persons tab is changed
+        $('.persons_chk').change(function() {
+            personsGrid();
+        });
+
+        if (role_admin) {
+            accountsGrid();
+        }
+
+        if (role_mail) {
+            draftTab();
+
+            // Run if one of the checkboxes on draft tab is changed
+            $('.draft_chk').change(function() {
+                draftSetRecipients();
+            });
+
+            mailsTab();
+        }
+    });
 });
     
 </script>
