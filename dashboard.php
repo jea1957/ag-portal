@@ -678,8 +678,8 @@ function apartmentsGrid() {
             $('#apartments_persons_modal').modal('show');
         },
         fields: [
-            { width:  20, name: "apartmentid", title: "<?php L('apartment') ?>",    type: "text", validate: "required", editing: false},
-            { width:  20, name: "number",      title: "<?php L('ap_number') ?>",    type: "text", validate: "required"},
+            { width:  20, name: "apartmentid", title: "<?php L('apartment') ?>",    type: "text", sorter: "numberAsString", validate: "required", editing: false },
+            { width:  20, name: "number",      title: "<?php L('ap_number') ?>",    type: "text", sorter: "numberAsString", validate: "required"},
             { width:  20, name: "floor",       title: "<?php L('ap_floor') ?>",     type: "text", validate: "required"},
             { width:  20, name: "side",        title: "<?php L('ap_side') ?>",      type: "text", validate: "required"},
             { width:  20, name: "type",        title: "<?php L('ap_type') ?>",      type: "text", validate: "required",
@@ -687,9 +687,9 @@ function apartmentsGrid() {
                   // stopPropagation() prevents opening the relations dialog
                   return v ? `<a href="files/${v.toUpperCase()}.pdf" onclick="event.stopPropagation()">${v}</a>` : v;
               }},
-            { width:  20, name: "size",        title: "<?php L('ap_size') ?>",      type: "text", validate: "required"},
-            { width:  20, name: "reduction",   title: "<?php L('ap_reduction') ?>", type: "text", validate: "required"},
-            { width:  20, name: "tapshares",   title: "<?php L('ap_tapshares') ?>", type: "text", validate: "required"},
+            { width:  20, name: "size",        title: "<?php L('ap_size') ?>",      type: "text", sorter: "numberAsString", validate: "required"},
+            { width:  20, name: "reduction",   title: "<?php L('ap_reduction') ?>", type: "text", sorter: "numberAsString", validate: "required"},
+            { width:  20, name: "tapshares",   title: "<?php L('ap_tapshares') ?>", type: "text", sorter: "numberAsString", validate: "required"},
             { width:  20, name: "shafts",      title: "<?php L('ap_shafts') ?>",    type: "text", validate: "required"},
             { width:  10, type: "control",     editButton: role_admin, deleteButton: role_admin, modeSwitchButton: role_admin}
         ]
@@ -796,7 +796,7 @@ function parkingsGrid() {
             $('#parkings_persons_modal').modal('show');
         },
         fields: [
-            { width:  10, name: "parkingid", title: "<?php L('parking') ?>",    type: "text", validate: "required", editing: false},
+            { width:  10, name: "parkingid", title: "<?php L('parking') ?>",    type: "text", sorter: "numberAsString", validate: "required", editing: false},
             { width:  10, name: "depot",     title: "<?php L('pa_depot') ?>",   type: "checkbox", editing: role_admin },
             { width:  10, name: "charger",   title: "<?php L('pa_charger') ?>", type: "checkbox" },
             { width:  10, type: "control",   editButton: role_update, deleteButton: role_admin, modeSwitchButton: role_admin} 
@@ -904,7 +904,7 @@ function depotsGrid() {
             $('#depots_persons_modal').modal('show');
         },
         fields: [
-            { width:  10, name: "depotid", title: "<?php L('depot') ?>",       type: "text", validate: "required", editing: false },
+            { width:  10, name: "depotid", title: "<?php L('depot') ?>",       type: "text", sorter: "numberAsString", validate: "required", editing: false },
             { width:  10, name: "number",  title: "<?php L('de_location') ?>", type: "text", validate: "required" },
             { width:  10, name: "isfree",  title: "<?php L('de_isfree') ?>",   type: "text", filtering: false, editing: false, inserting: false,
               itemTemplate: function(value, item) {
