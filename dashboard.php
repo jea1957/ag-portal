@@ -682,7 +682,11 @@ function apartmentsGrid() {
             { width:  20, name: "number",      title: "<?php L('ap_number') ?>",    type: "text", validate: "required"},
             { width:  20, name: "floor",       title: "<?php L('ap_floor') ?>",     type: "text", validate: "required"},
             { width:  20, name: "side",        title: "<?php L('ap_side') ?>",      type: "text", validate: "required"},
-            { width:  20, name: "type",        title: "<?php L('ap_type') ?>",      type: "text", validate: "required"},
+            { width:  20, name: "type",        title: "<?php L('ap_type') ?>",      type: "text", validate: "required",
+              itemTemplate: (v, i) => {
+                  // stopPropagation() prevents opening the relations dialog
+                  return v ? `<a href="files/${v.toUpperCase()}.pdf" onclick="event.stopPropagation()">${v}</a>` : v;
+              }},
             { width:  20, name: "size",        title: "<?php L('ap_size') ?>",      type: "text", validate: "required"},
             { width:  20, name: "reduction",   title: "<?php L('ap_reduction') ?>", type: "text", validate: "required"},
             { width:  20, name: "tapshares",   title: "<?php L('ap_tapshares') ?>", type: "text", validate: "required"},
