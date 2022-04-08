@@ -548,7 +548,8 @@ function mailStatus() {
             sts += `, <?php L('msg_queued') ?> ${a.queued}`;
         }
         $('#mailstatus').html(sts);
-        $('#mailstatus').attr('title', `<?php L('msg_checked') ?> ${localTime(a.checked)} - ${a.remote}`);
+        const title = `<?php L('msg_checked') ?> ${localTime(a.checked)} - ${a.remote} - <?php L('msg_code') ?> ${a.sendstatus}`;
+        $('#mailstatus').attr('title', title);
     });
 }
 

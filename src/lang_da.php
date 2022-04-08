@@ -122,6 +122,7 @@ $lang_array = [
     "msg_queued"      => "i kø",
     "msg_checked"     => "Kontrolleret",
     "msg_latest"      => "Seneste besked sendt",
+    "msg_code"        => "Kode",
 
     "rel_apartment" => "Relationer til lejlighed ",
     "rel_parking"   => "Relationer til p-plads ",
