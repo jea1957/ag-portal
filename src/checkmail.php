@@ -1,21 +1,16 @@
 <?php
 
+// This is supposed to be called via an external cron job
 require_once __DIR__ . "/utils.php";
+require_once __DIR__ . "/lang_da.php";
 require_once __DIR__ . "/pdo.php";
+require_once __DIR__ . '/mails.php';
 
-$mails_sent = 8; // TODO
-$info = $_SERVER['REMOTE_USER'] . ':' . $_SERVER['REMOTE_ADDR'] . ':' . $_SERVER['REMOTE_PORT'];
+$mails = new Mails($pdo);
 
 try {
-    $sql = "UPDATE MailCheck SET MailsSent = ?, Info = ? WHERE CheckId = 1";
-    $q = $pdo->prepare($sql);
-    $q->execute([$mails_sent, $info]);
-    $rc = $q->rowCount();
-    if ($rc != 1) {
-        echo 'ERROR';
-    } else {
-        echo 'OK';
-    }
+    $result = $mails->sendMail();
+    echo 'STATUS: '. $result;
 } catch (PDOException $e) {
     echo 'ERROR';
 }

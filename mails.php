@@ -18,7 +18,7 @@ try {
             break;
 
         case "POST":
-            $result = $mails->sendMails();
+            $result = $mails->sendMail();
             break;
 
         case "DELETE":

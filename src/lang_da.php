@@ -119,7 +119,9 @@ $lang_array = [
     "msg_footer"      => '<div style="text-align: center; padding: 0.3em; color: white; background-color: cornflowerblue;">'.
                          'Såfremt du ikke ønsker at modtage beskeder fra Admiralens Gård, så svar på denne e-mail og oplys hvorfor'.
                          '</div>',
-    "mq_check"        => "Mail check",
+    "msg_queued"      => "i kø",
+    "msg_checked"     => "Kontrolleret",
+    "msg_latest"      => "Seneste besked sendt",
 
     "rel_apartment" => "Relationer til lejlighed ",
     "rel_parking"   => "Relationer til p-plads ",

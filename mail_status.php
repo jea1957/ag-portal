@@ -6,7 +6,6 @@ require_once __DIR__ . '/src/mails.php';
 
 $mails = new Mails($pdo);
 
-
 try {
     switch($_SERVER["REQUEST_METHOD"]) {
         case "GET":

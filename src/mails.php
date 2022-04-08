@@ -2,10 +2,11 @@
 
 class MailCheck {
     public $checkid;
-    public $mailssent;
-    public $info;
+    public $checked;
+    public $remote;
+    public $queued;
     public $lastsend;
-    public $modified;
+    public $sendstatus;
 }
 
 class Mail {
@@ -256,9 +257,13 @@ class Mails {
         return $result;
     }
 
-    private function getFirstSending() {
+    private function getMailFromQueue() {
         $row = $this->db->query("SELECT * FROM Mails WHERE State = 2")->fetch();
-        return $this->readMail($row);
+        if ($row) {
+            return $this->readMail($row);
+        } else {
+            return false;
+        }
     }
 
     private function markAsSent($mailid) { // Change state from Sending(2) to Sent(3)
@@ -269,57 +274,89 @@ class Mails {
         $q->execute();
     }
 
-    public function sendMails() {
+    // Returns:
+    // -3: Send error
+    // -2: Too many recipients
+    // -1: Too early (last mail sent less tham 5 mminutes ago)
+    //  0: No mails in queue or no recipients
+    //  1..n: Number of recipients
+    public function sendMail() {
         global $db_contact, $db_cname;
 
-        $mt = $this->getMailCheck();
-        $dtA = new DateTime($mt->lastsend);
-        //$dtA->add(new DateInterval('PT5M')); // Add 5 minutes
-        $dtA->add(new DateInterval('PT5S')); // Add 5 seconds
+        // Register that we have been called
+        $remote = '';
+        if (isset($_SERVER['REMOTE_USER'])) {
+            $remote .= $_SERVER['REMOTE_USER'] . ':';
+        }
+        $remote .= $_SERVER['REMOTE_ADDR'] . ':' . $_SERVER['REMOTE_PORT'];
+        $sql = "UPDATE MailCheck SET Checked = CURRENT_TIMESTAMP, Remote = ? WHERE CheckId = 1";
+        $this->db->prepare($sql)->execute([$remote]);
+
+        // Check if there is anything to send
+        $count = $this->db->query("SELECT COUNT(*) FROM Mails WHERE State = 2")->fetchColumn();
+        $sql = "UPDATE MailCheck SET Queued = ? WHERE CheckId = 1";
+        $this->db->prepare($sql)->execute([$count]);
+        if ($count == 0) {
+            $this->db->exec("UPDATE MailCheck SET SendStatus = 0 WHERE CheckId = 1");
+            return 0;
+        }
+
+        // Check if enough time has passed
+        $row = $this->db->query("SELECT LastSend FROM MailCheck WHERE CheckId = 1")->fetch();
+        $dtA = new DateTime($row["LastSend"]);
+        $dtA->add(new DateInterval('PT5M')); // Add 5 minutes
         $dtB = new DateTime('NOW');
         if ($dtA >= $dtB) { // Don't send if lastsend is less then 5 minutes ago
-            error_log("Too early!");
+            $this->db->exec("UPDATE MailCheck SET SendStatus = -1 WHERE CheckId = 1");
+            return -1;
+        }
+
+        $mail = $this->getMailFromQueue();
+        if (!$mail) {
+            $this->db->exec("UPDATE MailCheck SET SendStatus = 0 WHERE CheckId = 1");
             return 0;
         }
-        $mail = $this->getFirstSending();
         $rcp = $this->getMailRecipients($mail->mailid);
         $num_rcp = count($rcp);
-        if ($num_rcp > 2) { // Be careful a little while
-            error_log("rcp: $num_rcp is too big!");
-            return 0;
+        if ($num_rcp > 255) {
+            $this->db->exec("UPDATE MailCheck SET SendStatus = -2 WHERE CheckId = 1");
+            return -2;
         }
-        error_log("mail, num_rcp: $num_rcp");
-        $body = _L('msg_header') . $mail->body . _L('msg_footer');
-        $att = $this->getAttachmentFiles($mail->mailid);
-
-        $result = send_email($db_contact, $db_cname, $db_contact, $db_cname, $mail->subject, $body, $rcp, $att);
-        error_log("Result: ". print_r($result,1));
-
-        // Only do this if something is send:
         if ($num_rcp > 0) {
+            $body = _L('msg_header') . $mail->body . _L('msg_footer');
+            $att = $this->getAttachmentFiles($mail->mailid);
+
+            $result = send_email($db_contact, $db_cname, $db_contact, $db_cname, $mail->subject, $body, $rcp, $att);
+            if (isset($result['error'])) {
+                error_log("send error: " . $result["error"]);
+                $this->db->exec("UPDATE MailCheck SET SendStatus = -3 WHERE CheckId = 1");
+                return -3;
+            }
+
             $this->markAsSent($mail->mailid);
-            $row = $this->db->query("UPDATE MailCheck SET LastSend = CURRENT_TIMESTAMP WHERE CheckId = 1")->fetch();
-            error_log("Send ok! ". print_r($row,1));
+            $count = $this->db->query("SELECT COUNT(*) FROM Mails WHERE State = 2")->fetchColumn();
+            $sql = "UPDATE MailCheck SET LastSend = CURRENT_TIMESTAMP, Queued = ? WHERE CheckId = 1";
+            $this->db->prepare($sql)->execute([$count]);
         }
+        $sql = "UPDATE MailCheck SET SendStatus = ? WHERE CheckId = 1";
+        $this->db->prepare($sql)->execute([$num_rcp]);
         return $num_rcp;
     }
 
 // MAIL CHECK:
     private function mailCheck($row) {
         $result = new MailCheck();
-        $result->checkid   = $row["CheckId"];
-        $result->mailssent = $row["MailsSent"];
-        $result->info      = $row["Info"];
-        $result->lastsend  = $row["LastSend"];
-        $result->modified  = $row["Modified"];
+        $result->checkid    = $row["CheckId"];
+        $result->checked    = $row["Checked"];
+        $result->remote     = $row["Remote"];
+        $result->queued     = $row["Queued"];
+        $result->lastsend   = $row["LastSend"];
+        $result->sendstatus = $row["SendStatus"];
         return $result;
     }
 
     public function getMailCheck() {
-        $sql = "SELECT * FROM MailCheck WHERE CheckId = 1";
-        $q = $this->db->prepare($sql);
-        $q->execute();
-        $row = $q->fetch();
+        $row = $this->db->query("SELECT * FROM MailCheck WHERE CheckId = 1")->fetch();
         return $this->mailCheck($row);
     }
 

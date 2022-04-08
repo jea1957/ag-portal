@@ -537,13 +537,18 @@ function mailStatus() {
         type: "GET",
         url: "mail_status.php"
     }).then(function (a) {
-        let diff = new Date() - new Date(a.modified + "Z");
+        let diff = new Date() - new Date(a.checked + "Z");
         if (diff > (1000 * 60 * 6)) { // Mail is expected to be checked every 5 minutes.
             $('#mailstatus').css("color", "red"); // Mark red if check is older than 6 minutes
         } else {
             $('#mailstatus').css("color", "");
         }
-        $('#mailstatus').html(`<?php L('mq_check') ?> ${localTime(a.modified)}`);
+        let sts = `<?php L('msg_latest') ?> ${localTime(a.lastsend)}`;
+        if (a.queued) {
+            sts += `, <?php L('msg_queued') ?> ${a.queued}`;
+        }
+        $('#mailstatus').html(sts);
+        $('#mailstatus').attr('title', `<?php L('msg_checked') ?> ${localTime(a.checked)} - ${a.remote}`);
     });
 }
 
@@ -1708,19 +1713,24 @@ function mailAttachmentsToTxt(attachments) {
 }
 
 function updateMailItems(item) {
+    const tm = tinymce.get('mail_body');
+    if (!tm) {
+        return; // tinymce not ready yet
+    }
+
     if (!item) {
         $('#mail_date').html('');
         $('#mail_from').html('');
         $('#mail_num_rx').html('');
         $('#mail_to').val('');
         $('#mail_subject').val('');
-        tinymce.get('mail_body').resetContent('');
+        tm.resetContent('');
         return;
     }
     $('#mail_date').html(localTime(item.sent));
     $('#mail_from').html(item.accountname);
     $('#mail_subject').val(item.subject);
-    tinymce.get('mail_body').resetContent(item.body);
+    tm.resetContent(item.body);
     $.ajax({
         type: "GET",
         url: "mail_recipients.php",
