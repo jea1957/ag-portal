@@ -82,6 +82,16 @@ if (isset($_POST['submit'])) { // Handle submit from this page
                             $_SESSION['role_update'] = false;
                             $_SESSION['role_mail']   = false;
                             break;
+                        case 5: // Tester
+                            $_SESSION['role_admin']  = false;
+                            $_SESSION['role_update'] = false;
+                            $_SESSION['role_mail']   = false;
+                            break;
+                        default:
+                            $_SESSION['role_admin']  = false;
+                            $_SESSION['role_update'] = false;
+                            $_SESSION['role_mail']   = false;
+                            break;
                     }
                     error_log("Login: $email");
                     //error_log('Session: ' . print_r($_SESSION, 1));

@@ -157,6 +157,7 @@ $lang_array = [
     "acc_role_board"         => "Bestyrelse",
     "acc_role_superman"      => "Superman",
     "acc_role_caretaker"     => "Vicevært",
+    "acc_role_tester"        => "Tester",
 
     "test"  => "Test",
 

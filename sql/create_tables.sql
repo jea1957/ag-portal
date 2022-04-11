@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS Accounts (
        Password VARCHAR(255) NOT NULL DEFAULT '',
        OTP VARCHAR(255) NOT NULL DEFAULT '', /* One Time Password */
        State TINYINT UNSIGNED NOT NULL DEFAULT 1, /* FirstLogin(1), Enabled(2), Disabled(3) */
-       Role TINYINT UNSIGNED NOT NULL DEFAULT 2, /* Superman(1), Board(2), Caretaker(3), Administrator(4) */
+       Role TINYINT UNSIGNED NOT NULL DEFAULT 2, /* Superman(1), Board(2), Caretaker(3), Administrator(4), Tester(5) */
        Language TINYINT UNSIGNED NOT NULL DEFAULT 1,  /* 'da'(1) or 'en'(2) */
        Activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

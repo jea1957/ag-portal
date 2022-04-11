@@ -476,6 +476,7 @@ const accountStates = [ { id: 0, state: "" },
 const accountRoles = [ { id: 2, role: "<?php L('acc_role_board') ?>" },
                        { id: 3, role: "<?php L('acc_role_caretaker') ?>" },
                        { id: 4, role: "<?php L('acc_role_administrator') ?>" },
+                       { id: 5, role: "<?php L('acc_role_tester') ?>" },
                        { id: 1, role: "<?php L('acc_role_superman') ?>" } ];
 
 const accountLang = [ { id: 1, value: "da" },
@@ -1923,7 +1924,7 @@ function accountsGrid() {
               validate: { validator: "range", param: [1, 3] }, filtering: false,
               items: accountStates, valueField: "id", textField: "state", inserting: false  },
             { width:  30, name: "role",       title: "<?php L('acc_role') ?>",     type: "select",
-              validate: { validator: "range", param: [1, 4] }, filtering: false,
+              validate: { validator: "range", param: [1, 5] }, filtering: false,
               items: accountRoles, valueField: "id", textField: "role" },
             { width:  20, name: "lang",       title: "<?php L('acc_lang') ?>",     type: "select",
               validate: { validator: "range", param: [1, 2] }, filtering: false,
