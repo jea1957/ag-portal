@@ -359,6 +359,15 @@ require_once __DIR__ . '/check_timeout.php';
         </div>
     </div>
     <div class="tab-pane fade" id="test_pane">
+        <p>screen.orientation.type: <span id="sot"></span></p>
+        <p>screen.orientation.angle: <span id="soa"></span></p>
+        <p>screen.height: <span id="sh"></span></p>
+        <p>screen.width: <span id="sw"></span></p>
+        <p>screen.availHeight: <span id="sah"></span></p>
+        <p>screen.availWidth: <span id="saw"></span></p>
+        <p>window.innerHeight: <span id="ih"></span></p>
+        <p>window.innerWidth: <span id="iw"></span></p>
+        <!--
         <p>Test tab content ...</p>
         <p>jQuery UI Icons:</p>
         <span class="ui-icon ui-icon-arrowthick-1-n"></span>
@@ -376,6 +385,7 @@ require_once __DIR__ . '/check_timeout.php';
         <p><?php echo __DIR__ ?></p>
         <p><?php echo print_r($_SERVER['HTTP_ACCEPT_LANGUAGE'], 1) ?></p>
         <p><?php echo print_r(locale_accept_from_http($_SERVER['HTTP_ACCEPT_LANGUAGE']), 1) ?></p>
+        -->
         <!--
         <button type="button" onclick="event.preventDefault(); console.log(apartmentFilter());">ApartmentFilter</button>
         -->
@@ -578,6 +588,35 @@ function tick() {
         logout();
     }
     mailStatus();
+}
+
+//------------------------------------------------------------------------------
+// Test and debug
+//------------------------------------------------------------------------------
+function test() {
+    const sot_id = document.querySelector('#sot');
+    const soa_id = document.querySelector('#soa');
+    const sh_id = document.querySelector('#sh');
+    const sw_id = document.querySelector('#sw');
+    const sah_id = document.querySelector('#sah');
+    const saw_id = document.querySelector('#saw');
+    const ih_id = document.querySelector('#ih');
+    const iw_id = document.querySelector('#iw');
+
+    function reportWindowSize() {
+        ih_id.textContent = window.innerHeight;
+        iw_id.textContent = window.innerWidth;
+    }
+    window.onresize = reportWindowSize;
+
+    sot_id.textContent = screen.orientation.type;
+    soa_id.textContent = screen.orientation.angle;
+    sh_id.textContent = screen.height;
+    sw_id.textContent = screen.width;
+    sah_id.textContent = screen.availHeight;
+    saw_id.textContent = screen.availWidth;
+    ih_id.textContent = window.innerHeight;
+    iw_id.textContent = window.innerWidth;
 }
 
 //------------------------------------------------------------------------------
@@ -2144,6 +2183,10 @@ $(function() {
             mailsTab();
         }
     });
+
+    if (role_admin) {
+        test();
+    }
 });
     
 </script>
