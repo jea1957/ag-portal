@@ -322,22 +322,23 @@ class Mails {
             $this->db->exec("UPDATE MailCheck SET SendStatus = -2 WHERE CheckId = 1");
             return -2;
         }
-        if ($num_rcp > 0) {
-            $body = _L('msg_header') . $mail->body . _L('msg_footer');
-            $att = $this->getAttachmentFiles($mail->mailid);
-
-            $result = send_email($db_contact, $db_cname, $db_contact, $db_cname, $mail->subject, $body, $rcp, $att);
-            if (isset($result['error'])) {
-                error_log("send error: " . $result["error"]);
-                $this->db->exec("UPDATE MailCheck SET SendStatus = -3 WHERE CheckId = 1");
-                return -3;
-            }
-
-            $this->markAsSent($mail->mailid);
-            $count = $this->db->query("SELECT COUNT(*) FROM Mails WHERE State = 2")->fetchColumn();
-            $sql = "UPDATE MailCheck SET LastSend = CURRENT_TIMESTAMP, Queued = ? WHERE CheckId = 1";
-            $this->db->prepare($sql)->execute([$count]);
+        if ($num_rcp == 0) {
+            $rcp = null; // Send to zero bcc recipients
         }
+        $body = _L('msg_header') . $mail->body . _L('msg_footer');
+        $att = $this->getAttachmentFiles($mail->mailid);
+
+        $result = send_email($db_contact, $db_cname, $db_contact, $db_cname, $mail->subject, $body, $rcp, $att);
+        if (isset($result['error'])) {
+            error_log("send error: " . $result["error"]);
+            $this->db->exec("UPDATE MailCheck SET SendStatus = -3 WHERE CheckId = 1");
+            return -3;
+        }
+        $this->markAsSent($mail->mailid);
+        $count = $this->db->query("SELECT COUNT(*) FROM Mails WHERE State = 2")->fetchColumn();
+        $sql = "UPDATE MailCheck SET LastSend = CURRENT_TIMESTAMP, Queued = ? WHERE CheckId = 1";
+        $this->db->prepare($sql)->execute([$count]);
+
         $sql = "UPDATE MailCheck SET SendStatus = ? WHERE CheckId = 1";
         $this->db->prepare($sql)->execute([$num_rcp]);
         return $num_rcp;

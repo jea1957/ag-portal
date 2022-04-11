@@ -113,11 +113,12 @@ $lang_array = [
     "msg_send_conf"   => "Vil du sende denne besked?",
     "msg_no_subject"  => "Emnefelt må ikke være tomt!",
     "msg_no_body"     => "Beskedfelt må ikke være tomt!",
-    "msg_header"      => '<div style="text-align: center; padding: 0.3em; color: white; background-color: cornflowerblue;">'.
-                         'Besked fra Admiralens Gård'.
+    "msg_header"      => '<div style="text-align: center; padding: 0px; margin: 0px; color: white; background-color: cornflowerblue;">'.
+                         'Besked fra Bestyrelsen i Admiralens Gård'.
                          '</div>',
-    "msg_footer"      => '<div style="text-align: center; padding: 0.3em; color: white; background-color: cornflowerblue;">'.
-                         'Såfremt du ikke ønsker at modtage beskeder fra Admiralens Gård, så svar på denne e-mail og oplys hvorfor'.
+    "msg_footer"      => '<hr style="width: 100%; padding: 0px; margin: 0px; border-bottom: 1px solid cornflowerblue;">'.
+                         '<div style="text-align: center; padding: 0px; margin: 0px; color: cornflowerblue;">'.
+                         '<i>Såfremt du ikke ønsker at modtage beskeder fra Admiralens Gård, så svar på denne e-mail og oplys hvorfor</i>'.
                          '</div>',
     "msg_queued"      => "i kø",
     "msg_checked"     => "Kontrolleret",

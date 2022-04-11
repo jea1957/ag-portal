@@ -254,7 +254,7 @@ require_once __DIR__ . '/check_timeout.php';
                         </div>
                         <div class="form-check-inline">
                           <label class="form-check-label">
-                            <input type="checkbox" class="form-check-input draft_chk" id="draft_board" checked><?php L('acc_role_board') ?>
+                            <input type="checkbox" class="form-check-input draft_chk" id="draft_board"><?php L('acc_role_board') ?>
                           </label>
                         </div>
                         <div class="form-check-inline">
@@ -1430,7 +1430,7 @@ function draftResetFilters() {
     $('#draft_apartments').prop('checked', false);
     $('#draft_parkings').prop('checked', false);
     $('#draft_depots').prop('checked', false);
-    $('#draft_board').prop('checked', true);
+    $('#draft_board').prop('checked', false);
     $('#draft_caretaker').prop('checked', false);
     $('#draft_administrator').prop('checked', false);
 }
