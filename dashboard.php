@@ -844,13 +844,13 @@ function parkingsGrid() {
             $('#parkings_persons_modal').modal('show');
         },
         fields: [
-            { width:  50, name: "parkingid", title: "<?php L('parking') ?>",    type: "text",
+            { width:  20, name: "parkingid", title: "<?php L('parking') ?>",    type: "text",
               sorter: "numberAsString", validate: "required", editing: false},
-            { width:  50, name: "depot",     title: "<?php L('pa_depot') ?>",   type: "checkbox", editing: role_admin },
-            { width:  50, name: "charger",   title: "<?php L('pa_charger') ?>", type: "checkbox" },
-            { width:  50, name: "power",     title: "<?php L('pa_power') ?>",   type: "select", validate: { validator: "min", param: 1 },
+            { width:  20, name: "depot",     title: "<?php L('pa_depot') ?>",   type: "checkbox", editing: role_admin },
+            { width:  20, name: "charger",   title: "<?php L('pa_charger') ?>", type: "checkbox" },
+            { width:  20, name: "power",     title: "<?php L('pa_power') ?>",   type: "select", validate: { validator: "min", param: 1 },
               items: apartmentSelect, valueField: "id", textField: "name", filtering: false },
-            { width:  50, name: "ccharger",  title: "<?php L('pa_ccharger') ?>", type: "checkbox" },
+            { width:  20, name: "ccharger",  title: "<?php L('pa_ccharger') ?>", type: "checkbox" },
             { width:  10, type: "control",   editButton: role_update, deleteButton: role_admin, modeSwitchButton: role_admin} 
         ]
     });
@@ -956,8 +956,8 @@ function depotsGrid() {
             $('#depots_persons_modal').modal('show');
         },
         fields: [
-            { width:  10, name: "depotid", title: "<?php L('depot') ?>",       type: "text", sorter: "numberAsString", validate: "required", editing: false },
-            { width:  10, name: "number",  title: "<?php L('de_location') ?>", type: "text", validate: "required" },
+            { width:  20, name: "depotid", title: "<?php L('depot') ?>",       type: "text", sorter: "numberAsString", validate: "required", editing: false },
+            { width:  20, name: "number",  title: "<?php L('de_location') ?>", type: "text", validate: "required" },
             { width:  10, name: "isfree",  title: "<?php L('de_isfree') ?>",   type: "text", filtering: false, editing: false, inserting: false,
               itemTemplate: function(value, item) {
                   if (value) {
@@ -1136,16 +1136,16 @@ function personsGrid() {
         },
         fields: [
             { width:  10, name: "personid", title: "Id",                        type: "number", filtering: false, editing: false, inserting: false },
-            { width: 100, name: "name",     title: "<?php L('pe_name') ?>",     type: "text", validate: "required" },
-            { width: 100, name: "address",  title: "<?php L('pe_address') ?>",  type: "text", validate: "required" },
-            { width: 100, name: "email",    title: "<?php L('pe_email') ?>",    type: "text", validate: "email" },
+            { width:  50, name: "name",     title: "<?php L('pe_name') ?>",     type: "text", validate: "required" },
+            { width:  50, name: "address",  title: "<?php L('pe_address') ?>",  type: "text", validate: "required" },
+            { width:  50, name: "email",    title: "<?php L('pe_email') ?>",    type: "text", validate: "email" },
           //{ width:  10, name: "nomails",  title: '<span class="ui-icon ui-icon-mail-closed" title="Send mail to this person"></span>',
           //  type: "checkbox" },
             { width:  10, name: "nomails",  title: '<span title="<?php L('pe_noemail_tip') ?>"><?php L('pe_noemail') ?></span>', type: "checkbox" },
-            { width:  30, name: "phone",    title: "<?php L('pe_phone') ?>",    type: "text" },
+            { width:  20, name: "phone",    title: "<?php L('pe_phone') ?>",    type: "text" },
             { width:  60, name: "modified", title: "<?php L('modified') ?>", type: "text",
               filtering: false, editing: false, inserting: false, itemTemplate: localTime, visible: role_admin },
-            { width:  20, type: "control", editButton: role_update, deleteButton: role_update, modeSwitchButton: role_update} 
+            { width:  10, type: "control", editButton: role_update, deleteButton: role_update, modeSwitchButton: role_update} 
         ]
     });
 }
