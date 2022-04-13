@@ -35,7 +35,7 @@ It is recommended to add a .htaccess with content 'deny from all' in the followi
 - sql
 - cron
 
-The cron folder contains a php script, cronjob.php', that must be called approximately every 5 minutes.
+The cron folder contains a php script, cronjob.php, that must be called approximately every 5 minutes.
 
 In case your provider does not support `cron`, you can use an external cron provider, such as cron-job.org.
 
