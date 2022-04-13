@@ -88,7 +88,7 @@ $lang_array = [
     "pe_address"     => "Adresse",
     "pe_email"       => "Email",
     "pe_noemail"     => "Nej",
-    "pe_noemail_tip" => "Send aldrig email til denne person",
+    "pe_noemail_tip" => "Personen vil/kan ikke modtage e-mails",
     "pe_phone"       => "Tele<wbr>fon",
 
     "msg_mails"       => "Se beskeder",

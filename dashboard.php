@@ -1136,18 +1136,17 @@ function personsGrid() {
         },
         fields: [
             { width:  10, name: "personid", title: "Id",                        type: "number", filtering: false, editing: false, inserting: false },
-            { width:  50, name: "name",     title: "<?php L('pe_name') ?>",     type: "text", validate: "required" },
-            { width:  50, name: "address",  title: "<?php L('pe_address') ?>",  type: "text", validate: "required",
+            { width:  40, name: "name",     title: "<?php L('pe_name') ?>",     type: "text", validate: "required" },
+            { width:  40, name: "address",  title: "<?php L('pe_address') ?>",  type: "text", validate: "required",
               itemTemplate: function(value, item) {
                   return value.replace('eidekampsgade', 'eidekamps<wbr>gade'); // Add line break oportunity on one of the most used street name
               }},
-            { width:  50, name: "email",    title: "<?php L('pe_email') ?>",    type: "text", validate: "email",
+            { width:  40, name: "email",    title: "<?php L('pe_email') ?>",    type: "text", validate: "email",
               itemTemplate: function(value, item) {
                   return value.replace('@', '<wbr>@'); // Add line break oportunity
               }},
-          //{ width:  10, name: "nomails",  title: '<span class="ui-icon ui-icon-mail-closed" title="Send mail to this person"></span>',
-          //  type: "checkbox" },
-            { width:  10, name: "nomails",  title: '<span title="<?php L('pe_noemail_tip') ?>"><?php L('pe_noemail') ?></span>', type: "checkbox" },
+            { width:  10, name: "nomails",  title: '<img src="no_email.png" width="16" height="16" title="<?php L('pe_noemail_tip') ?>" alt="<?php L('pe_noemail') ?>">',
+              type: "checkbox" },
             { width:  20, name: "phone",    title: "<?php L('pe_phone') ?>",    type: "text",
               itemTemplate: function(value, item) {
                   let v = value.trim();
