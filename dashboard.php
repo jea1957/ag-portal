@@ -1226,13 +1226,13 @@ function apartmentsPersons(gridId, historicalId, personId, id) {
 
     if (personId) {
         grid([
-            { width:  40, name: "personid", title: "<?php L('person') ?>",    type: "text",   visible: false },
-            { width:  10, name: "id",       title: "<?php L('apartment') ?>", type: "select", validate: { validator: "min", param: 1 },
+            { width:  10, name: "personid", title: "<?php L('person') ?>",    type: "text",   visible: false },
+            { width:  25, name: "id",       title: "<?php L('apartment') ?>", type: "select", validate: { validator: "min", param: 1 },
               items: apartmentSelect, valueField: "id", textField: "name", editing: false },
-            { width:  30, name: "relation", title: "<?php L('relation') ?>",  type: "select", validate: { validator: "range", param: [1, 3] },
+            { width:  25, name: "relation", title: "<?php L('relation') ?>",  type: "select", validate: { validator: "range", param: [1, 3] },
               items: relations, valueField: "id", textField: "relation" },
-            { width:  20, name: "started",  title: "<?php L('started') ?>",   type: "date",   validate: "required" },
-            { width:  20, name: "stopped",  title: "<?php L('stopped') ?>",   type: "date" },
+            { width:  25, name: "started",  title: "<?php L('started') ?>",   type: "date",   validate: "required" },
+            { width:  25, name: "stopped",  title: "<?php L('stopped') ?>",   type: "date" },
           //{ width: 100, name: "modified", title: "<?php L('modified') ?>",  type: "text",
           //  filtering: false, editing: false, inserting: false, itemTemplate: localTime },
             { width:  10, type: "control", editButton: role_update, deleteButton: role_update, modeSwitchButton: false }
@@ -1240,12 +1240,12 @@ function apartmentsPersons(gridId, historicalId, personId, id) {
     } else {
         grid([
             { width:  10, name: "id",       title: "<?php L('apartment') ?>", type: "text",   visible: false },
-            { width:  40, name: "personid", title: "<?php L('person') ?>",    type: "select", validate: { validator: "min", param: 1 },
+            { width:  25, name: "personid", title: "<?php L('person') ?>",    type: "select", validate: { validator: "min", param: 1 },
               items: personSelect, valueField: "personid", textField: "name", editing: false },
-            { width:  30, name: "relation", title: "<?php L('relation') ?>",  type: "select", validate: { validator: "range", param: [1, 3] },
+            { width:  25, name: "relation", title: "<?php L('relation') ?>",  type: "select", validate: { validator: "range", param: [1, 3] },
               items: relations, valueField: "id", textField: "relation" },
-            { width:  20, name: "started",  title: "<?php L('started') ?>",   type: "date",   validate: "required" },
-            { width:  20, name: "stopped",  title: "<?php L('stopped') ?>",   type: "date" },
+            { width:  25, name: "started",  title: "<?php L('started') ?>",   type: "date",   validate: "required" },
+            { width:  25, name: "stopped",  title: "<?php L('stopped') ?>",   type: "date" },
           //{ width: 100, name: "modified", title: "<?php L('modified') ?>",  type: "text",
           //  filtering: false, editing: false, inserting: false, itemTemplate: localTime },
             { width:  10, type: "control", editButton: role_update, deleteButton: role_update, modeSwitchButton: false }
@@ -1329,13 +1329,13 @@ function parkingsPersons(gridId, historicalId, personId, id) {
 
     if (personId) {
         grid([
-            { width:  40, name: "personid", title: "<?php L('person') ?>",   type: "text",   visible: false },
-            { width:  10, name: "id",       title: "<?php L('parking') ?>",  type: "select", validate: { validator: "min", param: 1 },
+            { width:  10, name: "personid", title: "<?php L('person') ?>",   type: "text",   visible: false },
+            { width:  25, name: "id",       title: "<?php L('parking') ?>",  type: "select", validate: { validator: "min", param: 1 },
               items: parkingSelect, valueField: "parkingid", textField: "parkingid", editing: false },
-            { width:  30, name: "relation", title: "<?php L('relation') ?>", type: "select", validate: { validator: "range", param: [1, 3] },
+            { width:  25, name: "relation", title: "<?php L('relation') ?>", type: "select", validate: { validator: "range", param: [1, 3] },
               items: relations, valueField: "id", textField: "relation" },
-            { width:  20, name: "started",  title: "<?php L('started') ?>",  type: "date",   validate: "required" },
-            { width:  20, name: "stopped",  title: "<?php L('stopped') ?>",  type: "date" },
+            { width:  25, name: "started",  title: "<?php L('started') ?>",  type: "date",   validate: "required" },
+            { width:  25, name: "stopped",  title: "<?php L('stopped') ?>",  type: "date" },
           //{ width: 100, name: "modified", title: "<?php L('modified') ?>", type: "text",
           //  filtering: false, editing: false, inserting: false, itemTemplate: localTime },
             { width:  10, type: "control", editButton: role_update, deleteButton: role_update, modeSwitchButton: false }
@@ -1343,12 +1343,12 @@ function parkingsPersons(gridId, historicalId, personId, id) {
     } else {
         grid([
             { width:  10, name: "id",       title: "<?php L('parking') ?>",  type: "text",   visible: false },
-            { width:  40, name: "personid", title: "<?php L('person') ?>",   type: "select", validate: { validator: "min", param: 1 },
+            { width:  25, name: "personid", title: "<?php L('person') ?>",   type: "select", validate: { validator: "min", param: 1 },
               items: personSelect, valueField: "personid", textField: "name", editing: false },
-            { width:  30, name: "relation", title: "<?php L('relation') ?>", type: "select", validate: { validator: "range", param: [1, 3] },
+            { width:  25, name: "relation", title: "<?php L('relation') ?>", type: "select", validate: { validator: "range", param: [1, 3] },
               items: relations, valueField: "id", textField: "relation" },
-            { width:  20, name: "started",  title: "<?php L('started') ?>",  type: "date",   validate: "required" },
-            { width:  20, name: "stopped",  title: "<?php L('stopped') ?>",  type: "date" },
+            { width:  25, name: "started",  title: "<?php L('started') ?>",  type: "date",   validate: "required" },
+            { width:  25, name: "stopped",  title: "<?php L('stopped') ?>",  type: "date" },
           //{ width: 100, name: "modified", title: "<?php L('modified') ?>", type: "text",
           //  filtering: false, editing: false, inserting: false, itemTemplate: localTime },
             { width:  10, type: "control", editButton: role_update, deleteButton: role_update, modeSwitchButton: false }
@@ -1432,11 +1432,11 @@ function depotsPersons(gridId, historicalId, personId, id) {
 
     if (personId) {
         grid([
-            { width:  40, name: "personid",  title: "<?php L('person') ?>",   type: "text",   visible: false },
-            { width:  10, name: "id",        title: "<?php L('depot') ?>",    type: "select", validate: { validator: "min", param: 1 },
+            { width:  10, name: "personid",  title: "<?php L('person') ?>",   type: "text",   visible: false },
+            { width:  34, name: "id",        title: "<?php L('depot') ?>",    type: "select", validate: { validator: "min", param: 1 },
               items: depotSelect, valueField: "depotid", textField: "depotid", editing: false },
-            { width:  20, name: "started",   title: "<?php L('started') ?>",  type: "date",   validate: "required" },
-            { width:  20, name: "stopped",   title: "<?php L('stopped') ?>",  type: "date" },
+            { width:  33, name: "started",   title: "<?php L('started') ?>",  type: "date",   validate: "required" },
+            { width:  33, name: "stopped",   title: "<?php L('stopped') ?>",  type: "date" },
           //{ width: 100, name: "modified",  title: "<?php L('modified') ?>", type: "text",
           //  filtering: false, editing: false, inserting: false, itemTemplate: localTime },
             { width:  10, type: "control", editButton: role_update, deleteButton: role_update, modeSwitchButton: false }
@@ -1444,10 +1444,10 @@ function depotsPersons(gridId, historicalId, personId, id) {
     } else {
         grid([
             { width:  10, name: "id",        title: "<?php L('depot') ?>",    type: "text",   visible: false },
-            { width:  40, name: "personid",  title: "<?php L('person') ?>",   type: "select", validate: { validator: "min", param: 1 },
+            { width:  34, name: "personid",  title: "<?php L('person') ?>",   type: "select", validate: { validator: "min", param: 1 },
               items: personSelect, valueField: "personid", textField: "name", editing: false },
-            { width:  20, name: "started",   title: "<?php L('started') ?>",  type: "date",   validate: "required" },
-            { width:  20, name: "stopped",   title: "<?php L('stopped') ?>",  type: "date" },
+            { width:  33, name: "started",   title: "<?php L('started') ?>",  type: "date",   validate: "required" },
+            { width:  33, name: "stopped",   title: "<?php L('stopped') ?>",  type: "date" },
           //{ width: 100, name: "modified",  title: "<?php L('modified') ?>", type: "text",
           //  filtering: false, editing: false, inserting: false, itemTemplate: localTime },
             { width:  10, type: "control", editButton: role_update, deleteButton: role_update, modeSwitchButton: false }
