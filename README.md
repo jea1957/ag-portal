@@ -39,7 +39,7 @@ The cron folder contains a php script, cronjob.php, that must be called approxim
 
 In case your provider does not support `cron`, you can use an external cron provider, such as cron-job.org.
 
-Use a URL that matches the location, such as 'https://portal.com/cron/cronjob.php
+Use a URL that matches the location, such as https://portal.com/cron/cronjob.php
 
 It is recommended to use HTTP authentication together with a .htaccess and .htpasswd in the cron folder.
 
