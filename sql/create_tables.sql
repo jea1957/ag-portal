@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS Parkings (
 
 CREATE TABLE IF NOT EXISTS Depots (
        DepotId SMALLINT UNSIGNED NOT NULL PRIMARY KEY,  /* 201 - 208 (might change) */
-       Number CHAR(2) NOT NULL, /* E.g. '31', '33', '35', '37', '39', '41', '43', '45', '47' */
+       Number CHAR(255) NOT NULL, /* E.g. '31', '33', '35', '37', '39', '41', '43', '45', '47' followed by some text*/
        Modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
