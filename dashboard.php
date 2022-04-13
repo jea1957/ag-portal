@@ -1137,12 +1137,26 @@ function personsGrid() {
         fields: [
             { width:  10, name: "personid", title: "Id",                        type: "number", filtering: false, editing: false, inserting: false },
             { width:  50, name: "name",     title: "<?php L('pe_name') ?>",     type: "text", validate: "required" },
-            { width:  50, name: "address",  title: "<?php L('pe_address') ?>",  type: "text", validate: "required" },
-            { width:  50, name: "email",    title: "<?php L('pe_email') ?>",    type: "text", validate: "email" },
+            { width:  50, name: "address",  title: "<?php L('pe_address') ?>",  type: "text", validate: "required",
+              itemTemplate: function(value, item) {
+                  return value.replace('eidekampsgade', 'eidekamps<wbr>gade'); // Add line break oportunity on one of the most used street name
+              }},
+            { width:  50, name: "email",    title: "<?php L('pe_email') ?>",    type: "text", validate: "email",
+              itemTemplate: function(value, item) {
+                  return value.replace('@', '<wbr>@'); // Add line break oportunity
+              }},
           //{ width:  10, name: "nomails",  title: '<span class="ui-icon ui-icon-mail-closed" title="Send mail to this person"></span>',
           //  type: "checkbox" },
             { width:  10, name: "nomails",  title: '<span title="<?php L('pe_noemail_tip') ?>"><?php L('pe_noemail') ?></span>', type: "checkbox" },
-            { width:  20, name: "phone",    title: "<?php L('pe_phone') ?>",    type: "text" },
+            { width:  20, name: "phone",    title: "<?php L('pe_phone') ?>",    type: "text",
+              itemTemplate: function(value, item) {
+                  let v = value.trim();
+                  if (v.length == 8) { // Add line break oportunity on 'standard' phone numbers
+                      return v.substr(0, 4) + '<wbr>' + v.substr(4);
+                  } else {
+                      return v;
+                  }
+              }},
             { width:  60, name: "modified", title: "<?php L('modified') ?>", type: "text",
               filtering: false, editing: false, inserting: false, itemTemplate: localTime, visible: role_admin },
             { width:  10, type: "control", editButton: role_update, deleteButton: role_update, modeSwitchButton: role_update} 
