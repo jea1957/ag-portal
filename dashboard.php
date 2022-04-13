@@ -1045,7 +1045,11 @@ function personSelectUpdate() {
 function personGet(id) {
     for (let i of personSelect) {
        if (i.personid === id) {
-           return i.name;
+           let txt = `${i.name} - ${i.email}`
+           if (i.phone.length) {
+               txt += ` - ${i.phone}`;
+           }
+           return txt;
        }
     }
     return "????";
