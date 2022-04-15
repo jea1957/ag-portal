@@ -206,18 +206,17 @@ retry:
   <meta charset="utf-8">
   <meta name="description" content="<?php echo $db_owner ?>">
   <meta name="author" content="<?php echo $db_author ?>">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?php echo $db_owner ?></title>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/css/bootstrap.min.css"
         integrity="sha512-T584yQ/tdRR5QwOpfvDfVQUidzfgc2339Lc8uBDtcp/wYu80d7jwBgAxbyMh0a9YM9F8N3tdErpFI8iaGx6x5g=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+
 <!--
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css"
         integrity="sha512-GQGU0fMMi238uA+a/bdWJfpUGKUkBdgfFdgBm72SUQ6BeyWjoY/ton0tEjH+OSH9iP4Dfh+7HM0I9f5eR0L/4w=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-<link rel="stylesheet" href="css/bootstrap-4.3.1.min.css">
 -->
 </head>
 
@@ -227,9 +226,6 @@ retry:
       <div class="col-xl-5 col-lg-6 col-md-8 col-sm-10 mx-auto text-center p-4 border">
         <img class="mb-4" src="../favicon.ico" alt="" width="72" height="72">
         <div class="px-2">
-<!--
-          <form action="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>" method="POST">
--->
           <form method="POST">
             <strong ><?php echo isset($_SESSION['form_msg']) ? $_SESSION['form_msg'].'<br><br>' : '' ?></strong>
             <strong style="color:red"><?php echo isset($form_err) ? $form_err.'<br><br>' : '' ?></strong>
@@ -253,8 +249,8 @@ retry:
 
 <?php } elseif ($_SESSION['form_state'] == 'forgot_pw') { ?>
 
-            <div class="form-group">
-              <label for="inputEmail" class="sr-only">Email</label>
+            <div class="form-group mb-3">
+              <label for="inputEmail" class="sr-only visually-hidden">Email</label>
               <input type="email" class="form-control" name="email" value="<?php echo $_POST['email'] ?? '' ?>"
                   id="inputEmail" placeholder="<?php echo L('login_email') ?>" maxLength="64" required>
               <strong style="color:red"><?php echo isset($form_err_email) ? $form_err_email : '' ?></strong>
@@ -264,20 +260,20 @@ retry:
 
 <?php } elseif ($_SESSION['form_state'] == 'change_pw') { ?>
 
-            <div class="form-group">
-              <label for="inputPassword" class="sr-only">Password</label>
+            <div class="form-group mb-3">
+              <label for="inputPassword" class="sr-only visually-hidden">Password</label>
               <input type="password" class="form-control" name="password" value="<?php echo $_POST['password'] ?? '' ?>"
                   id="inputPassword" placeholder="<?php echo L('change_pw_current') ?>" minLength="8" maxLength="32" required>
               <strong style="color:red"><?php echo isset($form_err_password) ? $form_err_password : '' ?></strong>
             </div>
-            <div class="form-group">
-              <label for="inputPassword2" class="sr-only">Password</label>
+            <div class="form-group mb-3">
+              <label for="inputPassword2" class="sr-only visually-hidden">Password</label>
               <input type="password" class="form-control" name="password2" value="<?php echo $_POST['password2'] ?? '' ?>"
                   id="inputPassword2" placeholder="<?php echo L('change_pw_new') ?>" minLength="8" maxLength="32" required>
               <strong style="color:red"><?php echo isset($form_err_password2) ? $form_err_password2 : '' ?></strong>
             </div>
-            <div class="form-group">
-              <label for="inputPassword3" class="sr-only">Password</label>
+            <div class="form-group mb-3">
+              <label for="inputPassword3" class="sr-only visually-hidden">Password</label>
               <input type="password" class="form-control" name="password3" value="<?php echo $_POST['password3'] ?? '' ?>"
                   id="inputPassword3" placeholder="<?php echo L('change_pw_repeat') ?>" minLength="8" maxLength="32" required>
               <strong style="color:red"><?php echo isset($form_err_password3) ? $form_err_password3 : '' ?></strong>
