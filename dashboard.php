@@ -35,6 +35,9 @@ require_once __DIR__ . '/check_timeout.php';
         integrity="sha512-3Epqkjaaaxqq/lt5RLJsTzP6cCIFyipVRcY4BcPfjOiGM1ZyFCv4HHeWS7eCPVaAigY3Ha3rhRgOsWaWIClqQQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css"
+        integrity="sha256-5veQuRbWaECuYxwap/IOE/DAwNxgm4ikX7nrgsqYp88=" crossorigin="anonymous">
+
   <link rel="stylesheet" href="css/portal.css"/>
 
   <script src="js/tinymce/tinymce.min.js"></script>
@@ -54,6 +57,14 @@ require_once __DIR__ . '/check_timeout.php';
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.js"
           integrity="sha512-blBYtuTn9yEyWYuKLh8Faml5tT/5YPG0ir9XEABu5YCj7VGr2nb21WPFT9pnP4fcC3y0sSxJR1JqFTfTALGuPQ=="
           crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"
+          integrity="sha256-XCdgoNaBjzkUaEJiauEq+85q/xi/2D4NcB3ZHwAapoM="
+          crossorigin="anonymous"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/locales/da.js"
+          integrity="sha256-aT31fc25PtX42LR/qNcImyud2Zu95L5Ejq57otOBuEw="
+          crossorigin="anonymous"></script>
 
   <script src="js/jsgrid-da.js"></script>
 </head>
@@ -104,6 +115,9 @@ require_once __DIR__ . '/check_timeout.php';
     </li>
     <li class="nav-item">
         <a href="#test_pane" class="nav-link" data-toggle="tab" id="test_tab"><?php L('test') ?></a>
+    </li>
+    <li class="nav-item">
+        <a href="#calendar_pane" class="nav-link" data-toggle="tab" id="calendar_tab">Calendar!</a>
     </li>
   <?php } ?>
 </ul>
@@ -393,6 +407,15 @@ require_once __DIR__ . '/check_timeout.php';
         <?php
             //phpinfo();
         ?>
+    </div>
+    <div class="tab-pane fade" id="calendar_pane">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="flex-calendar" id="calendar"></div>
+                </div>
+            </div>
+        </div>
     </div>
   <?php } ?>
 </div>
@@ -1993,6 +2016,18 @@ function accountsGrid() {
 }
 
 //------------------------------------------------------------------------------
+// Calendar
+//------------------------------------------------------------------------------
+function calendar() {
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+//        contentHeight: 'auto',
+    });
+    calendar.render();
+}
+
+//------------------------------------------------------------------------------
 // Wait for document ready
 //------------------------------------------------------------------------------
 $(function() {
@@ -2092,7 +2127,16 @@ $(function() {
         dateFormat: 'yy-mm-dd', // Actually 'yyyy-mm-dd'
         changeMonth: true,
         changeYear: true,
+        firstDay: 1,
         yearRange: "2006:c+02",
+        // The following is needed on Firefox to get changeMonth and changeYear dropdowns working
+        // https://therichpost.com/question/jquery-ui-datepicker-monthyear-dropdown-is-not-working-in-boostrap-modal-popup-in-firefox/
+        beforeShow: function(input, inst) {
+            $(document).off('focusin.bs.modal');
+        },
+        onClose: function() {
+            $(document).on('focusin.bs.modal');
+        },
     });
     
     // Custom date field using jQuery datepicker
@@ -2198,6 +2242,10 @@ $(function() {
             });
 
             mailsTab();
+        }
+
+        if (role_admin) {
+            calendar();
         }
     });
 
