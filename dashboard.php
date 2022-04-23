@@ -412,7 +412,8 @@ require_once __DIR__ . '/check_timeout.php';
         <div class="container-fluid">
             <div class="row">
                 <div class="col-lg-12">
-                    <div class="flex-calendar" id="calendar"></div>
+                    <input type="hidden" id="calendar_datepicker">
+                    <div id="calendar"></div>
                 </div>
             </div>
         </div>
@@ -2037,9 +2038,10 @@ function calendar() {
         locale: 'da',
         firstDay: 1,
         weekNumbers: true,
+        navLinks: true,
         headerToolbar: {
-            start: 'title',
-            center: 'prevYear prev today next nextYear',
+            start: 'myDate prevYear prev today next nextYear',
+            center: 'title',
             end: 'dayGridMonth dayGridWeek dayGridDay',
         },
         events: [
@@ -2049,7 +2051,45 @@ function calendar() {
                 start: Date.now(),
             },
         ],
-//        contentHeight: 'auto',
+        datesSet: function(dateInfo) {
+            const d = new Date();
+            console.dir(dateInfo);
+            console.log(d);
+            console.log(d.toUTCString());
+        },
+        dateClick: function(info) { // Fire when click on an empty part of date field
+            console.log('dateClick');
+            console.dir(info);
+        },
+        eventClick: function(info) { // Fire when click on an event
+            console.log('eventClick');
+            console.dir(info);
+        },
+        customButtons: {
+            myDate: {
+                text: "<?php L('select') ?>",
+                click: function(mouseEvent, htmlElement) {
+                    $("#calendar_datepicker").datepicker({
+                        onSelect: function(date, datePicker) {
+                            calendar.gotoDate(date);
+                        }
+                    })
+                    .datepicker("setDate", calendar.getDate())
+                    .datepicker("show");
+                }
+            }
+        }
+        /*
+        selectable: true,
+        select: function(selectionInfo) { //
+            console.log('select');
+            console.dir(selectionInfo);
+        },
+        unselect: function(jsEvent, view) { //
+            console.log('unselect');
+            console.dir(jsEvent);
+            console.dir(view);
+        },*/
     });
     calendar.render();
 }
@@ -2165,7 +2205,9 @@ $(function() {
             $(document).on('focusin.bs.modal');
         },
     });
-    
+    //console.dir($.datepicker.regional);
+    //$.datepicker.setDefaults($.datepicker.regional["fr"]);
+
     // Custom date field using jQuery datepicker
     var MyDateField = function(config) {
         jsGrid.Field.call(this, config);

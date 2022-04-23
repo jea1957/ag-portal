@@ -87,9 +87,12 @@ tr.highlight td.jsgrid-cell {
     height: 100% !important;
 }
 
-.flex-calendar {
-    display: flex;
-    flex-direction: column;
+.fc {
     height: 100%;
     padding-bottom: 1rem;
+}
+
+.fc-toolbar {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem !important;
 }
