@@ -1146,6 +1146,18 @@ function personsGrid() {
             personSelectUpdate();
             filterChanged = true;
         },
+        onRefreshed: function(args) {
+            $("#persons_grid .jsgrid-row, #persons_grid .jsgrid-alt-row").contextmenu(function(args) {
+                const data = $("#persons_grid").jsGrid("option", "data")[args.currentTarget.rowIndex];
+                if (!navigator.clipboard || !data) {
+                    alert("<?php L('noclip') ?>");
+                    return false;
+                }
+                const text = `${data.name} <${data.email}>`;
+                navigator.clipboard.writeText(text);
+                return false;
+            });
+        },
         onError: function(args) {
             alert(args.args[0].responseJSON);
         },
@@ -2022,6 +2034,21 @@ function calendar() {
     var calendarEl = document.getElementById('calendar');
     var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
+        locale: 'da',
+        firstDay: 1,
+        weekNumbers: true,
+        headerToolbar: {
+            start: 'title',
+            center: 'prevYear prev today next nextYear',
+            end: 'dayGridMonth dayGridWeek dayGridDay',
+        },
+        events: [
+            {
+                id: 'This is an ID',
+                title: 'My title',
+                start: Date.now(),
+            },
+        ],
 //        contentHeight: 'auto',
     });
     calendar.render();

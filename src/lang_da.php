@@ -41,6 +41,7 @@ $lang_array = [
     // dashboard.php
     "logout" => "Log ud",
     "help"   => "Hjælp",
+    "noclip" => "Kan ikke kopiere data til udklipsholder i denne browser!",
 
     "del_apartment" => "Vil du slette denne lejlighed?",
     "del_depot"     => "Vil du slette dette depot?",
