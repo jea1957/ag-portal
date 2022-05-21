@@ -96,3 +96,7 @@ tr.highlight td.jsgrid-cell {
     margin-top: 0.5rem;
     margin-bottom: 0.5rem !important;
 }
+
+.ui-datepicker {
+    z-index: 999999 !important; /* Always make on top */
+}
