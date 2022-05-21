@@ -403,6 +403,8 @@ require_once __DIR__ . '/check_timeout.php';
         <!--
         <button type="button" onclick="event.preventDefault(); console.log(apartmentFilter());">ApartmentFilter</button>
         -->
+        <input type="text" id="test_date">
+        <input type="time" id="test_time">
         <br><br>
         <?php
             //phpinfo();
@@ -641,6 +643,26 @@ function test() {
     saw_id.textContent = screen.availWidth;
     ih_id.textContent = window.innerHeight;
     iw_id.textContent = window.innerWidth;
+
+    $("#test_date").datepicker();
+    //$("#test_date").datepicker("setDate", new Date());
+    //$("#test_date").datepicker("show");
+
+    let d = Date();
+    console.log('d      : ' + d);
+
+    let now = Date.now();
+    console.log('now    : ' + now);
+
+    let n = new Date('2022-05-11T19:44:44');
+    console.log('n      : ' + n);
+    console.log('nu     : ' + n.toUTCString());
+    console.log('ni     : ' + n.toISOString());
+    console.log('getTime: ' + n.getTime());
+
+    let u = new Date(Date.UTC('2022-05-11T19:44:44'));
+    console.log('u      : ' + u);
+    console.log('getTime: ' + u.getTime());
 }
 
 //------------------------------------------------------------------------------
@@ -2042,21 +2064,54 @@ function calendar() {
         headerToolbar: {
             start: 'myDate prevYear prev today next nextYear',
             center: 'title',
-            end: 'dayGridMonth dayGridWeek dayGridDay',
+//            end: 'dayGridMonth dayGridWeek dayGridDay',
+            end: 'dayGridMonth timeGridWeek timeGridDay',
         },
-        events: [
+        eventSources: [
             {
-                id: 'This is an ID',
-                title: 'My title',
+                url: 'events.php',
+                timeZone: 'UTC'
+            },
+        ],
+        eventDataTransform: function(eventData) {
+            console.log('eventDataTransform');
+            console.dir(eventData);
+            eventData.start = eventData.start.substring(0, 10) + 'T' + eventData.start.substring(11) + 'Z';
+            return eventData;
+        },
+/*        events: [
+            {
+                id: 'a',
+                title: 'Date.now()',
                 start: Date.now(),
+            },
+            {
+                id: 'b',
+                title: '2022-05-07 06:30:11',
+                start: '2022-05-07 06:30:11',
+                end:   '2022-05-07 06:40:11',
+            },
+            {
+                id: 'c',
+                title: '2022-05-07T10:30:22Z',
+                start: '2022-05-07T10:30:22Z',
+                end:   '2022-05-07T12:30:22Z',
+            },
+            {
+                id: 'd',
+                title: '2022-05-04 allDay',
+                allDay: true,
+                start: '2022-05-04T10:00:00',
+                end:   '2022-05-06T10:00:00',
             },
         ],
         datesSet: function(dateInfo) {
+            console.log('datesSet');
             const d = new Date();
             console.dir(dateInfo);
             console.log(d);
             console.log(d.toUTCString());
-        },
+        },*/
         dateClick: function(info) { // Fire when click on an empty part of date field
             console.log('dateClick');
             console.dir(info);
@@ -2064,6 +2119,11 @@ function calendar() {
         eventClick: function(info) { // Fire when click on an event
             console.log('eventClick');
             console.dir(info);
+            console.log('title:    ' + info.event.title);
+            console.log('start:    ' + info.event.start);
+            console.log('startStr: ' + info.event.startStr);
+            console.log('end:      ' + info.event.end);
+            console.log('endStr:   ' + info.event.endStr);
         },
         customButtons: {
             myDate: {
@@ -2195,7 +2255,7 @@ $(function() {
         changeMonth: true,
         changeYear: true,
         firstDay: 1,
-        yearRange: "2006:c+02",
+        yearRange: "2006:+02",
         // The following is needed on Firefox to get changeMonth and changeYear dropdowns working
         // https://therichpost.com/question/jquery-ui-datepicker-monthyear-dropdown-is-not-working-in-boostrap-modal-popup-in-firefox/
         beforeShow: function(input, inst) {
