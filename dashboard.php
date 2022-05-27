@@ -1291,6 +1291,27 @@ function apartmentsPersons(gridId, historicalId, personId, id) {
             onError: function(args) {
                 alert(args.args[0].responseJSON);
             },
+            rowClick: function(args) {
+                if (personId) { // We are currently showing relations for a person
+                    $('#persons_modal').on('hidden.bs.modal', function () {
+                        $('#persons_modal').off('hidden.bs.modal');
+                        $('#apartments_persons_relations').html(apartmentGet(args.item.id));
+                        apartmentsPersons('#apartments_persons_grid', '#apartments_historical', 0, args.item.id);
+                        $('#apartments_persons_modal').modal('show');
+                    });
+                    $('#persons_modal').modal('hide');
+                } else { // We are currently showing relations for an apartment
+                    $('#apartments_persons_modal').on('hidden.bs.modal', function () {
+                        $('#apartments_persons_modal').off('hidden.bs.modal');
+                        $('#persons_relations').html(personGet(args.item.personid));
+                        apartmentsPersons('#persons_apartments_grid', '#persons_historical', args.item.personid, 0);
+                        parkingsPersons('#persons_parkings_grid', '#persons_historical', args.item.personid, 0);
+                        depotsPersons('#persons_depots_grid', '#persons_historical', args.item.personid, 0);
+                        $('#persons_modal').modal('show');
+                    });
+                    $('#apartments_persons_modal').modal('hide');
+                }
+            },
             fields: fields,
         });
     }
@@ -1394,6 +1415,27 @@ function parkingsPersons(gridId, historicalId, personId, id) {
             onError: function(args) {
                 alert(args.args[0].responseJSON);
             },
+            rowClick: function(args) {
+                if (personId) { // We are currently showing relations for a person
+                    $('#persons_modal').on('hidden.bs.modal', function () {
+                        $('#persons_modal').off('hidden.bs.modal');
+                        $('#parkings_persons_relations').html(parkingGet(args.item.id));
+                        parkingsPersons('#parkings_persons_grid', '#parkings_historical', 0, args.item.id);
+                        $('#parkings_persons_modal').modal('show');
+                    });
+                    $('#persons_modal').modal('hide');
+                } else { // We are currently showing relations for a parking
+                    $('#parkings_persons_modal').on('hidden.bs.modal', function () {
+                        $('#parkings_persons_modal').off('hidden.bs.modal');
+                        $('#persons_relations').html(personGet(args.item.personid));
+                        apartmentsPersons('#persons_apartments_grid', '#persons_historical', args.item.personid, 0);
+                        parkingsPersons('#persons_parkings_grid', '#persons_historical', args.item.personid, 0);
+                        depotsPersons('#persons_depots_grid', '#persons_historical', args.item.personid, 0);
+                        $('#persons_modal').modal('show');
+                    });
+                    $('#parkings_persons_modal').modal('hide');
+                }
+            },
             fields: fields,
         });
     }
@@ -1496,6 +1538,27 @@ function depotsPersons(gridId, historicalId, personId, id) {
             },
             onError: function(args) {
                 alert(args.args[0].responseJSON);
+            },
+            rowClick: function(args) {
+                if (personId) { // We are currently showing relations for a person
+                    $('#persons_modal').on('hidden.bs.modal', function () {
+                        $('#persons_modal').off('hidden.bs.modal');
+                        $('#depots_persons_relations').html(depotGet(args.item.id));
+                        depotsPersons('#depots_persons_grid', '#depots_historical', 0, args.item.id);
+                        $('#depots_persons_modal').modal('show');
+                    });
+                    $('#persons_modal').modal('hide');
+                } else { // We are currently showing relations for a depot
+                    $('#depots_persons_modal').on('hidden.bs.modal', function () {
+                        $('#depots_persons_modal').off('hidden.bs.modal');
+                        $('#persons_relations').html(personGet(args.item.personid));
+                        apartmentsPersons('#persons_apartments_grid', '#persons_historical', args.item.personid, 0);
+                        parkingsPersons('#persons_parkings_grid', '#persons_historical', args.item.personid, 0);
+                        depotsPersons('#persons_depots_grid', '#persons_historical', args.item.personid, 0);
+                        $('#persons_modal').modal('show');
+                    });
+                    $('#depots_persons_modal').modal('hide');
+                }
             },
             fields: fields,
         });
