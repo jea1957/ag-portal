@@ -148,3 +148,27 @@ CREATE TABLE IF NOT EXISTS MailRecipients (
        /* primary key ? */
 );
 
+CREATE TABLE IF NOT EXISTS Events (
+       EventId BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+       Type TINYINT UNSIGNED NOT NULL, /* General(1), CommonRoom(2) */
+       Title VARCHAR(255) NOT NULL DEFAULT '',
+       Note VARCHAR(1500) NOT NULL DEFAULT '',
+       Start DATETIME NOT NULL,
+       Stop DATETIME NOT NULL, /* If IsRecurring then Stop = end of last event else Stop = Start + Duration */
+       Duration INT UNSIGNED NOT NULL, /* Duration in minutes. If not IsRecurring then Duration = Stop - Start */
+       IsAllDay BOOLEAN NOT NULL DEFAULT false,
+       IsRecurring BOOLEAN NOT NULL DEFAULT false,
+       RRule VARCHAR(255) NOT NULL DEFAULT '',
+       Modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS EventReminders (
+       EventId BIGINT UNSIGNED NOT NULL,
+       Id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+       Delta INT NOT NULL, /* Delta from Start in minutes where reminder must be sent. Negative when before event, positive when after */
+       Receivers SMALLINT UNSIGNED NOT NULL, /* Extra receivers: Board(1), Caretaker(2), Administrator(4). Add them if more than one */
+       LastSent TIMESTAMP DEFAULT CURRENT_TIMESTAMP, /* When this reminder was last sent */
+       Modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+       FOREIGN KEY (EventId) REFERENCES Events(EventId) ON DELETE CASCADE
+);
+
