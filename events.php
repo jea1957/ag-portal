@@ -15,6 +15,7 @@ try {
                 $utc_end = localtime2UTC($_GET["end"]);
                 $res = $events->getRange($utc_start, $utc_end);
                 error_log("res: " . print_r($res, 1));
+                $result = [];
                 foreach($res as $r) {
                     $result[] = [
                         'id'    => strval($r->eventid),

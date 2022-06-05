@@ -78,16 +78,18 @@ class Events {
 
 // EVENTS:
     public function getRange($start, $end) {
-        $sql = "SELECT * FROM Events";
+        $sql = "SELECT * FROM Events WHERE :start < End AND :end >= Start";
         $q = $this->db->prepare($sql);
+        $q->bindValue(":start", $start);
+        $q->bindValue(":end",   $end);
         $q->execute();
         $rows = $q->fetchAll();
+        $result = [];
         foreach($rows as $row) {
             $result[] = $this->read($row);
         }
         return $result;
-
-}
+   }
 
 }
 
