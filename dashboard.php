@@ -2133,48 +2133,23 @@ function calendar() {
         eventSources: [
             {
                 url: 'events.php',
-                timeZone: 'UTC'
             },
         ],
+/*
         eventDataTransform: function(eventData) {
             console.log('eventDataTransform');
             console.dir(eventData);
-            eventData.start = eventData.start.substring(0, 10) + 'T' + eventData.start.substring(11) + 'Z';
+            //eventData.start = eventData.start.substring(0, 10) + 'T' + eventData.start.substring(11) + 'Z';
             return eventData;
         },
-/*        events: [
-            {
-                id: 'a',
-                title: 'Date.now()',
-                start: Date.now(),
-            },
-            {
-                id: 'b',
-                title: '2022-05-07 06:30:11',
-                start: '2022-05-07 06:30:11',
-                end:   '2022-05-07 06:40:11',
-            },
-            {
-                id: 'c',
-                title: '2022-05-07T10:30:22Z',
-                start: '2022-05-07T10:30:22Z',
-                end:   '2022-05-07T12:30:22Z',
-            },
-            {
-                id: 'd',
-                title: '2022-05-04 allDay',
-                allDay: true,
-                start: '2022-05-04T10:00:00',
-                end:   '2022-05-06T10:00:00',
-            },
-        ],
+*/
         datesSet: function(dateInfo) {
             console.log('datesSet');
             const d = new Date();
             console.dir(dateInfo);
             console.log(d);
             console.log(d.toUTCString());
-        },*/
+        },
         dateClick: function(info) { // Fire when click on an empty part of date field
             console.log('dateClick');
             console.dir(info);
@@ -2204,11 +2179,11 @@ function calendar() {
         }
         /*
         selectable: true,
-        select: function(selectionInfo) { //
+        select: function(selectionInfo) {
             console.log('select');
             console.dir(selectionInfo);
         },
-        unselect: function(jsEvent, view) { //
+        unselect: function(jsEvent, view) {
             console.log('unselect');
             console.dir(jsEvent);
             console.dir(view);

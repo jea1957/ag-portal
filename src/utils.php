@@ -25,6 +25,15 @@ function clean_input($data) {
     return $data;
 }
 
+// Convert a local time with timezone info to UTC suitable for SQL. Example:
+// localtime: 2022-07-11T00:00:00+02:00
+// returns  : 2022-07-10 22:00:00
+function localtime2UTC($localtime) {
+    $dt = new DateTime($localtime);
+    $dt->setTimezone(new DateTimeZone('UTC'));
+    return $dt->format('Y-m-d H:i:s');
+}
+
 // $bcc is an optional array of objects containing 'email' and 'name'
 // $att is an optional array of objects containing 'file', 'name' and 'type'
 function send_email($from_email, $from_name, $to_email, $to_name, $subject, $body_html, $bcc = null, $att = null) {
