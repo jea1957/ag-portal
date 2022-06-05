@@ -154,14 +154,14 @@ CREATE TABLE IF NOT EXISTS Events (
        Title VARCHAR(255) NOT NULL DEFAULT '',
        Note VARCHAR(1500) NOT NULL DEFAULT '',
        Start DATETIME NOT NULL,
-       Stop DATETIME NOT NULL, /* If IsRecurring then Stop = end of last event else Stop = Start + Duration */
-       Duration INT UNSIGNED NOT NULL, /* Duration in minutes. If not IsRecurring then Duration = Stop - Start */
+       End DATETIME NOT NULL, /* If IsRecurring then End = end of last event else End = Start + Duration */
+       Duration INT UNSIGNED NOT NULL, /* Duration in minutes. If not IsRecurring then Duration = End - Start */
        IsAllDay BOOLEAN NOT NULL DEFAULT false,
        IsRecurring BOOLEAN NOT NULL DEFAULT false,
        RRule VARCHAR(255) NOT NULL DEFAULT '',
        Modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
        INDEX (Start),
-       INDEX (Stop)
+       INDEX (End)
 );
 
 CREATE TABLE IF NOT EXISTS EventReminders (
