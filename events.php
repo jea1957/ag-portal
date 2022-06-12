@@ -13,10 +13,13 @@ try {
             if (isset($_GET["start"]) && isset($_GET["end"])) {
                 $utc_start = localtime2UTC($_GET["start"]);
                 $utc_end = localtime2UTC($_GET["end"]);
-                $res = $events->getRange($utc_start, $utc_end);
-                error_log("res: " . print_r($res, 1));
+                $result = $events->getRange($utc_start, $utc_end);
+                error_log("result: " . print_r($result, 1));
+                /*
+                $result = $res;
                 $result = [];
                 foreach($res as $r) {
+                    $result[] = $r;
                     $result[] = [
                         'id'    => strval($r->eventid),
                         'title' => $r->title,
@@ -24,6 +27,7 @@ try {
                         'end'   => str_replace(' ', 'T', $r->end).'Z'    // E.g.: '2022-06-22T12:00:00Z'
                     ];
                 }
+                */
             } else {
                 $result["error"] = "Wrong parameter";
                 error_log("res: " . print_r($result, 1));

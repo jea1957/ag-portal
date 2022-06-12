@@ -482,6 +482,41 @@ require_once __DIR__ . '/check_timeout.php';
   </div>
 </div>
 
+<div class="modal fade" id="events_modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title id="em_header">Aftale</h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <table>
+          <tbody>
+            <tr>
+              <td>Start:</td>
+              <td>
+                <input type="text" id="em_start_date">
+              </td>
+              <td>
+                <input type="time" id="em_start_time">
+              </td>
+            </tr>
+            <tr>
+              <td>Slut:</td>
+              <td>
+                <input type="text" id="em_end_date">
+              </td>
+              <td>
+                <input type="time" id="em_end_time">
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- JavaScript content -->
 <script>
 
@@ -2116,9 +2151,36 @@ function accountsGrid() {
 //------------------------------------------------------------------------------
 // Calendar
 //------------------------------------------------------------------------------
+var g_calendar; // NOTE: global!
+
+function event(calendar, info) {
+    console.log('event');
+    console.dir(info);
+    $('#events_modal').modal('show');
+}
+
+function event_edit(calendar, info) {
+    console.log('event_edit');
+    event(calendar, info);
+}
+
+function event_add(calendar, info) {
+    console.log('event_add');
+    event(calendar, info);
+}
+
+function calendarTabEnter() {
+    //console.log('calendarTabEnter');
+    // Fullcalendar does not render correctly if created in a hidden tab.
+    // Render again when tab has been shown
+    if (g_calendar) {
+        g_calendar.render();
+    }
+}
+
 function calendar() {
     var calendarEl = document.getElementById('calendar');
-    var calendar = new FullCalendar.Calendar(calendarEl, {
+    g_calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         locale: 'da',
         firstDay: 1,
@@ -2135,33 +2197,33 @@ function calendar() {
                 url: 'events.php',
             },
         ],
+        eventDataTransform: function(eventData) { // Fire for each event loaded from eventSources
+            let eventObj = {};
+            eventObj.id     = eventData.eventid;
+            eventObj.title  = eventData.title;
+            eventObj.start  = eventData.start.substring(0, 10) + 'T' + eventData.start.substring(11) + 'Z';
+            eventObj.end    = eventData.end.substring(0, 10) + 'T' + eventData.end.substring(11) + 'Z';
+            eventObj.allDay = !!eventData.isallday;
+
+            eventObj.extendedProps = {};
+            eventObj.extendedProps.note = eventData.note;
+            eventObj.extendedProps.type = eventData.type;
+            //console.log('eventDataTransform');
+            //console.dir(eventData);
+            //console.dir(eventObj);
+            return eventObj;
+        },
 /*
-        eventDataTransform: function(eventData) {
-            console.log('eventDataTransform');
-            console.dir(eventData);
-            //eventData.start = eventData.start.substring(0, 10) + 'T' + eventData.start.substring(11) + 'Z';
-            return eventData;
+        datesSet: function(dateInfo) { // Fire when view is changed e.g. by clicking one of the buttons
+            console.log('datesSet');
+            console.dir(dateInfo);
         },
 */
-        datesSet: function(dateInfo) {
-            console.log('datesSet');
-            const d = new Date();
-            console.dir(dateInfo);
-            console.log(d);
-            console.log(d.toUTCString());
-        },
         dateClick: function(info) { // Fire when click on an empty part of date field
-            console.log('dateClick');
-            console.dir(info);
+            event_add(calendar, info);
         },
         eventClick: function(info) { // Fire when click on an event
-            console.log('eventClick');
-            console.dir(info);
-            console.log('title:    ' + info.event.title);
-            console.log('start:    ' + info.event.start);
-            console.log('startStr: ' + info.event.startStr);
-            console.log('end:      ' + info.event.end);
-            console.log('endStr:   ' + info.event.endStr);
+            event_edit(calendar, info);
         },
         customButtons: {
             myDate: {
@@ -2189,7 +2251,11 @@ function calendar() {
             console.dir(view);
         },*/
     });
-    calendar.render();
+
+    g_calendar.render();
+
+    $("#em_start_date").datepicker();
+    $("#em_end_date").datepicker();
 }
 
 //------------------------------------------------------------------------------
@@ -2211,6 +2277,7 @@ $(function() {
     setInterval(tick, 1000 * 60); // Call tick every minute
 
     // Track tab change
+    // Tab actions before tab is shown
     $('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
         // Find previous and current tab
         // https://www.tutorialrepublic.com/twitter-bootstrap-4-tutorial/bootstrap-tabs.php
@@ -2234,6 +2301,21 @@ $(function() {
         // Save active tab
         // https://www.tutorialrepublic.com/faq/how-to-keep-the-current-tab-active-on-page-reload-in-bootstrap.php
         localStorage.setItem('activeTab', curTabRef);
+    });
+
+    // Tab actions after tab is shown
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+        const curTabId = $(e.target).attr('id');
+        //console.log(curTabId);
+
+        // Tab actions
+        switch (curTabId) {
+            case 'calendar_tab':
+                calendarTabEnter();
+                break;
+            default:
+                break;
+        }
     });
 
     // Restore active tab
