@@ -33,6 +33,7 @@ if (empty($session_bypass_login)) {
 
 /* Require everything needed for scripts */
 require_once __DIR__ . '/lang_da.php';
+require_once __DIR__ . '/smtp.php';
 require_once __DIR__ . '/utils.php';
 require_once __DIR__ . '/pdo.php';
 

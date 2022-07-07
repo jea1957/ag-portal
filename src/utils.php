@@ -6,10 +6,12 @@ ini_set('log_errors', '1');
 ini_set('error_log', "/tmp/php.log");
 
 use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
 require_once __DIR__ . "/phpmailer/src/Exception.php";
 require_once __DIR__ . "/phpmailer/src/PHPMailer.php";
+require_once __DIR__ . "/phpmailer/src/SMTP.php";
 
 use Html2Text\Html2Text;
 
@@ -37,8 +39,20 @@ function localtime2UTC($localtime) {
 // $bcc is an optional array of objects containing 'email' and 'name'
 // $att is an optional array of objects containing 'file', 'name' and 'type'
 function send_email($from_email, $from_name, $to_email, $to_name, $subject, $body_html, $bcc = null, $att = null) {
+    global $mail_username, $mail_password;
     $mail = new PHPMailer(true); // Passing `true` enables exceptions
     try {
+        $mail->Debugoutput = 'error_log';
+        $mail->SMTPDebug = 0;
+
+        $mail->isSMTP();
+        $mail->Host = 'mailout.one.com' ;
+        $mail->Port = 587;
+        $mail->SMTPSecure = 'tls';
+        $mail->SMTPAuth = true;
+        $mail->Username = $mail_username;
+        $mail->Password = $mail_password;
+
         $mail->CharSet = "UTF-8";
         $mail->setFrom($from_email, $from_name);
         $mail->addAddress($to_email, $to_name);
