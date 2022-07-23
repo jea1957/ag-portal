@@ -89,8 +89,34 @@ class Events {
             $result[] = $this->read($row);
         }
         return $result;
-   }
+    }
 
+    public function updateEvent($data) {
+        $sql = "UPDATE Events SET Type = :type, Title = :title, Note = :note, Start = :start, End = :end, ".
+               "Duration = :duration, IsAllDay = :isallday, IsRecurring = :isrecurring, RRule = :rrule ".
+               "WHERE EventId = :eventid";
+        $q = $this->db->prepare($sql);
+        $q->bindValue(":eventid",     $data["eventid"],     PDO::PARAM_INT);
+        $q->bindValue(":type",        $data["type"],        PDO::PARAM_INT);
+        $q->bindValue(":title",       $data["title"]);
+        $q->bindValue(":note",        $data["note"]);
+        $q->bindValue(":start",       $data["start"]);
+        $q->bindValue(":end",         $data["end"]);
+        $q->bindValue(":duration",    $data["duration"],    PDO::PARAM_INT);
+        $q->bindValue(":isallday",    $data["isallday"],    PDO::PARAM_BOOL);
+        $q->bindValue(":isrecurring", $data["isrecurring"], PDO::PARAM_BOOL);
+        $q->bindValue(":rrule",       $data["rrule"]);
+        $q->execute();
+        return $this->getById($data["eventid"]);
+    }
+
+    public function removeEvent($eventid) {
+        $sql = "DELETE FROM Events WHERE EventId = :eventid";
+        $q = $this->db->prepare($sql);
+        $q->bindValue(":eventid", $eventid, PDO::PARAM_INT);
+        $q->execute();
+        return $q->rowCount();
+    }
 }
 
 ?>

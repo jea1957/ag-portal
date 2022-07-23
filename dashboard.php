@@ -111,13 +111,13 @@ require_once __DIR__ . '/check_timeout.php';
   <?php } ?>
   <?php if ($_SESSION['role_admin']) { ?>
     <li class="nav-item">
+        <a href="#calendar_pane" class="nav-link" data-toggle="tab" id="calendar_tab"><?php L('ev_calendar') ?></a>
+    </li>
+    <li class="nav-item">
         <a href="#accounts_pane" class="nav-link" data-toggle="tab" id="accounts_tab"><?php L('accounts') ?></a>
     </li>
     <li class="nav-item">
         <a href="#test_pane" class="nav-link" data-toggle="tab" id="test_tab"><?php L('test') ?></a>
-    </li>
-    <li class="nav-item">
-        <a href="#calendar_pane" class="nav-link" data-toggle="tab" id="calendar_tab">Calendar!</a>
     </li>
   <?php } ?>
 </ul>
@@ -363,6 +363,16 @@ require_once __DIR__ . '/check_timeout.php';
     </div>
   <?php } ?>
   <?php if ($_SESSION['role_admin']) { ?>
+    <div class="tab-pane fade" id="calendar_pane">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <input type="hidden" id="calendar_datepicker">
+                    <div id="calendar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="tab-pane fade" id="accounts_pane">
         <div class="container-fluid">
             <div class="row">
@@ -409,16 +419,6 @@ require_once __DIR__ . '/check_timeout.php';
         <?php
             //phpinfo();
         ?>
-    </div>
-    <div class="tab-pane fade" id="calendar_pane">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-12">
-                    <input type="hidden" id="calendar_datepicker">
-                    <div id="calendar"></div>
-                </div>
-            </div>
-        </div>
     </div>
   <?php } ?>
 </div>
@@ -483,35 +483,62 @@ require_once __DIR__ . '/check_timeout.php';
 </div>
 
 <div class="modal fade" id="events_modal" tabindex="-1">
+<!--
+  <div class="modal-dialog modal-xl">
+  <div class="modal-dialog modal-sm">
+-->
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title id="em_header">Aftale</h5>
+<!--
+        <h5 class="modal-title id="em_form_title"><?php L('ev_event') ?></h5>
+-->
+        <div class="form-group">
+          <select class="form-control" id="em_type" name="em_type">
+            <option value="1"><?php L('ev_type_event') ?></option>
+            <option value="2"><?php L('ev_type_booking') ?></option>
+          </select>
+        </div>
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
       <div class="modal-body">
-        <table>
-          <tbody>
-            <tr>
-              <td>Start:</td>
-              <td>
-                <input type="text" id="em_start_date">
-              </td>
-              <td>
-                <input type="time" id="em_start_time">
-              </td>
-            </tr>
-            <tr>
-              <td>Slut:</td>
-              <td>
-                <input type="text" id="em_end_date">
-              </td>
-              <td>
-                <input type="time" id="em_end_time">
-              </td>
-            </tr>
-          </tbody>
-        </table>
+       <form id="em_form" action="">
+          <div class="form-group">
+            <label for="em_title"><?php L('ev_title') ?>:</label>
+            <input type="text" class="form-control" id="em_title" name="em_title">
+          </div>
+          <div class="form-group">
+            <label for="em_note"><?php L('ev_note') ?>:</label>
+            <textarea class="form-control fixed-ta" id="em_note" name="em_note"></textarea>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="em_allday" name="em_allday">
+            <label class="form-check-label" for="em_allday"><?php L('ev_allday') ?></label>
+          </div>
+          <div class="form-row">
+           <div class="form-group col-md-3">
+            <label for="em_start_date"><?php L('ev_start') ?>:</label>
+            <input type="text" class="form-control" id="em_start_date" name="em_start_date">
+           </div>
+           <div class="form-group col-md-3">
+            <label for="em_start_time">&nbsp;</label>
+            <input type="time" class="form-control" id="em_start_time" name="em_start_time">
+           </div>
+           <div class="form-group col-md-3">
+            <label for="em_end_date"><?php L('ev_end') ?>:</label>
+            <input type="text" class="form-control" id="em_end_date" name="em_end_date">
+           </div>
+           <div class="form-group col-md-3">
+            <label for="em_end_time">&nbsp;</label>
+            <input type="time" class="form-control" id="em_end_time" name="em_end_time">
+           </div>
+          </div>
+          <div class="text-right">
+           <button type="button" class="btn btn-secondary" id="em_delete" name="em_delete"><?php L('ev_delete') ?></button>
+           <button type="submit" class="btn btn-primary" id="em_submit" name="em_submit"><?php L('ev_submit') ?></button>
+          </div>
+          <input type="hidden" id="em_eventid" name="em_eventid">
+        </form>
       </div>
     </div>
   </div>
@@ -2153,19 +2180,65 @@ function accountsGrid() {
 //------------------------------------------------------------------------------
 var g_calendar; // NOTE: global!
 
+// Convert event data received from database into an object parsable by FullCalendar
+function db2eventObject(data) {
+            let eventObj = {};
+            eventObj.id     = data.eventid;
+            eventObj.title  = data.title;
+            eventObj.start  = data.start.substring(0, 10) + 'T' + data.start.substring(11) + 'Z';
+            eventObj.end    = data.end.substring(0, 10) + 'T' + data.end.substring(11) + 'Z';
+            eventObj.allDay = !!data.isallday;
+
+            eventObj.extendedProps = {};
+            eventObj.extendedProps.note = data.note;
+            eventObj.extendedProps.type = data.type;
+            //console.dir(data);
+            //console.dir(eventObj);
+            return eventObj;
+}
+
 function event(calendar, info) {
-    console.log('event');
+    let ev = info.event;
+    console.log('event()');
     console.dir(info);
+    if (ev) {
+        console.dir(ev);
+        $("#em_eventid").val(ev.id);
+        $("#em_type").val(ev.extendedProps.type);
+        $("#em_title").val(ev.title);
+        $("#em_note").val(ev.extendedProps.note);
+        $("#em_start_date").datepicker().datepicker("setDate", ev.startStr.substring(0,10));
+        $("#em_start_time").val(ev.startStr.substring(11,16));
+        $("#em_end_date").datepicker().datepicker("setDate", ev.endStr.substring(0,10));
+        $("#em_end_time").val(ev.endStr.substring(11,16));
+        if (ev.allDay) {
+            $("#em_allday").prop('checked', true).triggerHandler('change');
+        } else {
+            $("#em_allday").prop('checked', false).triggerHandler('change');
+        }
+        $("#em_delete").show();
+    } else {
+        $("#em_eventid").val('');
+        $("#em_type").val('2'); // CommonRoom
+        $("#em_title").val('');
+        $("#em_note").val('');
+        $("#em_start_date").datepicker().datepicker("setDate", info.dateStr);
+        $("#em_start_time").val('00:00');
+        $("#em_end_date").datepicker().datepicker("setDate", info.dateStr);
+        $("#em_end_time").val('00:00');
+        $("#em_delete").hide();
+    }
+
     $('#events_modal').modal('show');
 }
 
 function event_edit(calendar, info) {
-    console.log('event_edit');
+    console.log('event_edit()');
     event(calendar, info);
 }
 
 function event_add(calendar, info) {
-    console.log('event_add');
+    console.log('event_add()');
     event(calendar, info);
 }
 
@@ -2178,8 +2251,65 @@ function calendarTabEnter() {
     }
 }
 
+function event_modal_setup() {
+    $("#em_start_date").datepicker();
+    $("#em_end_date").datepicker();
+
+    $("#em_form").on("submit", function (e) {
+        e.preventDefault();
+        let eventid = $("#em_eventid").val();
+        let method = eventid.length ? "PUT" : "POST";
+        console.log('em_form submitted (' + method + ') eventid: ' + eventid);
+        let data = {};
+        data.eventid = eventid;
+        data.type = 1;
+
+        $.ajax({
+            type: method,
+            url: "events.php",
+            data: data,
+        }).then(function(value) {
+            //g_calendar.refetchEvents();
+            $('#events_modal').modal('hide');
+        });
+    });
+
+    $("#em_delete").on("click", function (e) {
+        if (!confirm("<?php L('ev_del_conf') ?>")) {
+            return;
+        }
+        let eventid = $("#em_eventid").val();
+        console.log('em_delete clicked eventid ' + eventid);
+        // confirm here?
+        $.ajax({
+            type: "DELETE",
+            url: "events.php",
+            data: { eventid: eventid },
+        }).then(function(value) {
+            //g_calendar.getEventById(eventid).remove();
+            // refetch is much easier
+            g_calendar.refetchEvents();
+            $('#events_modal').modal('hide');
+        });
+    });
+
+    $("#em_allday").change(function (e) {
+        if ($(this).prop("checked")) {
+            $("#em_start_time").hide();
+            $("#em_end_time").hide();
+            console.log('em_allday checked');
+        } else {
+            $("#em_start_time").show();
+            $("#em_end_time").show();
+            console.log('em_allday unchecked');
+        }
+    });
+}
+
 function calendar() {
-    var calendarEl = document.getElementById('calendar');
+    event_modal_setup();
+
+    let calendarEl = document.getElementById('calendar');
     g_calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         locale: 'da',
@@ -2198,20 +2328,7 @@ function calendar() {
             },
         ],
         eventDataTransform: function(eventData) { // Fire for each event loaded from eventSources
-            let eventObj = {};
-            eventObj.id     = eventData.eventid;
-            eventObj.title  = eventData.title;
-            eventObj.start  = eventData.start.substring(0, 10) + 'T' + eventData.start.substring(11) + 'Z';
-            eventObj.end    = eventData.end.substring(0, 10) + 'T' + eventData.end.substring(11) + 'Z';
-            eventObj.allDay = !!eventData.isallday;
-
-            eventObj.extendedProps = {};
-            eventObj.extendedProps.note = eventData.note;
-            eventObj.extendedProps.type = eventData.type;
-            //console.log('eventDataTransform');
-            //console.dir(eventData);
-            //console.dir(eventObj);
-            return eventObj;
+            return db2eventObject(eventData);
         },
 /*
         datesSet: function(dateInfo) { // Fire when view is changed e.g. by clicking one of the buttons
@@ -2253,9 +2370,6 @@ function calendar() {
     });
 
     g_calendar.render();
-
-    $("#em_start_date").datepicker();
-    $("#em_end_date").datepicker();
 }
 
 //------------------------------------------------------------------------------

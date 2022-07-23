@@ -160,6 +160,20 @@ $lang_array = [
     "acc_role_caretaker"     => "Vicevært",
     "acc_role_tester"        => "Tester",
 
+    "ev_calendar"     => "Kalender",
+    "ev_event"        => "Aftale",
+    "ev_type"         => "Type",
+    "ev_type_event"   => "Aftale",
+    "ev_type_booking" => "Reservation af fælleslokale",
+    "ev_title"        => "Titel",
+    "ev_note"         => "Beskrivelse",
+    "ev_allday"       => "Hele dagen",
+    "ev_start"        => "Start",
+    "ev_end"          => "Slut",
+    "ev_delete"       => "Slet",
+    "ev_del_conf"     => "Vil du slette denne aftale?",
+    "ev_submit"       => "Gem",
+
     "test"  => "Test",
 
     "l" => "l"
