@@ -35,8 +35,9 @@ require_once __DIR__ . '/check_timeout.php';
         integrity="sha512-3Epqkjaaaxqq/lt5RLJsTzP6cCIFyipVRcY4BcPfjOiGM1ZyFCv4HHeWS7eCPVaAigY3Ha3rhRgOsWaWIClqQQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css"
-        integrity="sha256-5veQuRbWaECuYxwap/IOE/DAwNxgm4ikX7nrgsqYp88=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.css"
+        integrity="sha256-5veQuRbWaECuYxwap/IOE/DAwNxgm4ikX7nrgsqYp88="
+        crossorigin="anonymous">
 
   <link rel="stylesheet" href="css/portal.css"/>
 
@@ -58,12 +59,20 @@ require_once __DIR__ . '/check_timeout.php';
           integrity="sha512-blBYtuTn9yEyWYuKLh8Faml5tT/5YPG0ir9XEABu5YCj7VGr2nb21WPFT9pnP4fcC3y0sSxJR1JqFTfTALGuPQ=="
           crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"
-          integrity="sha256-XCdgoNaBjzkUaEJiauEq+85q/xi/2D4NcB3ZHwAapoM="
+  <script src="https://cdn.jsdelivr.net/npm/rrule@2.7.1/dist/es5/rrule.min.js"
+          integrity="sha256-o5+Cw5ZAtQGAkTyqrMb7hi6SsQ/RobtFANe/NVKV3pM="
           crossorigin="anonymous"></script>
 
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/locales/da.js"
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.js"
+          integrity="sha256-sR+oJaZ3c0FHR6+kKaX1zeXReUGbzuNI8QTKpGHE0sg="
+          crossorigin="anonymous"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/locales/da.js"
           integrity="sha256-aT31fc25PtX42LR/qNcImyud2Zu95L5Ejq57otOBuEw="
+          crossorigin="anonymous"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/rrule@5.11.2/main.global.min.js"
+          integrity="sha256-qdHYsdRwhz2CfE179Anx2MwD+qB41iBhtflql+hfiqo="
           crossorigin="anonymous"></script>
 
   <script src="js/jsgrid-da.js"></script>
@@ -721,10 +730,6 @@ function test() {
     console.log('nu     : ' + n.toUTCString());
     console.log('ni     : ' + n.toISOString());
     console.log('getTime: ' + n.getTime());
-
-    let u = new Date(Date.UTC('2022-05-11T19:44:44'));
-    console.log('u      : ' + u);
-    console.log('getTime: ' + u.getTime());
 }
 
 //------------------------------------------------------------------------------
@@ -2180,28 +2185,35 @@ function accountsGrid() {
 //------------------------------------------------------------------------------
 var g_calendar; // NOTE: global!
 
+// Convert MySQL date in UTC to FullCalendar date in UTC. Example:
+// date:   2022-08-02 22:00:00
+// return: 2022-08-02T22:00:00Z
+function dbdate2fcdate(date) {
+   return date.substring(0, 10) + 'T' + date.substring(11) + 'Z';
+}
+
 // Convert event data received from database into an object parsable by FullCalendar
 function db2eventObject(data) {
-            let eventObj = {};
-            eventObj.id     = data.eventid;
-            eventObj.title  = data.title;
-            eventObj.start  = data.start.substring(0, 10) + 'T' + data.start.substring(11) + 'Z';
-            eventObj.end    = data.end.substring(0, 10) + 'T' + data.end.substring(11) + 'Z';
-            eventObj.allDay = !!data.isallday;
+    let eventObj = {};
+    eventObj.id     = data.eventid;
+    eventObj.title  = data.title;
+    eventObj.start  = dbdate2fcdate(data.start);
+    eventObj.end    = dbdate2fcdate(data.end);
+    eventObj.allDay = !!data.isallday;
 
-            eventObj.extendedProps = {};
-            eventObj.extendedProps.note = data.note;
-            eventObj.extendedProps.type = data.type;
-            //console.dir(data);
-            //console.dir(eventObj);
-            return eventObj;
+    eventObj.extendedProps = {};
+    eventObj.extendedProps.note = data.note;
+    eventObj.extendedProps.type = data.type;
+    //console.dir(data);
+    //console.dir(eventObj);
+    return eventObj;
 }
 
 function event(calendar, info) {
     let ev = info.event;
     console.log('event()');
     console.dir(info);
-    if (ev) {
+    if (ev) { // Edit existing event
         console.dir(ev);
         $("#em_eventid").val(ev.id);
         $("#em_type").val(ev.extendedProps.type);
@@ -2217,7 +2229,7 @@ function event(calendar, info) {
             $("#em_allday").prop('checked', false).triggerHandler('change');
         }
         $("#em_delete").show();
-    } else {
+    } else { // Add new event
         $("#em_eventid").val('');
         $("#em_type").val('2'); // CommonRoom
         $("#em_title").val('');
@@ -2226,6 +2238,7 @@ function event(calendar, info) {
         $("#em_start_time").val('00:00');
         $("#em_end_date").datepicker().datepicker("setDate", info.dateStr);
         $("#em_end_time").val('00:00');
+        $("#em_allday").prop('checked', false).triggerHandler('change');
         $("#em_delete").hide();
     }
 
@@ -2251,6 +2264,37 @@ function calendarTabEnter() {
     }
 }
 
+// Add time (string "hh:mm") to Date object
+function addTime(date, time) {
+    let newDate = new Date(date.getTime());
+    if (time) {
+        let hh = parseInt(time.substring(0, 2));
+        let mm = parseInt(time.substring(3, 5));
+        newDate.setTime(newDate.getTime() + (hh * 60 * 60 * 1000) + (mm * 60 * 1000));
+    }
+    return newDate;
+}
+
+// Convert a Date object representing a local time to ISO 8601 format string with timezone:
+// 2022-07-11T00:00:00+02:00
+// This date is later converted into UTC with localtime2UTC() in src/utils.php
+function toIsoString(date) {
+  var tzo = -date.getTimezoneOffset(),
+      dif = tzo >= 0 ? '+' : '-',
+      pad = function(num) {
+          return (num < 10 ? '0' : '') + num;
+      };
+
+  return date.getFullYear() +
+      '-' + pad(date.getMonth() + 1) +
+      '-' + pad(date.getDate()) +
+      'T' + pad(date.getHours()) +
+      ':' + pad(date.getMinutes()) +
+      ':' + pad(date.getSeconds()) +
+      dif + pad(Math.floor(Math.abs(tzo) / 60)) +
+      ':' + pad(Math.abs(tzo) % 60);
+}
+
 function event_modal_setup() {
     $("#em_start_date").datepicker();
     $("#em_end_date").datepicker();
@@ -2259,10 +2303,27 @@ function event_modal_setup() {
         e.preventDefault();
         let eventid = $("#em_eventid").val();
         let method = eventid.length ? "PUT" : "POST";
+        let start = addTime($("#em_start_date").datepicker().datepicker("getDate"), $("#em_start_time").val());
+        let end = addTime($("#em_end_date").datepicker().datepicker("getDate"), $("#em_end_time").val());
         console.log('em_form submitted (' + method + ') eventid: ' + eventid);
         let data = {};
         data.eventid = eventid;
-        data.type = 1;
+        data.type = $("#em_type").val();
+        data.title = $("#em_title").val();
+        data.note = $("#em_note").val();
+        data.start = toIsoString(start);
+        data.end = toIsoString(end);
+        data.duration = (end.getTime() - start.getTime()) / (1000 * 60); // minutes
+        if (data.duration < 0) {
+           alert("Dude!");
+           return;
+        }
+        data.isallday = $("#em_allday").prop('checked');
+        data.isrecurring = false;
+        data.rrule = '';
+
+        console.log('data: ');
+        console.dir(data);
 
         $.ajax({
             type: method,
@@ -2270,6 +2331,8 @@ function event_modal_setup() {
             data: data,
         }).then(function(value) {
             //g_calendar.refetchEvents();
+            console.log('result: ');
+            console.dir(value);
             $('#events_modal').modal('hide');
         });
     });
