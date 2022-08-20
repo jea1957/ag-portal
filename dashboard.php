@@ -408,9 +408,9 @@ require_once __DIR__ . '/check_timeout.php';
         <span class="ui-icon ui-icon-check"></span>
         <br>
         <p>Bootstrap Icons:</p>
-        <i class="bi-alarm" style="font-size: 2rem; color: cornflowerblue;"></i>
+        <i class="bi-alarm" style="font-size: 2rem; color: CornflowerBlue;"></i>
         <br>
-        <i class="bi-alarm" style="color: cornflowerblue;"></i>
+        <i class="bi-alarm" style="color: CornflowerBlue;"></i>
         <br>
         <span id="custom_send" class="bi-send"></span>
         <br>
@@ -716,20 +716,6 @@ function test() {
     iw_id.textContent = window.innerWidth;
 
     $("#test_date").datepicker();
-    //$("#test_date").datepicker("setDate", new Date());
-    //$("#test_date").datepicker("show");
-
-    let d = Date();
-    console.log('d      : ' + d);
-
-    let now = Date.now();
-    console.log('now    : ' + now);
-
-    let n = new Date('2022-05-11T19:44:44');
-    console.log('n      : ' + n);
-    console.log('nu     : ' + n.toUTCString());
-    console.log('ni     : ' + n.toISOString());
-    console.log('getTime: ' + n.getTime());
 }
 
 //------------------------------------------------------------------------------
@@ -2204,17 +2190,23 @@ function db2eventObject(data) {
     eventObj.extendedProps = {};
     eventObj.extendedProps.note = data.note;
     eventObj.extendedProps.type = data.type;
+    //console.log(typeof data.type);
+    if (data.type === 1) { // General
+        eventObj.backgroundColor = 'LightSalmon';
+    } else { // CommonRoom
+        eventObj.backgroundColor = 'LightSeaGreen';
+    }
     //console.dir(data);
     //console.dir(eventObj);
     return eventObj;
 }
 
-function event(calendar, info) {
+function event_modal_show(info) {
     let ev = info.event;
-    console.log('event()');
-    console.dir(info);
+    //console.log('event()');
+    //console.dir(info);
     if (ev) { // Edit existing event
-        console.dir(ev);
+        //console.dir(ev);
         $("#em_eventid").val(ev.id);
         $("#em_type").val(ev.extendedProps.type);
         $("#em_title").val(ev.title);
@@ -2243,25 +2235,6 @@ function event(calendar, info) {
     }
 
     $('#events_modal').modal('show');
-}
-
-function event_edit(calendar, info) {
-    console.log('event_edit()');
-    event(calendar, info);
-}
-
-function event_add(calendar, info) {
-    console.log('event_add()');
-    event(calendar, info);
-}
-
-function calendarTabEnter() {
-    //console.log('calendarTabEnter');
-    // Fullcalendar does not render correctly if created in a hidden tab.
-    // Render again when tab has been shown
-    if (g_calendar) {
-        g_calendar.render();
-    }
 }
 
 // Add time (string "hh:mm") to Date object
@@ -2301,11 +2274,17 @@ function event_modal_setup() {
 
     $("#em_form").on("submit", function (e) {
         e.preventDefault();
-        let eventid = $("#em_eventid").val();
-        let method = eventid.length ? "PUT" : "POST";
-        let start = addTime($("#em_start_date").datepicker().datepicker("getDate"), $("#em_start_time").val());
-        let end = addTime($("#em_end_date").datepicker().datepicker("getDate"), $("#em_end_time").val());
-        console.log('em_form submitted (' + method + ') eventid: ' + eventid);
+        const eventid = $("#em_eventid").val();
+        const method = eventid.length ? "PUT" : "POST";
+        const allday = $("#em_allday").prop('checked');
+        let start, end;
+        if (allday) {
+            start = $("#em_start_date").datepicker().datepicker("getDate");
+            end = $("#em_end_date").datepicker().datepicker("getDate");
+        } else {
+            start = addTime($("#em_start_date").datepicker().datepicker("getDate"), $("#em_start_time").val());
+            end = addTime($("#em_end_date").datepicker().datepicker("getDate"), $("#em_end_time").val());
+        }
         let data = {};
         data.eventid = eventid;
         data.type = $("#em_type").val();
@@ -2314,25 +2293,25 @@ function event_modal_setup() {
         data.start = toIsoString(start);
         data.end = toIsoString(end);
         data.duration = (end.getTime() - start.getTime()) / (1000 * 60); // minutes
-        if (data.duration < 0) {
-           alert("Dude!");
+        if (data.duration <= 0) {
+           alert("<?php L('ev_err_end') ?>");
            return;
         }
-        data.isallday = $("#em_allday").prop('checked');
+        data.isallday = allday;
         data.isrecurring = false;
         data.rrule = '';
 
-        console.log('data: ');
-        console.dir(data);
+        //console.log('data: ');
+        //console.dir(data);
 
         $.ajax({
             type: method,
             url: "events.php",
             data: data,
         }).then(function(value) {
-            //g_calendar.refetchEvents();
-            console.log('result: ');
-            console.dir(value);
+            g_calendar.refetchEvents();
+            //console.log('result: ');
+            //console.dir(value);
             $('#events_modal').modal('hide');
         });
     });
@@ -2342,15 +2321,11 @@ function event_modal_setup() {
             return;
         }
         let eventid = $("#em_eventid").val();
-        console.log('em_delete clicked eventid ' + eventid);
-        // confirm here?
         $.ajax({
             type: "DELETE",
             url: "events.php",
             data: { eventid: eventid },
         }).then(function(value) {
-            //g_calendar.getEventById(eventid).remove();
-            // refetch is much easier
             g_calendar.refetchEvents();
             $('#events_modal').modal('hide');
         });
@@ -2360,11 +2335,9 @@ function event_modal_setup() {
         if ($(this).prop("checked")) {
             $("#em_start_time").hide();
             $("#em_end_time").hide();
-            console.log('em_allday checked');
         } else {
             $("#em_start_time").show();
             $("#em_end_time").show();
-            console.log('em_allday unchecked');
         }
     });
 }
@@ -2382,44 +2355,27 @@ function calendar() {
         headerToolbar: {
             start: 'myDate prevYear prev today next nextYear',
             center: 'title',
-//            end: 'dayGridMonth dayGridWeek dayGridDay',
-            end: 'dayGridMonth timeGridWeek timeGridDay',
+            end: 'dayGridMonth timeGridWeek timeGridDay listMonth',
         },
-        eventSources: [
-            {
-                url: 'events.php',
-            },
-        ],
-        eventDataTransform: function(eventData) { // Fire for each event loaded from eventSources
-            return db2eventObject(eventData);
-        },
-/*
-        datesSet: function(dateInfo) { // Fire when view is changed e.g. by clicking one of the buttons
-            console.log('datesSet');
-            console.dir(dateInfo);
-        },
-*/
-        dateClick: function(info) { // Fire when click on an empty part of date field
-            event_add(calendar, info);
-        },
-        eventClick: function(info) { // Fire when click on an event
-            event_edit(calendar, info);
-        },
+        events: 'events.php',
+        eventDataTransform: db2eventObject, // Called for each event loaded from eventSources
+        dateClick: event_modal_show,        // Called when click on an empty part of date field
+        eventClick: event_modal_show,       // Called when click on an existing event
         customButtons: {
             myDate: {
                 text: "<?php L('select') ?>",
                 click: function(mouseEvent, htmlElement) {
                     $("#calendar_datepicker").datepicker({
                         onSelect: function(date, datePicker) {
-                            calendar.gotoDate(date);
+                            g_calendar.gotoDate(date);
                         }
                     })
-                    .datepicker("setDate", calendar.getDate())
+                    .datepicker("setDate", g_calendar.getDate())
                     .datepicker("show");
                 }
             }
         }
-        /*
+/*
         selectable: true,
         select: function(selectionInfo) {
             console.log('select');
@@ -2429,10 +2385,19 @@ function calendar() {
             console.log('unselect');
             console.dir(jsEvent);
             console.dir(view);
-        },*/
+        },
+*/
     });
 
     g_calendar.render();
+}
+
+function calendarTabEnter() {
+    // Fullcalendar does not render correctly if created in a hidden tab.
+    // Render again when tab has been shown
+    if (g_calendar) {
+        g_calendar.render();
+    }
 }
 
 //------------------------------------------------------------------------------

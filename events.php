@@ -22,15 +22,36 @@ try {
             break;
 
         case "POST":
-            error_log("./events.php POST: " . print_r($_POST, 1));
-            $result["error"] = "Not implemented";
+            //error_log("./events.php POST: " . print_r($_POST, 1));
+            $result = $events->insertEvent(array(
+                "type"        => $_POST["type"],
+                "title"       => $_POST["title"],
+                "note"        => $_POST["note"],
+                "start"       => localtime2UTC($_POST["start"]),
+                "end"         => localtime2UTC($_POST["end"]),
+                "duration"    => $_POST["duration"],
+                "isallday"    => ($_POST["isallday"] == "true") ? true : false,
+                "isrecurring" => ($_POST["isrecurring"] == "true") ? true : false,
+                "rrule"       => $_POST["rrule"]
+            ));
             break;
 
         case "PUT":
             parse_str(file_get_contents("php://input"), $_PUT);
-            error_log("./events.php PUT: " . print_r($_PUT, 1));
 
-            $result["error"] = "Not implemented";
+            //error_log("./events.php PUT: " . print_r($_PUT, 1));
+            $result = $events->updateEvent(array(
+                "eventid"     => $_PUT["eventid"],
+                "type"        => $_PUT["type"],
+                "title"       => $_PUT["title"],
+                "note"        => $_PUT["note"],
+                "start"       => localtime2UTC($_PUT["start"]),
+                "end"         => localtime2UTC($_PUT["end"]),
+                "duration"    => $_PUT["duration"],
+                "isallday"    => ($_PUT["isallday"] == "true") ? true : false,
+                "isrecurring" => ($_PUT["isrecurring"] == "true") ? true : false,
+                "rrule"       => $_PUT["rrule"]
+            ));
             break;
 
         case "DELETE":

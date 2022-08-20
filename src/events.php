@@ -91,7 +91,26 @@ class Events {
         return $result;
     }
 
+    public function insertEvent($data) {
+        //error_log("./src/events.php insertEvent: " . print_r($data, 1));
+        $sql = "INSERT INTO Events (Type, Title, Note, Start, End, Duration, IsAllDay, IsRecurring, RRule) ".
+               "VALUES (:type, :title, :note, :start, :end, :duration, :isallday, :isrecurring, :rrule)";
+        $q = $this->db->prepare($sql);
+        $q->bindValue(":type",        $data["type"],        PDO::PARAM_INT);
+        $q->bindValue(":title",       $data["title"]);
+        $q->bindValue(":note",        $data["note"]);
+        $q->bindValue(":start",       $data["start"]);
+        $q->bindValue(":end",         $data["end"]);
+        $q->bindValue(":duration",    $data["duration"],    PDO::PARAM_INT);
+        $q->bindValue(":isallday",    $data["isallday"],    PDO::PARAM_BOOL);
+        $q->bindValue(":isrecurring", $data["isrecurring"], PDO::PARAM_BOOL);
+        $q->bindValue(":rrule",       $data["rrule"]);
+        $q->execute();
+        return $this->getById($this->db->lastInsertId());
+    }
+
     public function updateEvent($data) {
+        //error_log("./src/events.php updateEvent: " . print_r($data, 1));
         $sql = "UPDATE Events SET Type = :type, Title = :title, Note = :note, Start = :start, End = :end, ".
                "Duration = :duration, IsAllDay = :isallday, IsRecurring = :isrecurring, RRule = :rrule ".
                "WHERE EventId = :eventid";
