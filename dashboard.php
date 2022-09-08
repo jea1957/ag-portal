@@ -118,10 +118,12 @@ require_once __DIR__ . '/check_timeout.php';
         <a href="#mails_pane" class="nav-link" data-toggle="tab" id="mails_tab"><?php L('msg_mails') ?></a>
     </li>
   <?php } ?>
-  <?php if ($_SESSION['role_admin']) { ?>
+  <?php if ($_SESSION['role_calendar']) { ?>
     <li class="nav-item">
         <a href="#calendar_pane" class="nav-link" data-toggle="tab" id="calendar_tab"><?php L('ev_calendar') ?></a>
     </li>
+  <?php } ?>
+  <?php if ($_SESSION['role_admin']) { ?>
     <li class="nav-item">
         <a href="#accounts_pane" class="nav-link" data-toggle="tab" id="accounts_tab"><?php L('accounts') ?></a>
     </li>
@@ -371,7 +373,7 @@ require_once __DIR__ . '/check_timeout.php';
         </div>
     </div>
   <?php } ?>
-  <?php if ($_SESSION['role_admin']) { ?>
+  <?php if ($_SESSION['role_calendar']) { ?>
     <div class="tab-pane fade" id="calendar_pane">
         <div class="container-fluid">
             <div class="row">
@@ -382,6 +384,8 @@ require_once __DIR__ . '/check_timeout.php';
             </div>
         </div>
     </div>
+  <?php } ?>
+  <?php if ($_SESSION['role_admin']) { ?>
     <div class="tab-pane fade" id="accounts_pane">
         <div class="container-fluid">
             <div class="row">
@@ -559,10 +563,11 @@ require_once __DIR__ . '/check_timeout.php';
 
 'use strict';
 
-const account_id  = <?php echo json_encode($_SESSION['account_id']); ?>;
-const role_admin  = <?php echo json_encode($_SESSION['role_admin']); ?>;
-const role_update = <?php echo json_encode($_SESSION['role_update']); ?>;
-const role_mail   = <?php echo json_encode($_SESSION['role_mail']); ?>;
+const account_id    = <?php echo json_encode($_SESSION['account_id']); ?>;
+const role_admin    = <?php echo json_encode($_SESSION['role_admin']); ?>;
+const role_update   = <?php echo json_encode($_SESSION['role_update']); ?>;
+const role_mail     = <?php echo json_encode($_SESSION['role_mail']); ?>;
+const role_calendar = <?php echo json_encode($_SESSION['role_calendar']); ?>;
 
 // currentDraft contains mailid of current draft
 var currentDraft;
@@ -2671,7 +2676,7 @@ $(function() {
             mailsTab();
         }
 
-        if (role_admin) {
+        if (role_calendar) {
             calendar();
         }
     });
