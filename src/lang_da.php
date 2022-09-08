@@ -173,6 +173,7 @@ $lang_array = [
     "ev_delete"       => "Slet",
     "ev_del_conf"     => "Vil du slette denne aftale?",
     "ev_err_end"      => "Slut skal være senere end start!",
+    "ev_err_title"    => "Ingen titel!",
     "ev_submit"       => "Gem",
 
     "test"  => "Test",

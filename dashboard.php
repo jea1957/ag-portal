@@ -492,16 +492,9 @@ require_once __DIR__ . '/check_timeout.php';
 </div>
 
 <div class="modal fade" id="events_modal" tabindex="-1">
-<!--
-  <div class="modal-dialog modal-xl">
-  <div class="modal-dialog modal-sm">
--->
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-<!--
-        <h5 class="modal-title id="em_form_title"><?php L('ev_event') ?></h5>
--->
         <div class="form-group">
           <select class="form-control" id="em_type" name="em_type">
             <option value="1"><?php L('ev_type_event') ?></option>
@@ -541,6 +534,14 @@ require_once __DIR__ . '/check_timeout.php';
             <label for="em_end_time">&nbsp;</label>
             <input type="time" class="form-control" id="em_end_time" name="em_end_time">
            </div>
+          </div>
+          <div class="form-check">
+           <input class="form-check-input" type="checkbox" id="em_isrecurring" name="em_isrecurring">
+           <label class="form-check-label" for="em_isrecurring">Recurring</label>
+          </div>
+          <div class="form-group">
+           <label for="em_rrule">RRULE:</label>
+           <input type="text" class="form-control" id="em_rrule" name="em_rrule">
           </div>
           <div class="text-right">
            <button type="button" class="btn btn-secondary" id="em_delete" name="em_delete"><?php L('ev_delete') ?></button>
@@ -2171,6 +2172,11 @@ function accountsGrid() {
 //------------------------------------------------------------------------------
 var g_calendar; // NOTE: global!
 
+// Add a zero if needed
+function pad(n) {
+    return n<10 ? '0'+n : n;
+}
+
 // Convert MySQL date in UTC to FullCalendar date in UTC. Example:
 // date:   2022-08-02 22:00:00
 // return: 2022-08-02T22:00:00Z
@@ -2180,6 +2186,7 @@ function dbdate2fcdate(date) {
 
 // Convert event data received from database into an object parsable by FullCalendar
 function db2eventObject(data) {
+    const isrecurring = !!data.isrecurring;
     let eventObj = {};
     eventObj.id     = data.eventid;
     eventObj.title  = data.title;
@@ -2190,14 +2197,27 @@ function db2eventObject(data) {
     eventObj.extendedProps = {};
     eventObj.extendedProps.note = data.note;
     eventObj.extendedProps.type = data.type;
-    //console.log(typeof data.type);
+    eventObj.extendedProps.duration = data.duration;
+    eventObj.extendedProps.isrecurring = isrecurring;
+    eventObj.extendedProps.rrule = data.rrule;
+    eventObj.extendedProps.modified = data.modified;
     if (data.type === 1) { // General
         eventObj.backgroundColor = 'LightSalmon';
     } else { // CommonRoom
         eventObj.backgroundColor = 'LightSeaGreen';
     }
-    //console.dir(data);
-    //console.dir(eventObj);
+    //console.table(data);
+    //console.table(eventObj);
+    if (isrecurring && (data.rrule.length > 0)) {
+        try {
+            let rr = rrule.rrulestr(data.rrule);
+            console.dir(rr);
+            console.log(rr.toString());
+            console.log(rr.toText());
+        } catch (error) {
+            console.log("RRULE " + data.rrule + "\n" + error);
+        }
+    }
     return eventObj;
 }
 
@@ -2220,17 +2240,29 @@ function event_modal_show(info) {
         } else {
             $("#em_allday").prop('checked', false).triggerHandler('change');
         }
+        $("#em_isrecurring").prop('checked', ev.extendedProps.isrecurring);
+        $("#em_rrule").val(ev.extendedProps.rrule);
         $("#em_delete").show();
     } else { // Add new event
         $("#em_eventid").val('');
         $("#em_type").val('2'); // CommonRoom
         $("#em_title").val('');
         $("#em_note").val('');
-        $("#em_start_date").datepicker().datepicker("setDate", info.dateStr);
-        $("#em_start_time").val('00:00');
-        $("#em_end_date").datepicker().datepicker("setDate", info.dateStr);
-        $("#em_end_time").val('00:00');
-        $("#em_allday").prop('checked', false).triggerHandler('change');
+        let startDate = new Date(info.dateStr);
+        let endDate = new Date(info.dateStr);
+        if (info.allDay) {
+            endDate.setTime(endDate.getTime() + (24 * 60 * 60 * 1000)); // Add one day
+            $("#em_allday").prop('checked', true).triggerHandler('change');
+        } else {
+            endDate.setTime(endDate.getTime() + (60 * 60 * 1000)); // Add one hour
+            $("#em_allday").prop('checked', false).triggerHandler('change');
+        }
+        $("#em_start_date").datepicker().datepicker("setDate", startDate);
+        $("#em_start_time").val(pad(startDate.getHours()) + ':' + pad(startDate.getMinutes()));
+        $("#em_end_date").datepicker().datepicker("setDate", endDate);
+        $("#em_end_time").val(pad(endDate.getHours()) + ':' + pad(endDate.getMinutes()));
+        $("#em_isrecurring").prop('checked', false);
+        $("#em_rrule").val('');
         $("#em_delete").hide();
     }
 
@@ -2289,6 +2321,10 @@ function event_modal_setup() {
         data.eventid = eventid;
         data.type = $("#em_type").val();
         data.title = $("#em_title").val();
+        if (!data.title.length) {
+           alert("<?php L('ev_err_title') ?>");
+           return;
+        }
         data.note = $("#em_note").val();
         data.start = toIsoString(start);
         data.end = toIsoString(end);
@@ -2298,8 +2334,8 @@ function event_modal_setup() {
            return;
         }
         data.isallday = allday;
-        data.isrecurring = false;
-        data.rrule = '';
+        data.isrecurring = $("#em_isrecurring").prop('checked');
+        data.rrule = $("#em_rrule").val();
 
         //console.log('data: ');
         //console.dir(data);
@@ -2347,7 +2383,7 @@ function calendar() {
 
     let calendarEl = document.getElementById('calendar');
     g_calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
+        initialView: 'timeGridWeek',
         locale: 'da',
         firstDay: 1,
         weekNumbers: true,
@@ -2358,7 +2394,7 @@ function calendar() {
             end: 'dayGridMonth timeGridWeek timeGridDay listMonth',
         },
         events: 'events.php',
-        eventDataTransform: db2eventObject, // Called for each event loaded from eventSources
+        eventDataTransform: db2eventObject, // Called for each event returned by events.php
         dateClick: event_modal_show,        // Called when click on an empty part of date field
         eventClick: event_modal_show,       // Called when click on an existing event
         customButtons: {
