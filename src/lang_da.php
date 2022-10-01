@@ -75,6 +75,7 @@ $lang_array = [
     "pa_charger"  => "Privat oplader",
     "pa_power"    => "El forsyning",
     "pa_ccharger" => "AG oplader",
+    "pa_overview" => "Parkeringsoversigt",
 
     "depot"       => "Depot",
     "depots"      => "Depoter",

@@ -221,6 +221,7 @@ require_once __DIR__ . '/check_timeout.php';
                             <input type="checkbox" class="form-check-input parkings_chk" id="parkings_historical"><?php L('rel_hist') ?>
                           </label>
                         </div>
+                        <div class="form-check-inline"><a href="files/parkings.pdf"><?php L('pa_overview') ?></a></div>
                     </div>
                     <div class="flex-grid" id="parkings_grid"></div>
                 </div>
