@@ -66,37 +66,31 @@ if (isset($_POST['submit'])) { // Handle submit from this page
                             $_SESSION['role_admin']    = true;
                             $_SESSION['role_update']   = true;
                             $_SESSION['role_mail']     = true;
-                            $_SESSION['role_calendar'] = true;
                             break;
                         case 2: // Board
                             $_SESSION['role_admin']    = false;
                             $_SESSION['role_update']   = true;
                             $_SESSION['role_mail']     = true;
-                            $_SESSION['role_calendar'] = false;
                             break;
                         case 3: // Caretaker
                             $_SESSION['role_admin']    = false;
                             $_SESSION['role_update']   = false;
                             $_SESSION['role_mail']     = false;
-                            $_SESSION['role_calendar'] = false;
                             break;
                         case 4: // Administration
                             $_SESSION['role_admin']    = false;
                             $_SESSION['role_update']   = false;
                             $_SESSION['role_mail']     = false;
-                            $_SESSION['role_calendar'] = false;
                             break;
                         case 5: // Tester
                             $_SESSION['role_admin']    = false;
                             $_SESSION['role_update']   = false;
                             $_SESSION['role_mail']     = false;
-                            $_SESSION['role_calendar'] = false;
                             break;
                         default:
                             $_SESSION['role_admin']    = false;
                             $_SESSION['role_update']   = false;
                             $_SESSION['role_mail']     = false;
-                            $_SESSION['role_calendar'] = false;
                             break;
                     }
                     error_log("Login: $email");

@@ -35,10 +35,6 @@ require_once __DIR__ . '/check_timeout.php';
         integrity="sha512-3Epqkjaaaxqq/lt5RLJsTzP6cCIFyipVRcY4BcPfjOiGM1ZyFCv4HHeWS7eCPVaAigY3Ha3rhRgOsWaWIClqQQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.css"
-        integrity="sha256-5veQuRbWaECuYxwap/IOE/DAwNxgm4ikX7nrgsqYp88="
-        crossorigin="anonymous">
-
   <link rel="stylesheet" href="css/portal.css"/>
 
   <script src="js/tinymce/tinymce.min.js"></script>
@@ -58,22 +54,6 @@ require_once __DIR__ . '/check_timeout.php';
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.js"
           integrity="sha512-blBYtuTn9yEyWYuKLh8Faml5tT/5YPG0ir9XEABu5YCj7VGr2nb21WPFT9pnP4fcC3y0sSxJR1JqFTfTALGuPQ=="
           crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-  <script src="https://cdn.jsdelivr.net/npm/rrule@2.7.1/dist/es5/rrule.min.js"
-          integrity="sha256-o5+Cw5ZAtQGAkTyqrMb7hi6SsQ/RobtFANe/NVKV3pM="
-          crossorigin="anonymous"></script>
-
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.js"
-          integrity="sha256-sR+oJaZ3c0FHR6+kKaX1zeXReUGbzuNI8QTKpGHE0sg="
-          crossorigin="anonymous"></script>
-
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/locales/da.js"
-          integrity="sha256-aT31fc25PtX42LR/qNcImyud2Zu95L5Ejq57otOBuEw="
-          crossorigin="anonymous"></script>
-
-  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/rrule@5.11.2/main.global.min.js"
-          integrity="sha256-qdHYsdRwhz2CfE179Anx2MwD+qB41iBhtflql+hfiqo="
-          crossorigin="anonymous"></script>
 
   <script src="js/jsgrid-da.js"></script>
 </head>
@@ -116,11 +96,6 @@ require_once __DIR__ . '/check_timeout.php';
     </li>
     <li class="nav-item">
         <a href="#mails_pane" class="nav-link" data-toggle="tab" id="mails_tab"><?php L('msg_mails') ?></a>
-    </li>
-  <?php } ?>
-  <?php if ($_SESSION['role_calendar']) { ?>
-    <li class="nav-item">
-        <a href="#calendar_pane" class="nav-link" data-toggle="tab" id="calendar_tab"><?php L('ev_calendar') ?></a>
     </li>
   <?php } ?>
   <?php if ($_SESSION['role_admin']) { ?>
@@ -374,18 +349,6 @@ require_once __DIR__ . '/check_timeout.php';
         </div>
     </div>
   <?php } ?>
-  <?php if ($_SESSION['role_calendar']) { ?>
-    <div class="tab-pane fade" id="calendar_pane">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-12">
-                    <input type="hidden" id="calendar_datepicker">
-                    <div id="calendar"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-  <?php } ?>
   <?php if ($_SESSION['role_admin']) { ?>
     <div class="tab-pane fade" id="accounts_pane">
         <div class="container-fluid">
@@ -568,7 +531,6 @@ const account_id    = <?php echo json_encode($_SESSION['account_id']); ?>;
 const role_admin    = <?php echo json_encode($_SESSION['role_admin']); ?>;
 const role_update   = <?php echo json_encode($_SESSION['role_update']); ?>;
 const role_mail     = <?php echo json_encode($_SESSION['role_mail']); ?>;
-const role_calendar = <?php echo json_encode($_SESSION['role_calendar']); ?>;
 
 // currentDraft contains mailid of current draft
 var currentDraft;
@@ -2174,275 +2136,6 @@ function accountsGrid() {
 }
 
 //------------------------------------------------------------------------------
-// Calendar
-//------------------------------------------------------------------------------
-var g_calendar; // NOTE: global!
-
-// Add a zero if needed
-function pad(n) {
-    return n<10 ? '0'+n : n;
-}
-
-// Convert MySQL date in UTC to FullCalendar date in UTC. Example:
-// date:   2022-08-02 22:00:00
-// return: 2022-08-02T22:00:00Z
-function dbdate2fcdate(date) {
-   return date.substring(0, 10) + 'T' + date.substring(11) + 'Z';
-}
-
-// Convert event data received from database into an object parsable by FullCalendar
-function db2eventObject(data) {
-    const isrecurring = !!data.isrecurring;
-    let eventObj = {};
-    eventObj.id     = data.eventid;
-    eventObj.title  = data.title;
-    eventObj.start  = dbdate2fcdate(data.start);
-    eventObj.end    = dbdate2fcdate(data.end);
-    eventObj.allDay = !!data.isallday;
-
-    eventObj.extendedProps = {};
-    eventObj.extendedProps.note = data.note;
-    eventObj.extendedProps.type = data.type;
-    eventObj.extendedProps.duration = data.duration;
-    eventObj.extendedProps.isrecurring = isrecurring;
-    eventObj.extendedProps.rrule = data.rrule;
-    eventObj.extendedProps.modified = data.modified;
-    if (data.type === 1) { // General
-        eventObj.backgroundColor = 'LightSalmon';
-    } else { // CommonRoom
-        eventObj.backgroundColor = 'LightSeaGreen';
-    }
-    //console.table(data);
-    //console.table(eventObj);
-    if (isrecurring && (data.rrule.length > 0)) {
-        try {
-            let rr = rrule.rrulestr(data.rrule);
-            console.dir(rr);
-            console.log(rr.toString());
-            console.log(rr.toText());
-        } catch (error) {
-            console.log("RRULE " + data.rrule + "\n" + error);
-        }
-    }
-    return eventObj;
-}
-
-function event_modal_show(info) {
-    let ev = info.event;
-    //console.log('event()');
-    //console.dir(info);
-    if (ev) { // Edit existing event
-        //console.dir(ev);
-        $("#em_eventid").val(ev.id);
-        $("#em_type").val(ev.extendedProps.type);
-        $("#em_title").val(ev.title);
-        $("#em_note").val(ev.extendedProps.note);
-        $("#em_start_date").datepicker().datepicker("setDate", ev.startStr.substring(0,10));
-        $("#em_start_time").val(ev.startStr.substring(11,16));
-        $("#em_end_date").datepicker().datepicker("setDate", ev.endStr.substring(0,10));
-        $("#em_end_time").val(ev.endStr.substring(11,16));
-        if (ev.allDay) {
-            $("#em_allday").prop('checked', true).triggerHandler('change');
-        } else {
-            $("#em_allday").prop('checked', false).triggerHandler('change');
-        }
-        $("#em_isrecurring").prop('checked', ev.extendedProps.isrecurring);
-        $("#em_rrule").val(ev.extendedProps.rrule);
-        $("#em_delete").show();
-    } else { // Add new event
-        $("#em_eventid").val('');
-        $("#em_type").val('2'); // CommonRoom
-        $("#em_title").val('');
-        $("#em_note").val('');
-        let startDate = new Date(info.dateStr);
-        let endDate = new Date(info.dateStr);
-        if (info.allDay) {
-            endDate.setTime(endDate.getTime() + (24 * 60 * 60 * 1000)); // Add one day
-            $("#em_allday").prop('checked', true).triggerHandler('change');
-        } else {
-            endDate.setTime(endDate.getTime() + (60 * 60 * 1000)); // Add one hour
-            $("#em_allday").prop('checked', false).triggerHandler('change');
-        }
-        $("#em_start_date").datepicker().datepicker("setDate", startDate);
-        $("#em_start_time").val(pad(startDate.getHours()) + ':' + pad(startDate.getMinutes()));
-        $("#em_end_date").datepicker().datepicker("setDate", endDate);
-        $("#em_end_time").val(pad(endDate.getHours()) + ':' + pad(endDate.getMinutes()));
-        $("#em_isrecurring").prop('checked', false);
-        $("#em_rrule").val('');
-        $("#em_delete").hide();
-    }
-
-    $('#events_modal').modal('show');
-}
-
-// Add time (string "hh:mm") to Date object
-function addTime(date, time) {
-    let newDate = new Date(date.getTime());
-    if (time) {
-        let hh = parseInt(time.substring(0, 2));
-        let mm = parseInt(time.substring(3, 5));
-        newDate.setTime(newDate.getTime() + (hh * 60 * 60 * 1000) + (mm * 60 * 1000));
-    }
-    return newDate;
-}
-
-// Convert a Date object representing a local time to ISO 8601 format string with timezone:
-// 2022-07-11T00:00:00+02:00
-// This date is later converted into UTC with localtime2UTC() in src/utils.php
-function toIsoString(date) {
-  var tzo = -date.getTimezoneOffset(),
-      dif = tzo >= 0 ? '+' : '-',
-      pad = function(num) {
-          return (num < 10 ? '0' : '') + num;
-      };
-
-  return date.getFullYear() +
-      '-' + pad(date.getMonth() + 1) +
-      '-' + pad(date.getDate()) +
-      'T' + pad(date.getHours()) +
-      ':' + pad(date.getMinutes()) +
-      ':' + pad(date.getSeconds()) +
-      dif + pad(Math.floor(Math.abs(tzo) / 60)) +
-      ':' + pad(Math.abs(tzo) % 60);
-}
-
-function event_modal_setup() {
-    $("#em_start_date").datepicker();
-    $("#em_end_date").datepicker();
-
-    $("#em_form").on("submit", function (e) {
-        e.preventDefault();
-        const eventid = $("#em_eventid").val();
-        const method = eventid.length ? "PUT" : "POST";
-        const allday = $("#em_allday").prop('checked');
-        let start, end;
-        if (allday) {
-            start = $("#em_start_date").datepicker().datepicker("getDate");
-            end = $("#em_end_date").datepicker().datepicker("getDate");
-        } else {
-            start = addTime($("#em_start_date").datepicker().datepicker("getDate"), $("#em_start_time").val());
-            end = addTime($("#em_end_date").datepicker().datepicker("getDate"), $("#em_end_time").val());
-        }
-        let data = {};
-        data.eventid = eventid;
-        data.type = $("#em_type").val();
-        data.title = $("#em_title").val();
-        if (!data.title.length) {
-           alert("<?php L('ev_err_title') ?>");
-           return;
-        }
-        data.note = $("#em_note").val();
-        data.start = toIsoString(start);
-        data.end = toIsoString(end);
-        data.duration = (end.getTime() - start.getTime()) / (1000 * 60); // minutes
-        if (data.duration <= 0) {
-           alert("<?php L('ev_err_end') ?>");
-           return;
-        }
-        data.isallday = allday;
-        data.isrecurring = $("#em_isrecurring").prop('checked');
-        data.rrule = $("#em_rrule").val();
-
-        //console.log('data: ');
-        //console.dir(data);
-
-        $.ajax({
-            type: method,
-            url: "events.php",
-            data: data,
-        }).then(function(value) {
-            g_calendar.refetchEvents();
-            //console.log('result: ');
-            //console.dir(value);
-            $('#events_modal').modal('hide');
-        });
-    });
-
-    $("#em_delete").on("click", function (e) {
-        if (!confirm("<?php L('ev_del_conf') ?>")) {
-            return;
-        }
-        let eventid = $("#em_eventid").val();
-        $.ajax({
-            type: "DELETE",
-            url: "events.php",
-            data: { eventid: eventid },
-        }).then(function(value) {
-            g_calendar.refetchEvents();
-            $('#events_modal').modal('hide');
-        });
-    });
-
-    $("#em_allday").change(function (e) {
-        if ($(this).prop("checked")) {
-            $("#em_start_time").hide();
-            $("#em_end_time").hide();
-        } else {
-            $("#em_start_time").show();
-            $("#em_end_time").show();
-        }
-    });
-}
-
-function calendar() {
-    event_modal_setup();
-
-    let calendarEl = document.getElementById('calendar');
-    g_calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'timeGridWeek',
-        locale: 'da',
-        firstDay: 1,
-        weekNumbers: true,
-        navLinks: true,
-        headerToolbar: {
-            start: 'myDate prevYear prev today next nextYear',
-            center: 'title',
-            end: 'dayGridMonth timeGridWeek timeGridDay listMonth',
-        },
-        events: 'events.php',
-        eventDataTransform: db2eventObject, // Called for each event returned by events.php
-        dateClick: event_modal_show,        // Called when click on an empty part of date field
-        eventClick: event_modal_show,       // Called when click on an existing event
-        customButtons: {
-            myDate: {
-                text: "<?php L('select') ?>",
-                click: function(mouseEvent, htmlElement) {
-                    $("#calendar_datepicker").datepicker({
-                        onSelect: function(date, datePicker) {
-                            g_calendar.gotoDate(date);
-                        }
-                    })
-                    .datepicker("setDate", g_calendar.getDate())
-                    .datepicker("show");
-                }
-            }
-        }
-/*
-        selectable: true,
-        select: function(selectionInfo) {
-            console.log('select');
-            console.dir(selectionInfo);
-        },
-        unselect: function(jsEvent, view) {
-            console.log('unselect');
-            console.dir(jsEvent);
-            console.dir(view);
-        },
-*/
-    });
-
-    g_calendar.render();
-}
-
-function calendarTabEnter() {
-    // Fullcalendar does not render correctly if created in a hidden tab.
-    // Render again when tab has been shown
-    if (g_calendar) {
-        g_calendar.render();
-    }
-}
-
-//------------------------------------------------------------------------------
 // Wait for document ready
 //------------------------------------------------------------------------------
 $(function() {
@@ -2494,9 +2187,6 @@ $(function() {
 
         // Tab actions
         switch (curTabId) {
-            case 'calendar_tab':
-                calendarTabEnter();
-                break;
             default:
                 break;
         }
@@ -2675,10 +2365,6 @@ $(function() {
             });
 
             mailsTab();
-        }
-
-        if (role_calendar) {
-            calendar();
         }
     });
 
