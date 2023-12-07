@@ -12,6 +12,7 @@ class Relation {
 class Relations {
 
     protected $db;
+    protected $table;
 
     public function __construct(PDO $db, string $table) {
         $this->db = $db;
