@@ -459,69 +459,6 @@ require_once __DIR__ . '/check_timeout.php';
   </div>
 </div>
 
-<div class="modal fade" id="events_modal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <div class="form-group">
-          <select class="form-control" id="em_type" name="em_type">
-            <option value="1"><?php L('ev_type_event') ?></option>
-            <option value="2"><?php L('ev_type_booking') ?></option>
-          </select>
-        </div>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-      </div>
-      <div class="modal-body">
-       <form id="em_form" action="">
-          <div class="form-group">
-            <label for="em_title"><?php L('ev_title') ?>:</label>
-            <input type="text" class="form-control" id="em_title" name="em_title">
-          </div>
-          <div class="form-group">
-            <label for="em_note"><?php L('ev_note') ?>:</label>
-            <textarea class="form-control fixed-ta" id="em_note" name="em_note"></textarea>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="em_allday" name="em_allday">
-            <label class="form-check-label" for="em_allday"><?php L('ev_allday') ?></label>
-          </div>
-          <div class="form-row">
-           <div class="form-group col-md-3">
-            <label for="em_start_date"><?php L('ev_start') ?>:</label>
-            <input type="text" class="form-control" id="em_start_date" name="em_start_date">
-           </div>
-           <div class="form-group col-md-3">
-            <label for="em_start_time">&nbsp;</label>
-            <input type="time" class="form-control" id="em_start_time" name="em_start_time">
-           </div>
-           <div class="form-group col-md-3">
-            <label for="em_end_date"><?php L('ev_end') ?>:</label>
-            <input type="text" class="form-control" id="em_end_date" name="em_end_date">
-           </div>
-           <div class="form-group col-md-3">
-            <label for="em_end_time">&nbsp;</label>
-            <input type="time" class="form-control" id="em_end_time" name="em_end_time">
-           </div>
-          </div>
-          <div class="form-check">
-           <input class="form-check-input" type="checkbox" id="em_isrecurring" name="em_isrecurring">
-           <label class="form-check-label" for="em_isrecurring">Recurring</label>
-          </div>
-          <div class="form-group">
-           <label for="em_rrule">RRULE:</label>
-           <input type="text" class="form-control" id="em_rrule" name="em_rrule">
-          </div>
-          <div class="text-right">
-           <button type="button" class="btn btn-secondary" id="em_delete" name="em_delete"><?php L('ev_delete') ?></button>
-           <button type="submit" class="btn btn-primary" id="em_submit" name="em_submit"><?php L('ev_submit') ?></button>
-          </div>
-          <input type="hidden" id="em_eventid" name="em_eventid">
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- JavaScript content -->
 <script>
 
