@@ -103,6 +103,9 @@ require_once __DIR__ . '/check_timeout.php';
         <a href="#accounts_pane" class="nav-link" data-toggle="tab" id="accounts_tab"><?php L('accounts') ?></a>
     </li>
     <li class="nav-item">
+        <a href="#settings_pane" class="nav-link" data-toggle="tab" id="settings_tab"><?php L('settings') ?></a>
+    </li>
+    <li class="nav-item">
         <a href="#test_pane" class="nav-link" data-toggle="tab" id="test_tab"><?php L('test') ?></a>
     </li>
   <?php } ?>
@@ -355,6 +358,15 @@ require_once __DIR__ . '/check_timeout.php';
             <div class="row">
                 <div class="col-lg-12">
                     <div class="flex-grid" id="accounts_grid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="settings_pane">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="flex-grid" id="settings_grid"></div>
                 </div>
             </div>
         </div>
@@ -2073,6 +2085,42 @@ function accountsGrid() {
 }
 
 //------------------------------------------------------------------------------
+// Settings
+//------------------------------------------------------------------------------
+function settingsGrid() {
+    $("#settings_grid").jsGrid({
+        width: "100%",
+        height: "100%",
+        editing: role_admin,
+        autoload: true,
+        controller: {
+            loadData: function(filter) {
+                return $.ajax({
+                    type: "GET",
+                    url: "settings.php",
+                    data: filter
+                });
+            },
+            updateItem: function(item) {
+                return $.ajax({
+                    type: "PUT",
+                    url: "settings.php",
+                    data: item
+                });
+            },
+        },
+        onError: function(args) {
+            alert(args.args[0].responseJSON);
+        },
+        fields: [
+            { width:  50, name: "smtp_username", title: "<?php L('smtp_username') ?>", type: "text", validate: "required" },
+            { width:  50, name: "smtp_password", title: "<?php L('smtp_password') ?>", type: "text", validate: "required" },
+            { width:  10, type: "control", deleteButton: false }
+        ]
+    });
+}
+
+//------------------------------------------------------------------------------
 // Wait for document ready
 //------------------------------------------------------------------------------
 $(function() {
@@ -2291,6 +2339,7 @@ $(function() {
 
         if (role_admin) {
             accountsGrid();
+            settingsGrid();
         }
 
         if (role_mail) {

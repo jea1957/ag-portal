@@ -161,6 +161,10 @@ $lang_array = [
     "acc_role_caretaker"     => "Vicevært",
     "acc_role_tester"        => "Tester",
 
+    "settings"        => "Indstillinger",
+    "smtp_username"   => "SMTP Brugernavn",
+    "smtp_password"   => "SMTP Adgangskode",
+
     "test"  => "Test",
 
     "l" => "l"

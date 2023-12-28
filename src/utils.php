@@ -13,6 +13,8 @@ require_once __DIR__ . "/phpmailer/src/Exception.php";
 require_once __DIR__ . "/phpmailer/src/PHPMailer.php";
 require_once __DIR__ . "/phpmailer/src/SMTP.php";
 
+require_once __DIR__ . "/settings.php";
+
 use Html2Text\Html2Text;
 
 require_once __DIR__ . "/Html2Text.php";
@@ -39,7 +41,10 @@ function localtime2UTC($localtime) {
 // $bcc is an optional array of objects containing 'email' and 'name'
 // $att is an optional array of objects containing 'file', 'name' and 'type'
 function send_email($from_email, $from_name, $to_email, $to_name, $subject, $body_html, $bcc = null, $att = null) {
-    global $mail_username, $mail_password;
+    global $pdo;
+    $settings = new Settings($pdo);
+    $setting = $settings->get()[0]; // There is aways only one
+
     $mail = new PHPMailer(true); // Passing `true` enables exceptions
     try {
         $mail->Debugoutput = 'error_log';
@@ -50,8 +55,8 @@ function send_email($from_email, $from_name, $to_email, $to_name, $subject, $bod
         $mail->Port = 587;
         $mail->SMTPSecure = 'tls';
         $mail->SMTPAuth = true;
-        $mail->Username = $mail_username;
-        $mail->Password = $mail_password;
+        $mail->Username = $setting->smtp_username;
+        $mail->Password = $setting->smtp_password;
 
         $mail->CharSet = "UTF-8";
         $mail->setFrom($from_email, $from_name);
